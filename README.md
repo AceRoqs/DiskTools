@@ -4,7 +4,7 @@ from code I wrote in the 1990s,
 \(see [bootsector\_disassemblies](https://github.com/AceRoqs/bootsector_disassemblies)\),
 as illustrated by some of the DOS based tools.  I've tried to bring them up to
 speed, in the sense that the code is somewhat more consistent with other code
-that I have posted on GitHub.
+that I have posted on GitHub \(JSF coding style, C++0x required\).
 
 The files in the DOS folder are buildable with Turbo C++ 3.0. The code is
 reasonably clean and simple, so I would not be surprised if the code built on
@@ -19,10 +19,10 @@ C++0x.
 * _partinfo_ will display the partition table information from the
 [MBR](http://en.wikipedia.org/wiki/Master_boot_record) of the first physical
 disk.
-* _partinfow_ is a GUI program which is a bit more complete thanthe other
+* _partinfow_ is a GUI program which is a bit more complete than the other
 utilities. It will display the complete partition information \(including
 extended partitions\) of the first two physical disks.
-* _shared_ is a shared library of disk reading and other code that is tool
+* _shared_ is a shared library for disk reading and other code that is tool
 agnostic. The pretty printing code is probably useful to others.
 
 All of the tools must be run elevated \(as Administrator\), except for
@@ -35,8 +35,8 @@ _Partinfow_ also has a limit of 32 total partitions, but it might be improved
 if it had a limit per-disk instead of across all disks. It comes to mind that
 if some minor restrictions are lifted, a few functions in the app might be
 suitable to be extracted into the shared library:
-'read_disk_partitions_from_handle()', 'read_disk_partitions()',
-'add_listview_headers()'
+`read_disk_partitions_from_handle()`, `read_disk_partitions()`,
+`add_listview_headers()`
 
 I haven't had a disk with extended partitions for some time, so I can't say
 that the extended partition code survived my refactoring. The code also builds
