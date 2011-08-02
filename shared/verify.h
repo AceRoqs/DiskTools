@@ -20,14 +20,14 @@ limitations under the License.
 //---------------------------------------------------------------------------
 inline void verify(DWORD dw)
 {
-    (dw);   // Prevent unreferenced variable in Release build.
+    (dw);   // Prevent unreferenced parameter in Release build.
     assert(dw != 0);
 }
 
 //---------------------------------------------------------------------------
 inline void verify_hr(HRESULT hr)
 {
-    (hr);   // Prevent unreferenced variable in Release build.
+    (hr);   // Prevent unreferenced parameter in Release build.
     assert(SUCCEEDED(hr));
 }
 
