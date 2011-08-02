@@ -601,11 +601,10 @@ void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int
 //---------------------------------------------------------------------------
 // Declspec SAL is used instead of attribute SAL, as the WinMain declaration
 // in the system headers still uses declspec SAL.
-int WINAPI _tWinMain(
-    __in HINSTANCE instance,
-    __in_opt HINSTANCE,
-    __in PTSTR,
-    __in int)
+int WINAPI _tWinMain(__in HINSTANCE instance,   // Handle to the program instance.
+                     HINSTANCE,                 // hInstPrev - Unused in Win32.
+                     __in PTSTR command_line,   // Command line.
+                     int show_command)          // How the window is to be displayed.
 {
     INITCOMMONCONTROLSEX init_controls;
     init_controls.dwSize = sizeof(init_controls);
