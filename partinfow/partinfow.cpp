@@ -606,6 +606,10 @@ int WINAPI _tWinMain(__in HINSTANCE instance,   // Handle to the program instanc
                      __in PTSTR command_line,   // Command line.
                      int show_command)          // How the window is to be displayed.
 {
+    // Prevent unreferenced parameter.
+    (command_line);
+    (show_command);
+
     INITCOMMONCONTROLSEX init_controls;
     init_controls.dwSize = sizeof(init_controls);
     init_controls.dwICC  = ICC_LISTVIEW_CLASSES;
