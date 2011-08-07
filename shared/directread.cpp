@@ -26,13 +26,13 @@ PCTSTR physical_disk_0 = TEXT("\\\\.\\PHYSICALDRIVE0");
 PCTSTR physical_disk_1 = TEXT("\\\\.\\PHYSICALDRIVE1");
 
 //---------------------------------------------------------------------------
-// Mappings of file system codes to string names.
+// Mappings of file system types to string names.
 // This table is not intended to be localized.
-const struct File_system_code_map
+static const struct File_system_type_map
 {
     PCTSTR name;
-    unsigned char code;
-} file_system_codes[] =
+    unsigned char type;
+} file_system_types[] =
 {
     TEXT("None/Raw"),             0x00,
     TEXT("DOS FAT12"),            0x01,
@@ -58,9 +58,9 @@ const unsigned int file_system_type_extended1 = 0x05;
 const unsigned int file_system_type_extended2 = 0x0F;
 
 //---------------------------------------------------------------------------
-unsigned int file_system_code_count()
+static unsigned int file_system_type_count()
 {
-    return ARRAYSIZE(file_system_codes);
+    return ARRAYSIZE(file_system_types);
 }
 
 //---------------------------------------------------------------------------
@@ -68,22 +68,22 @@ PCTSTR get_file_system_name(uint8_t file_system_type)
 {
     PCTSTR file_system_name = nullptr;
 
-    unsigned int count = file_system_code_count();
+    unsigned int count = file_system_type_count();
 
-    // Find the File_system_code_map that matches the file_system_type.
-    auto file_system_code_map = std::lower_bound(file_system_codes,
-                                                 file_system_codes + count,
+    // Find the File_system_type_map that matches the file_system_type.
+    auto file_system_type_map = std::lower_bound(file_system_types,
+                                                 file_system_types + count,
                                                  file_system_type,
-                                                 [](const File_system_code_map& map, const uint8_t file_system_type)
+                                                 [](const File_system_type_map& map, const uint8_t file_system_type)
     {
-        return map.code < file_system_type;
+        return map.type < file_system_type;
     });
 
-    if(file_system_code_map < file_system_codes + count)
+    if(file_system_type_map < file_system_types + count)
     {
-        if(file_system_code_map->code == file_system_type)
+        if(file_system_type_map->type == file_system_type)
         {
-            file_system_name = file_system_code_map->name;
+            file_system_name = file_system_type_map->name;
         }
     }
 
