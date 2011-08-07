@@ -71,16 +71,20 @@ PCTSTR get_file_system_name(uint8_t file_system_type)
     unsigned int count = file_system_code_count();
 
     // Find the File_system_code_map that matches the file_system_type.
-    auto file_system_code_map = std::find_if(file_system_codes,
-                                             file_system_codes + count,
-                                             [=](const File_system_code_map& file_system_code_map)
+    auto file_system_code_map = std::lower_bound(file_system_codes,
+                                                 file_system_codes + count,
+                                                 file_system_type,
+                                                 [](const File_system_code_map& map, const uint8_t file_system_type)
     {
-        return file_system_code_map.code == file_system_type;
+        return map.code < file_system_type;
     });
 
     if(file_system_code_map < file_system_codes + count)
     {
-        file_system_name = file_system_code_map->name;
+        if(file_system_code_map->code == file_system_type)
+        {
+            file_system_name = file_system_code_map->name;
+        }
     }
 
     return file_system_name;
