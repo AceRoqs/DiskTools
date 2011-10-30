@@ -31,7 +31,7 @@ void output_partition_table_info(
     _In_count_c_(partition_table_entry_count) const Partition_table_entry* entry,
     unsigned int sector_size)
 {
-    for(unsigned int index = 0; index < partition_table_entry_count; index++)
+    for(unsigned int index = 0; index < partition_table_entry_count; ++index)
     {
         uint64_t part_size = static_cast<uint64_t>(entry[index].sectors) * sector_size;
 
