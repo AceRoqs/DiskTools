@@ -233,7 +233,7 @@ HRESULT read_disk_partitions(
 
 //---------------------------------------------------------------------------
 void output_partition_table_info(
-    _In_ std::vector<std::pair<uint8_t, Partition_table_entry>>* partitions,
+    _In_ const std::vector<std::pair<uint8_t, Partition_table_entry>>* partitions,
     _In_ HWND listview,
     _In_ HINSTANCE instance)
 {
@@ -242,7 +242,7 @@ void output_partition_table_info(
     unsigned int row = ListView_GetItemCount(listview);
     LVITEM item;
     ::ZeroMemory(&item, sizeof(item));
-    for(auto partition = partitions->cbegin(); partition != partitions->cend(); ++partition)
+    for(auto partition = std::begin(*partitions); partition != std::end(*partitions); ++partition)
     {
         // Insert a new row into the listview.
         item.iItem = row;
@@ -278,7 +278,7 @@ void output_partition_table_info(
 
         // Add labels to all columns of this row.
         unsigned int column = 0;
-        std::for_each(labels.begin(), labels.end(), [listview, row, &column](PTSTR label)
+        std::for_each(std::begin(labels), std::end(labels), [listview, row, &column](PTSTR label)
         {
             LVITEM row_item;
             row_item.iSubItem = column;
