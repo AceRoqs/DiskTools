@@ -1,18 +1,18 @@
 These are some of the tools that I wrote when I was developing
 [TurboHex](http://www.turbohex.com). Most of these tools were probably derived
 from code I wrote in the 1990s,
-\(see [bootsector\_disassemblies](https://github.com/AceRoqs/bootsector_disassemblies)\),
+\(see [BootSectorDisassemblies](https://github.com/AceRoqs/BootSectorDisassemblies)\),
 as illustrated by some of the DOS based tools.  I've tried to bring them up to
 speed, in the sense that the code is somewhat more consistent with other code
-that I have posted on GitHub \(JSF coding style, C++0x required\).
+that I have posted on GitHub \(JSF coding style, C++1 required\).
 
-The files in the DOS folder are buildable with Turbo C++ 3.0. The code is
+The files in the _DOS_ folder are buildable with Turbo C++ 3.0. The code is
 reasonably clean and simple, so I would not be surprised if the code built on
 something more modern like Digital Mars. However, because they do direct
 sector reads via INT 13h, Windows will refuse to run them.
 
 All other apps are buildable with Visual C++ 2010, and have a dependency on
-C++0x.
+C++11.
 
 * _getsect_ will read a given sector from the first physical disk.
 * _ripiso_ will create an ISO CD image from the first CD drive.
