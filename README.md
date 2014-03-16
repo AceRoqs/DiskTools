@@ -4,7 +4,7 @@ from code I wrote in the 1990s,
 \(see [BootSectorDisassemblies](https://github.com/AceRoqs/BootSectorDisassemblies)\),
 as illustrated by some of the DOS based tools.  I've tried to bring them up to
 speed, in the sense that the code is somewhat more consistent with other code
-that I have posted on GitHub \(JSF coding style, C++1 required\).
+that I have posted on GitHub \(JSF coding style, C++11 required\).
 
 The files in the _DOS_ folder are buildable with Turbo C++ 3.0. The code is
 reasonably clean and simple, so I would not be surprised if the code built on
