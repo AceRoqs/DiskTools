@@ -18,6 +18,7 @@ limitations under the License.
 #include <cassert>
 #include <cstdint>
 #include <array>
+#include <memory>
 #include <tchar.h>
 #include <windows.h>
 #include "directread.h"
