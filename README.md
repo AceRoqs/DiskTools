@@ -8,10 +8,11 @@ that I have posted on GitHub \(JSF coding style, C++11 required\).
 
 The files in the _DOS_ folder are buildable with Turbo C++ 3.0. The code is
 reasonably clean and simple, so I would not be surprised if the code built on
-something more modern like Digital Mars. However, because they do direct
-sector reads via INT 13h, Windows will refuse to run them.
+something more modern like [Digital Mars](http://www.digitalmars.com/features.html).
+However, because they do direct sector reads via INT 13h, Windows will refuse
+to run them.
 
-All other apps are buildable with Visual C++ 2010, and have a dependency on
+All other apps are buildable with Visual C++ 2013, and have a dependency on
 C++11.
 
 * _getsect_ will read a given sector from the first physical disk.
