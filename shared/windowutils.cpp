@@ -43,7 +43,7 @@ unsigned int get_imagelist_width_by_index(
     if(nullptr != image_list)
     {
         IMAGEINFO image_info;
-        verify((::ImageList_GetImageInfo(image_list, image_index, &image_info)) != 0);
+        VERIFY((::ImageList_GetImageInfo(image_list, image_index, &image_info)) != 0);
         image_width = image_info.rcImage.right - image_info.rcImage.left;
     }
 

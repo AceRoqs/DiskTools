@@ -33,6 +33,7 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
     const unsigned int sector_size = 512;
 
     std::array<uint8_t, sector_size> buffer;
+    buffer.data();  // No-op for static analysis.  MSVC analyze complains about usage before init.
     assert(buffer.size() < UINT_MAX);
     unsigned int buffer_size = static_cast<unsigned int>(buffer.size());
 

@@ -31,5 +31,7 @@ inline void verify_hr(HRESULT hr)
     assert(SUCCEEDED(hr));
 }
 
+#define VERIFY(expr) verify(expr); __analysis_assume(expr);
+
 #endif
 
