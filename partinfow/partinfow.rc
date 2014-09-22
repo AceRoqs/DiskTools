@@ -32,7 +32,7 @@ BEGIN
     CONTROL         "List3",IDC_PARTITIONS,"SysListView32",LVS_REPORT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,27,250,109
     ICON            IDI_HARDDISK,IDC_STATIC,5,5,20,20
     LTEXT           "The following partitions are installed on this computer:",IDC_STATIC,35,9,222,9
-    LTEXT           "Copyright (c) 2000-2011 Toby Jones. All rights reserved.",IDC_COPYRIGHT,7,144,186,8
+    LTEXT           "Copyright (c) 2000-2014 Toby Jones. All rights reserved.",IDC_COPYRIGHT,7,144,186,8
 END
 
 
