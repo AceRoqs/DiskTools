@@ -40,9 +40,8 @@ suitable to be extracted into the shared library:
 `add_listview_headers()`
 
 I haven't had a disk with extended partitions for some time, so I can't say
-that the extended partition code survived my refactoring. The code also builds
-clean for x64, but as I don't have a 64\-bit machine, I cannot test this. If
-anyone ever confirms either of these cases, please let me know.
+that the extended partition code survived my refactoring. If anyone ever confirms
+this case, please let me know.
 
 Toby Jones \([www.turbohex.com](http://www.turbohex.com), [ace.roqs.net](http://ace.roqs.net)\)
 
