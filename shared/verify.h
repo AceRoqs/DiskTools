@@ -31,6 +31,7 @@ inline void verify_hr(HRESULT hr)
     assert(SUCCEEDED(hr));
 }
 
+// This macro should only be used to work around static analysis warnings.
 #define VERIFY(expr) verify(expr); __analysis_assume(expr);
 
 #endif
