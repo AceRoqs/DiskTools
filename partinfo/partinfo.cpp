@@ -35,7 +35,7 @@ void output_partition_table_info(
     {
         uint64_t part_size = static_cast<uint64_t>(entry[index].sectors) * sector_size;
 
-        _tprintf(_TEXT("Partition %d:\r\n"), index);
+        _tprintf(_TEXT("Partition %u:\r\n"), index);
         _tprintf(_TEXT(" Bootable: %s\r\n"), entry[index].bootable ? _TEXT("Yes") : _TEXT("No"));
 
         PCTSTR file_system_name = get_file_system_name(entry[index].file_system_type);

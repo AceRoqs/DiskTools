@@ -95,14 +95,14 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
                     DWORD amount_read;
                     if(::ReadFile(disk_handle.get(), buffer.get(), amount_to_read, &amount_read, nullptr) == 0)
                     {
-                        _ftprintf(stderr, _TEXT("Error reading disk (%d).\r\n"), ::GetLastError());
+                        _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), ::GetLastError());
                         error_level = 1;
                         break;
                     }
 
                     if(::WriteFile(output_file.get(), buffer.get(), amount_read, &amount_read, nullptr) == 0)
                     {
-                        _ftprintf(stderr, _TEXT("Error writing file (%d).\r\n"), ::GetLastError());
+                        _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), ::GetLastError());
                         error_level = 1;
                         break;
                     }
@@ -118,7 +118,7 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
         }
         else
         {
-            _ftprintf(stderr, _TEXT("Unexpected error occured (%d).\r\n"), ::GetLastError());
+            _ftprintf(stderr, _TEXT("Unexpected error occured (%u).\r\n"), ::GetLastError());
             error_level = 1;
         }
     }
