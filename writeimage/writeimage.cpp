@@ -29,6 +29,28 @@ struct Bios_parameter_block
 };
 #pragma pack(pop)
 
+const unsigned int bytes_per_sector = 512;
+std::vector<uint8_t> get_default_boot_sector()
+{
+    std::vector<uint8_t> boot_sector(bytes_per_sector);
+
+    return std::move(boot_sector);
+}
+
+std::vector<uint8_t> get_empty_file_allocation_table()
+{
+    std::vector<uint8_t> file_allocation_table;
+
+    return std::move(file_allocation_table);
+}
+
+std::vector<uint8_t> get_empty_root_directory()
+{
+    std::vector<uint8_t> root_directory;
+
+    return std::move(root_directory);
+}
+
 int _tmain(int argc, _In_count_(argc) PTSTR* argv)
 {
     UNREFERENCED_PARAMETER(argc);
@@ -37,11 +59,20 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
 
-    const unsigned int bytes_per_sector = 512;
     const unsigned int sides = 2;
     const unsigned int tracks_per_side = 80;
     const unsigned int sectors_per_track = 18;
     std::vector<uint8_t> disk_image(bytes_per_sector * sides * tracks_per_side * sectors_per_track);
+
+    const auto boot_sector = get_default_boot_sector();
+    const auto file_allocation_table = get_empty_file_allocation_table();
+    const auto root_directory = get_empty_root_directory();
+
+    auto iterator = std::begin(disk_image);
+    iterator = std::copy(std::cbegin(boot_sector), std::cend(boot_sector), iterator);
+    iterator = std::copy(std::cbegin(file_allocation_table), std::cend(file_allocation_table), iterator);
+    iterator = std::copy(std::cbegin(file_allocation_table), std::cend(file_allocation_table), iterator);
+    std::copy(std::cbegin(root_directory), std::cend(root_directory), iterator);
 
     // Writing to ofstream is much faster than writing to basic_ofstream<uint8_t>, but for the
     // sizes being written, it's okay in optimized builds.
