@@ -64,12 +64,33 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
 
+#if 0
+Usage: bfi [-v] [-t=type] [-o=file] [-o=file] [-l=mylabel] [-b=file]
+           -f=file.img path [path ...]
+
+   -v         Verbose mode (talk more)
+   -t=type    Disktype use string "144", "120" or "288" or number:
+              4=720K,6=1440K,7=2880K,8=DMF2048,9=DMF1024,10=1680K
+              0=160K,1=180K,2=320K,3=360K,5=1200K
+              Default is 1.44MB
+   -f=file    Image filename
+   -o=file    Order file, put these file on the image first
+   -l=mylabel Set volume label to "mylabel"
+   -b=file    Install bootsector from "file"
+   path       Input folder(s) to inject files from
+#endif
+
     std::wstring boot_sector_file_name;
+    std::wstring image_file_name;
     for(int ii = 0; ii < argc; ++ii)
     {
         if(_tcsncmp(argv[ii], _T("-b="), 3) == 0)
         {
             boot_sector_file_name = &argv[ii][3];
+        }
+        else if(_tcsncmp(argv[ii], _T("-f="), 3) == 0)
+        {
+            image_file_name = &argv[ii][3];
         }
     }
 
@@ -77,6 +98,10 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
     const auto file_allocation_table = get_empty_file_allocation_table(9);
     const auto root_directory = get_empty_root_directory(14);
 
+    if(image_file_name.empty())
+    {
+        image_file_name = L"file.img";
+    }
     if(!boot_sector_file_name.empty())
     {
         std::basic_ifstream<uint8_t> boot_sector_file(boot_sector_file_name, std::ios::in | std::ios::binary);
@@ -97,7 +122,7 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
 
     // Writing to ofstream is much faster than writing to basic_ofstream<uint8_t>, but for the
     // sizes being written, it's okay in optimized builds.
-    std::basic_ofstream<uint8_t> output_file("disk.img", std::ios::out | std::ios::binary);
+    std::basic_ofstream<uint8_t> output_file(image_file_name, std::ios::out | std::ios::binary);
     output_file.write(&disk_image[0], disk_image.size());
     output_file.close();
 
