@@ -59,11 +59,8 @@ std::vector<uint8_t> get_empty_root_directory(unsigned int sector_count)
     return std::move(root_directory);
 }
 
-int _tmain(int argc, _In_count_(argc) PTSTR* argv)
+void usage()
 {
-    // ERRORLEVEL zero is the success code.
-    int error_level = 0;
-
 #if 0
 Usage: bfi [-v] [-t=type] [-o=file] [-o=file] [-l=mylabel] [-b=file]
            -f=file.img path [path ...]
@@ -79,7 +76,10 @@ Usage: bfi [-v] [-t=type] [-o=file] [-o=file] [-l=mylabel] [-b=file]
    -b=file    Install bootsector from "file"
    path       Input folder(s) to inject files from
 #endif
+}
 
+void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
+{
     std::wstring boot_sector_file_name;
     std::wstring image_file_name;
     for(int ii = 0; ii < argc; ++ii)
@@ -125,6 +125,28 @@ Usage: bfi [-v] [-t=type] [-o=file] [-o=file] [-l=mylabel] [-b=file]
     std::basic_ofstream<uint8_t> output_file(image_file_name, std::ios::out | std::ios::binary);
     output_file.write(&disk_image[0], disk_image.size());
     output_file.close();
+}
+
+int _tmain(int argc, _In_count_(argc) PTSTR* argv)
+{
+    // ERRORLEVEL zero is the success code.
+    int error_level = 0;
+
+    if(argc == 0)
+    {
+        usage();
+    }
+    else
+    {
+        try
+        {
+            output_boot_sector(argc, argv);
+        }
+        catch(...)
+        {
+            error_level = 1;
+        }
+    }
 
     return error_level;
 }
