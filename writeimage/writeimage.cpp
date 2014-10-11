@@ -2,6 +2,7 @@
 #include <tchar.h>
 #include <cstdint>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 #pragma pack(push, 1)
@@ -61,6 +62,11 @@ std::vector<uint8_t> get_empty_root_directory(unsigned int sector_count)
 
 void usage()
 {
+    std::cerr << "writeimage -f=file.img\n";
+    std::cerr << "    -f=file   Output filename\n";
+    std::cerr << "    -b=file   Install bootsector from \"file\"\n";
+    std::cerr << std::endl;
+
 #if 0
 Usage: bfi [-v] [-t=type] [-o=file] [-o=file] [-l=mylabel] [-b=file]
            -f=file.img path [path ...]
@@ -132,7 +138,7 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
 
-    if(argc == 0)
+    if(argc < 2)
     {
         usage();
     }
