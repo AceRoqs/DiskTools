@@ -28,6 +28,22 @@ struct Bios_parameter_block
     uint8_t volume_label[11];
     uint8_t file_system_type[8];
 };
+
+struct Root_directory_entry
+{
+    uint8_t filename[8];
+    uint8_t extension[3];
+    uint8_t attributes;
+    uint16_t reserved;
+    uint16_t creation_time;
+    uint16_t creation_date;
+    uint16_t last_access_date;
+    uint16_t ignored;
+    uint16_t last_write_time;
+    uint16_t last_write_date;
+    uint16_t first_logical_cluster;
+    uint32_t file_size;
+};
 #pragma pack(pop)
 
 const unsigned int bytes_per_sector = 512;
