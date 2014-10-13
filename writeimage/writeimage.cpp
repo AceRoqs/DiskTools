@@ -81,6 +81,7 @@ void usage()
     std::cerr << "writeimage -f=file.img\n";
     std::cerr << "    -f=file   Output filename\n";
     std::cerr << "    -b=file   Install bootsector from \"file\"\n";
+    std::cerr << "    -l=label  Set volume label to \"label\"\n";
     std::cerr << std::endl;
 
 #if 0
@@ -104,6 +105,7 @@ void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
 {
     std::wstring boot_sector_file_name;
     std::wstring image_file_name;
+    std::wstring label;
     for(int ii = 0; ii < argc; ++ii)
     {
         if(_tcsncmp(argv[ii], _T("-b="), 3) == 0)
@@ -114,7 +116,12 @@ void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
         {
             image_file_name = &argv[ii][3];
         }
+        else if(_tcsncmp(argv[ii], _T("-l="), 3) == 0)
+        {
+            label = &argv[ii][3];
+        }
     }
+    label.erase(11, std::string::npos);
 
     auto boot_sector = get_default_boot_sector();
     const auto file_allocation_table = get_empty_file_allocation_table(9);
