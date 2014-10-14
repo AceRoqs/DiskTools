@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <tchar.h>
+#include <algorithm>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -122,6 +123,7 @@ void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
         }
     }
     label.erase(11, std::string::npos);
+    std::transform(std::begin(label), std::end(label), std::begin(label), ::toupper);
 
     auto boot_sector = get_default_boot_sector();
     const auto file_allocation_table = get_empty_file_allocation_table(9);
