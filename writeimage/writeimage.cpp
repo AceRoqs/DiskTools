@@ -102,6 +102,33 @@ Usage: bfi [-v] [-t=type] [-o=file] [-o=file] [-l=mylabel] [-b=file]
 #endif
 }
 
+bool is_legal_fat_character(wchar_t ch)
+{
+    if((ch >= L'A') && (ch <= L'Z'))
+    {
+        return true;
+    }
+    if((ch >= L'0') && (ch <= L'9'))
+    {
+        return true;
+    }
+    if((ch >= 128) && (ch <= 255))
+    {
+        return true;
+    }
+
+    const char legal_chars[] = ".!#$%&'()-@^_`{}~";
+    for(auto iter = std::cbegin(legal_chars); iter != std::cend(legal_chars); ++iter)
+    {
+        if(ch == *iter)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
 {
     std::wstring boot_sector_file_name;
@@ -124,6 +151,13 @@ void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
     }
     label.erase(sizeof(Bios_parameter_block().volume_label), std::wstring::npos);
     std::transform(std::begin(label), std::end(label), std::begin(label), ::towupper);
+    std::for_each(std::cbegin(label), std::cend(label), [](wchar_t ch)
+    {
+        if(!is_legal_fat_character(ch))
+        {
+            throw std::exception();
+        }
+    });
 
     auto boot_sector = get_default_boot_sector();
     const auto file_allocation_table = get_empty_file_allocation_table(9);
