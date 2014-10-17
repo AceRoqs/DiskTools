@@ -129,6 +129,24 @@ bool is_legal_fat_character(wchar_t ch)
     return false;
 }
 
+// TODO: Consider outputting a std::string instead of std::wstring.
+std::wstring sanitize_label(const std::wstring& input_label)
+{
+    std::wstring output_label(input_label);
+
+    output_label.erase(sizeof(Bios_parameter_block().volume_label), std::wstring::npos);
+    std::transform(std::begin(output_label), std::end(output_label), std::begin(output_label), ::towupper);
+    std::for_each(std::cbegin(output_label), std::cend(output_label), [](wchar_t ch)
+    {
+        if(!is_legal_fat_character(ch))
+        {
+            throw std::exception();
+        }
+    });
+
+    return std::move(output_label);
+}
+
 void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
 {
     std::wstring boot_sector_file_name;
@@ -149,16 +167,8 @@ void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
             label = &argv[ii][3];
         }
     }
-    label.erase(sizeof(Bios_parameter_block().volume_label), std::wstring::npos);
-    std::transform(std::begin(label), std::end(label), std::begin(label), ::towupper);
-    std::for_each(std::cbegin(label), std::cend(label), [](wchar_t ch)
-    {
-        if(!is_legal_fat_character(ch))
-        {
-            throw std::exception();
-        }
-    });
 
+    label = sanitize_label(label);
     auto boot_sector = get_default_boot_sector();
     const auto file_allocation_table = get_empty_file_allocation_table(9);
     const auto root_directory = get_empty_root_directory(14);
