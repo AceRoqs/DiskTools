@@ -6,6 +6,9 @@
 #include <iostream>
 #include <vector>
 
+#define FAT_MAX_FILENAME_LENGTH 8
+#define FAT_MAX_EXTENSION_LENGTH 3
+
 #pragma pack(push, 1)
 struct Bios_parameter_block
 {
@@ -26,14 +29,14 @@ struct Bios_parameter_block
     uint8_t reserved;
     uint8_t boot_signature;
     uint32_t volume_id;
-    uint8_t volume_label[11];
+    uint8_t volume_label[FAT_MAX_FILENAME_LENGTH + FAT_MAX_EXTENSION_LENGTH];
     uint8_t file_system_type[8];
 };
 
 struct Root_directory_entry
 {
-    uint8_t filename[8];
-    uint8_t extension[3];
+    uint8_t filename[FAT_MAX_FILENAME_LENGTH];
+    uint8_t extension[FAT_MAX_EXTENSION_LENGTH];
     uint8_t attributes;
     uint16_t reserved;
     uint16_t creation_time;
@@ -132,6 +135,9 @@ bool is_legal_fat_character(wchar_t ch)
 // TODO: Consider outputting a std::string instead of std::wstring.
 std::wstring sanitize_label(const std::wstring& input_label)
 {
+    static_assert(sizeof(Bios_parameter_block().volume_label) == (sizeof(Root_directory_entry().filename) + sizeof(Root_directory_entry().extension)),
+                  "Directory entry and BPB must match size for volume label.");
+
     std::wstring output_label(input_label);
 
     output_label.erase(sizeof(Bios_parameter_block().volume_label), std::wstring::npos);
