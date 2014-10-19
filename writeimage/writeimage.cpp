@@ -82,7 +82,7 @@ std::vector<uint8_t> get_empty_root_directory(unsigned int sector_count)
 
 void usage()
 {
-    std::cerr << "writeimage -f=file.img\n";
+    std::cerr << "writeimage [-b=file] [-l=label] -f=file.img\n";
     std::cerr << "    -f=file   Output filename\n";
     std::cerr << "    -b=file   Install bootsector from \"file\"\n";
     std::cerr << "    -l=label  Set volume label to \"label\"\n";
