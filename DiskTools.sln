@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "partinfow", "partinfow\partinfow.vcxproj", "{70A31746-D651-438C-81A6-56483635DF3A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinPartitionInfo", "WinPartitionInfo\WinPartitionInfo.vcxproj", "{70A31746-D651-438C-81A6-56483635DF3A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shared", "shared\shared.vcxproj", "{7A0B7CC4-9CAB-4B19-9F63-215A4B846214}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DiskTools", "DiskTools\DiskTools.vcxproj", "{7A0B7CC4-9CAB-4B19-9F63-215A4B846214}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "getsect", "getsect\getsect.vcxproj", "{75623C75-41B2-4D99-ACD2-88F65A8207AB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetSector", "GetSector\GetSector.vcxproj", "{75623C75-41B2-4D99-ACD2-88F65A8207AB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "partinfo", "partinfo\partinfo.vcxproj", "{008C02A9-9A09-46AE-BC30-DB64B59DC1BE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PartitionInfo", "PartitionInfo\PartitionInfo.vcxproj", "{008C02A9-9A09-46AE-BC30-DB64B59DC1BE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
@@ -25,7 +25,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RipISO", "RipISO\RipISO.vcx
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "writeimage", "writeimage\writeimage.vcxproj", "{4A40E094-73F9-4D41-8263-6D508CBBC81D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WriteImage", "WriteImage\WriteImage.vcxproj", "{4A40E094-73F9-4D41-8263-6D508CBBC81D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
