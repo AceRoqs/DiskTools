@@ -15,24 +15,24 @@ to run them.
 All other apps are buildable with Visual C++ 2013, and have a dependency on
 C++11.
 
-* _getsect_ will read a given sector from the first physical disk.
-* _ripiso_ will create an ISO CD image from the first CD drive.
-* _partinfo_ will display the partition table information from the
+* _GetSector_ will read a given sector from the first physical disk.
+* _RipISO_ will create an ISO CD image from the first CD drive.
+* _PartitionInfo_ will display the partition table information from the
 [MBR](http://en.wikipedia.org/wiki/Master_boot_record) of the first physical
 disk.
-* _partinfow_ is a GUI program which is a bit more complete than the other
+* _WinPartitionInfo_ is a GUI program which is a bit more complete than the other
 utilities. It will display the complete partition information \(including
 extended partitions\) of the first two physical disks.
-* _shared_ is a shared library for disk reading and other code that is tool
+* _DiskTools_ is a shared library for disk reading and other code that is tool
 agnostic. The pretty printing code is probably useful to others.
 
 All of the tools must be run elevated \(as Administrator\), except for
-_partinfow_, which contains manifest information to auto-prompt for elevation.
+_WinPartitionInfo_, which contains manifest information to auto-prompt for elevation.
 They all assume a sector size of 512 bytes, which was reasonable at the time
 they were developed, but is becoming less true now.  That should be easy to
 change if necessary.
 
-_Partinfow_ also has a limit of 32 total partitions, but it might be improved
+_WinPartitionInfo_ also has a limit of 32 total partitions, but it might be improved
 if it had a limit per-disk instead of across all disks. It comes to mind that
 if some minor restrictions are lifted, a few functions in the app might be
 suitable to be extracted into the shared library:

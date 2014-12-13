@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "precomp.h"
-#include "stringutils.h"    // Pick up forward declarations to ensure correctness.
+#include "PreCompile.h"
+#include "StringUtils.h"    // Pick up forward declarations to ensure correctness.
 
 //---------------------------------------------------------------------------
 static int get_locale_info_number(

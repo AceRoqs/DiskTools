@@ -25,11 +25,11 @@ limitations under the License.
 #include <windowsx.h>
 #include <strsafe.h>
 #include <commctrl.h>
-#include "resource.h"
-#include "directread.h"
-#include "verify.h"
-#include "stringutils.h"
-#include "windowutils.h"
+#include "Resource.h"
+#include "DirectRead.h"
+#include "Verify.h"
+#include "StringUtils.h"
+#include "WindowUtils.h"
 
 //---------------------------------------------------------------------------
 const unsigned int sector_size = 512;

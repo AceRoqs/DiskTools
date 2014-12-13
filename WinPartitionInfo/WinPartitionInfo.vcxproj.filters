@@ -18,22 +18,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="partinfow.rc">
+    <ResourceCompile Include="WinPartitionInfo.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="partinfow.cpp">
+    <ClCompile Include="WinPartitionInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="harddisk.ico">
+    <None Include="HardDisk.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

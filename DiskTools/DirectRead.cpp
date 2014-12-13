@@ -17,8 +17,8 @@ limitations under the License.
 // Direct disk access functions require administrator privileges and/or
 // process elevation.
 
-#include "precomp.h"
-#include "directread.h" // Pick up forward declarations to ensure correctness.
+#include "PreCompile.h"
+#include "DirectRead.h" // Pick up forward declarations to ensure correctness.
 
 //---------------------------------------------------------------------------
 PCTSTR cdrom_0         = TEXT("\\\\.\\CDROM0");

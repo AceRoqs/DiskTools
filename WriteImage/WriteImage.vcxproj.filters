@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="writeimage.cpp">
+    <ClCompile Include="WriteImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,33 +11,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="directread.cpp">
+    <ClCompile Include="DirectRead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="precomp.cpp">
+    <ClCompile Include="PreCompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stringutils.cpp">
+    <ClCompile Include="StringUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="windowutils.cpp">
+    <ClCompile Include="WindowUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="directread.h">
+    <ClInclude Include="DirectRead.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="precomp.h">
+    <ClInclude Include="PreCompile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stringutils.h">
+    <ClInclude Include="StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="windowutils.h">
+    <ClInclude Include="WindowUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="verify.h">
+    <ClInclude Include="Verify.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,7 +21,7 @@ limitations under the License.
 #include <memory>
 #include <tchar.h>
 #include <windows.h>
-#include "directread.h"
+#include "DirectRead.h"
 
 //---------------------------------------------------------------------------
 int _tmain(int argc, _In_count_(argc) PTSTR* argv)

@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "precomp.h"
-#include "windowutils.h"    // Pick up forward declarations to ensure correctness.
-#include "verify.h"
+#include "PreCompile.h"
+#include "WindowUtils.h"    // Pick up forward declarations to ensure correctness.
+#include "Verify.h"
 
 //---------------------------------------------------------------------------
 void set_window_icon(_In_ HWND window, _In_ HINSTANCE instance, _In_ PCTSTR icon_resource)
