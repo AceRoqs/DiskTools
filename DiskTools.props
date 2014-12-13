@@ -5,12 +5,4 @@
     <DiskToolsLibDir>$(OutDir)</DiskToolsLibDir>
     <DiskToolsLibraries>DiskTools.lib</DiskToolsLibraries>
   </PropertyGroup>
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(DiskToolsDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>$(DiskToolsLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
 </Project>

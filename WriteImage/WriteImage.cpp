@@ -1,10 +1,4 @@
-#include <Windows.h>
-#include <tchar.h>
-#include <algorithm>
-#include <cstdint>
-#include <fstream>
-#include <iostream>
-#include <vector>
+#include "PreCompile.h"
 
 #define FAT_MAX_FILENAME_LENGTH 8
 #define FAT_MAX_EXTENSION_LENGTH 3

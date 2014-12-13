@@ -3,10 +3,7 @@
 // required, and for Vista and above, the program needs to be elevated.
 // Getting a handle to a disk requires Windows NT 4.0 or better.
 
-#include <cstdint>
-#include <array>
-#include <tchar.h>
-#include <windows.h>
+#include "PreCompile.h"
 #include "directread.h"
 
 // Display partition table data to stdout.

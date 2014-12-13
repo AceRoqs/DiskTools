@@ -1,9 +1,5 @@
-#include <cstdint>
-#include <memory>
-#include <functional>
-#include <tchar.h>
-#include <windows.h>
-#include "directread.h"
+#include "PreCompile.h"
+#include "DirectRead.h"
 
 int _tmain(int argc, _In_count_(argc) PTSTR* argv)
 {

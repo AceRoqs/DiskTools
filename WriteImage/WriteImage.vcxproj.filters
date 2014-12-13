@@ -18,5 +18,13 @@
     <ClCompile Include="WriteImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PreCompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PreCompile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

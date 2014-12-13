@@ -14,6 +14,9 @@
     <ClCompile Include="GetSector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PreCompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PreCompile.h">
