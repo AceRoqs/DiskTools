@@ -7,7 +7,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ripiso.cpp">
+    <ClCompile Include="RipISO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
