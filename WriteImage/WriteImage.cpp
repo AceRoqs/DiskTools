@@ -1,7 +1,7 @@
 #include "PreCompile.h"
 
-#define FAT_MAX_FILENAME_LENGTH 8
-#define FAT_MAX_EXTENSION_LENGTH 3
+const unsigned int fat_max_filename_length = 8;
+const unsigned int fat_max_extension_length = 3;
 
 #pragma pack(push, 1)
 struct Bios_parameter_block
@@ -23,14 +23,14 @@ struct Bios_parameter_block
     uint8_t reserved;
     uint8_t boot_signature;
     uint32_t volume_id;
-    uint8_t volume_label[FAT_MAX_FILENAME_LENGTH + FAT_MAX_EXTENSION_LENGTH];
+    uint8_t volume_label[fat_max_filename_length + fat_max_extension_length];
     uint8_t file_system_type[8];
 };
 
 struct Root_directory_entry
 {
-    uint8_t filename[FAT_MAX_FILENAME_LENGTH];
-    uint8_t extension[FAT_MAX_EXTENSION_LENGTH];
+    uint8_t filename[fat_max_filename_length];
+    uint8_t extension[fat_max_extension_length];
     uint8_t attributes;
     uint16_t reserved;
     uint16_t creation_time;

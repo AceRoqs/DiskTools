@@ -1,7 +1,5 @@
-#ifndef DIRECTREAD_H
-#define DIRECTREAD_H
+#pragma once
 
-//---------------------------------------------------------------------------
 const unsigned int partition_table_entry_count = 4;
 
 #pragma pack(push, 1)
@@ -20,7 +18,6 @@ struct Partition_table_entry
 };
 #pragma pack(pop)
 
-//---------------------------------------------------------------------------
 PCTSTR get_file_system_name(uint8_t file_system_type);
 bool is_extended_partition(uint8_t file_system_type);
 
@@ -36,10 +33,7 @@ HRESULT read_sector_from_disk(
     uint8_t disk_number,
     uint64_t sector_number);
 
-//---------------------------------------------------------------------------
 extern PCTSTR cdrom_0;
 extern PCTSTR physical_disk_0;
 extern PCTSTR physical_disk_1;
-
-#endif
 
