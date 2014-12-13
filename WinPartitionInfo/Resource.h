@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by partinfow.rc
+// Used by WinPartitionInfo.rc
 //
 #define IDD_PARTITION_TABLE_DIALOG      101
 #define IDI_HARDDISK                    102
