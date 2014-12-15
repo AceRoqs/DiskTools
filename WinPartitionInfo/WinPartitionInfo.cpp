@@ -5,7 +5,6 @@
 #include "StringUtils.h"
 #include "WindowUtils.h"
 
-//---------------------------------------------------------------------------
 const unsigned int sector_size = 512;
 const unsigned int max_partitions = 32;
 
@@ -47,7 +46,6 @@ enum listview_column_ids
     start_sector,
 };
 
-//---------------------------------------------------------------------------
 void get_yesno_string(
     bool is_yes,
     HINSTANCE instance,
@@ -65,13 +63,12 @@ void get_yesno_string(
     yesno[yesno_size - 1] = TEXT('\0');   // Suggested by static analysis.
 }
 
-//---------------------------------------------------------------------------
 void get_file_system_name_from_type(
     _Out_z_cap_(file_system_name_size) PTSTR file_system_name,
     _In_ unsigned int file_system_name_size,
     uint8_t file_system_type)
 {
-    PCTSTR name = get_file_system_name(file_system_type);
+    PCTSTR name = DiskTools::get_file_system_name(file_system_type);
 
     if(nullptr != name)
     {
@@ -90,12 +87,11 @@ void get_file_system_name_from_type(
     }
 }
 
-//---------------------------------------------------------------------------
 // This function may be moved to a shared library at some point if
 // the partitions vector is capped to a max per disk instead of a
 // max total.
 HRESULT read_disk_partitions_from_handle(
-    _In_ std::vector<std::pair<uint8_t, Partition_table_entry>>* partitions,
+    _In_ std::vector<std::pair<uint8_t, DiskTools::Partition_table_entry>>* partitions,
     HANDLE disk_handle,
     uint8_t disk_number,
     uint32_t logical_partition_start_sector)
@@ -103,7 +99,7 @@ HRESULT read_disk_partitions_from_handle(
     std::array<uint8_t, sector_size> buffer;
     unsigned int bytes_to_read = sizeof(buffer);
 
-    HRESULT hr = read_sector_from_handle(buffer.data(), &bytes_to_read, disk_handle, logical_partition_start_sector);
+    HRESULT hr = DiskTools::read_sector_from_handle(buffer.data(), &bytes_to_read, disk_handle, logical_partition_start_sector);
     if(SUCCEEDED(hr))
     {
         // In this implementation, bytes_to_read can never be above sector_size, but if
@@ -112,10 +108,10 @@ HRESULT read_disk_partitions_from_handle(
         if(sector_size <= bytes_to_read)
         {
             // Final two bytes are a boot sector signature, and the partition table immediately precedes it.
-            static_assert(sector_size >= 2 + (sizeof(Partition_table_entry) * partition_table_entry_count),
+            static_assert(sector_size >= 2 + (sizeof(DiskTools::Partition_table_entry) * partition_table_entry_count),
                           "sector_size must be large enough to contain a partition table.");
-            unsigned int table_start = bytes_to_read - 2 - (sizeof(Partition_table_entry) * partition_table_entry_count);
-            auto entries = reinterpret_cast<Partition_table_entry*>(buffer.data() + table_start);
+            unsigned int table_start = bytes_to_read - 2 - (sizeof(DiskTools::Partition_table_entry) * partition_table_entry_count);
+            auto entries = reinterpret_cast<DiskTools::Partition_table_entry*>(buffer.data() + table_start);
 
             for(unsigned int entry_index = 0; entry_index < partition_table_entry_count; ++entry_index)
             {
@@ -125,7 +121,7 @@ HRESULT read_disk_partitions_from_handle(
                     continue;
                 }
 
-                if(is_extended_partition(entries[entry_index].file_system_type))
+                if(DiskTools::is_extended_partition(entries[entry_index].file_system_type))
                 {
                     continue;
                 }
@@ -145,7 +141,7 @@ HRESULT read_disk_partitions_from_handle(
                 // http://en.wikipedia.org/wiki/Extended_Boot_Record
                 for(unsigned int entry_index = 0; entry_index < partition_table_entry_count; ++entry_index)
                 {
-                    if(is_extended_partition(entries[entry_index].file_system_type))
+                    if(DiskTools::is_extended_partition(entries[entry_index].file_system_type))
                     {
                         hr = read_disk_partitions_from_handle(partitions,
                                                               disk_handle,
@@ -169,11 +165,10 @@ HRESULT read_disk_partitions_from_handle(
     return hr;
 }
 
-//---------------------------------------------------------------------------
 // This function may be moved to a shared library at some point if
 // read_disk_partitions_from_handle is also moved.
 HRESULT read_disk_partitions(
-    _In_ std::vector<std::pair<uint8_t, Partition_table_entry>>* partitions,
+    _In_ std::vector<std::pair<uint8_t, DiskTools::Partition_table_entry>>* partitions,
     uint8_t disk_number,
     uint32_t logical_partition_start)
 {
@@ -184,7 +179,7 @@ HRESULT read_disk_partitions(
     // handle for reuse instead of reopening on every read.
     // This call requires elevation to administrator.
     std::unique_ptr<void, std::function<void (HANDLE handle)>> disk_handle(
-        get_disk_handle(disk_number),
+        DiskTools::get_disk_handle(disk_number),
         [](HANDLE handle)
         {
             if(INVALID_HANDLE_VALUE != handle)
@@ -206,9 +201,8 @@ HRESULT read_disk_partitions(
     return hr;
 }
 
-//---------------------------------------------------------------------------
 void output_partition_table_info(
-    _In_ const std::vector<std::pair<uint8_t, Partition_table_entry>>* partitions,
+    _In_ const std::vector<std::pair<uint8_t, DiskTools::Partition_table_entry>>* partitions,
     _In_ HWND listview,
     _In_ HINSTANCE instance)
 {
@@ -238,18 +232,18 @@ void output_partition_table_info(
         get_file_system_name_from_type(labels[file_system_entry],
                                        ARRAYSIZE(labels[0]),
                                        partition->second.file_system_type);
-        pretty_print32(partition->second.begin_head,     labels[begin_head],     ARRAYSIZE(labels[0]));
-        pretty_print32(partition->second.begin_head,     labels[begin_head],     ARRAYSIZE(labels[0]));
-        pretty_print32(partition->second.begin_cylinder, labels[begin_cylinder], ARRAYSIZE(labels[0]));
-        pretty_print32(partition->second.begin_sector,   labels[begin_sector],   ARRAYSIZE(labels[0]));
-        pretty_print32(partition->second.end_head,       labels[end_head],       ARRAYSIZE(labels[0]));
-        pretty_print32(partition->second.end_cylinder,   labels[end_cylinder],   ARRAYSIZE(labels[0]));
-        pretty_print32(partition->second.end_sector,     labels[end_sector],     ARRAYSIZE(labels[0]));
-        pretty_print32(partition->second.start_sector,   labels[start_sector],   ARRAYSIZE(labels[0]));
-        pretty_print64(static_cast<uint64_t>(partition->second.sectors) * sector_size,
-                       labels[size_in_bytes],
-                       ARRAYSIZE(labels[0]));
-        pretty_print32(partition->first, labels[drive_number], ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->second.begin_head,     labels[begin_head],     ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->second.begin_head,     labels[begin_head],     ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->second.begin_cylinder, labels[begin_cylinder], ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->second.begin_sector,   labels[begin_sector],   ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->second.end_head,       labels[end_head],       ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->second.end_cylinder,   labels[end_cylinder],   ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->second.end_sector,     labels[end_sector],     ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->second.start_sector,   labels[start_sector],   ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print64(static_cast<uint64_t>(partition->second.sectors) * sector_size,
+                                  labels[size_in_bytes],
+                                  ARRAYSIZE(labels[0]));
+        DiskTools::pretty_print32(partition->first, labels[drive_number], ARRAYSIZE(labels[0]));
 
         // Add labels to all columns of this row.
         unsigned int column = 0;
@@ -270,13 +264,12 @@ void output_partition_table_info(
     }
 }
 
-//---------------------------------------------------------------------------
 static void populate_listview(
     _In_ HWND listview,
     _In_ HINSTANCE instance)
 {
     // Vector of all (drive, partition) pairs.
-    std::vector<std::pair<uint8_t, Partition_table_entry>> partitions;
+    std::vector<std::pair<uint8_t, DiskTools::Partition_table_entry>> partitions;
 
     // Read partition tables of first two disks.
     // Ignore read errors - any entry to the partitions list is
@@ -289,7 +282,6 @@ static void populate_listview(
     output_partition_table_info(&partitions, listview, instance);
 }
 
-//---------------------------------------------------------------------------
 // This function may be moved to a shared library at some point if
 // Listview_columns becomes a useful structure to share.
 void add_listview_headers(
@@ -299,7 +291,7 @@ void add_listview_headers(
     _In_ unsigned int column_count)
 {
     assert(INVALID_HANDLE_VALUE != listview);
-    assert(is_listview_in_report_mode(listview));
+    assert(DiskTools::is_listview_in_report_mode(listview));
 
     LVCOLUMN new_column;
     ::ZeroMemory(&new_column, sizeof(new_column));
@@ -327,7 +319,6 @@ void add_listview_headers(
     }
 }
 
-//---------------------------------------------------------------------------
 static BOOL on_command(_In_ HWND window, WORD id)
 {
     BOOL message_processed = FALSE;
@@ -342,11 +333,10 @@ static BOOL on_command(_In_ HWND window, WORD id)
     return message_processed;
 }
 
-//---------------------------------------------------------------------------
 static void on_paint(_In_ HWND window)
 {
     RECT grip_rect;
-    get_clientspace_grip_rect(window, &grip_rect);
+    DiskTools::get_clientspace_grip_rect(window, &grip_rect);
 
     PAINTSTRUCT paint_struct;
 
@@ -362,13 +352,12 @@ static void on_paint(_In_ HWND window)
     ::DrawFrameControl(context.get(), &grip_rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
 }
 
-//---------------------------------------------------------------------------
 static _Success_(return) BOOL on_nc_hit_test(_In_ HWND window, int x_coord, int y_coord, _Out_ LONG* hit_location)
 {
     BOOL message_processed = FALSE;
 
     RECT grip_rect;
-    get_clientspace_grip_rect(window, &grip_rect);
+    DiskTools::get_clientspace_grip_rect(window, &grip_rect);
 
     POINT mouse_location;
     mouse_location.x = x_coord;
@@ -387,7 +376,6 @@ static _Success_(return) BOOL on_nc_hit_test(_In_ HWND window, int x_coord, int 
     return message_processed;
 }
 
-//---------------------------------------------------------------------------
 class Partition_table_dialog
 {
 public:
@@ -411,7 +399,6 @@ private:
     Partition_table_dialog& operator=(const Partition_table_dialog&);
 };
 
-//---------------------------------------------------------------------------
 Partition_table_dialog::Partition_table_dialog()
 {
     ::ZeroMemory(&m_original_client_rect, sizeof(m_original_client_rect));
@@ -420,7 +407,6 @@ Partition_table_dialog::Partition_table_dialog()
     ::ZeroMemory(&m_minimum_dialog_size, sizeof(m_minimum_dialog_size));
 }
 
-//---------------------------------------------------------------------------
 void Partition_table_dialog::show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id) const
 {
     ::DialogBoxParam(instance,
@@ -430,7 +416,6 @@ void Partition_table_dialog::show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id
                      reinterpret_cast<LPARAM>(this));
 }
 
-//---------------------------------------------------------------------------
 INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
     _In_ HWND window,
     UINT message,
@@ -510,17 +495,16 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
     catch(const std::bad_alloc&)
     {
         HINSTANCE instance = reinterpret_cast<HINSTANCE>(::GetWindowLongPtr(window, GWLP_HINSTANCE));
-        display_localized_error_dialog(window, instance, IDS_OOMCAPTION, IDS_OOMMESSAGE);
+        DiskTools::display_localized_error_dialog(window, instance, IDS_OOMCAPTION, IDS_OOMMESSAGE);
     }
 
     // If message_processed is TRUE, then DWLP_MSGRESULT is either set or is implicitly zero.
     return message_processed;
 }
 
-//---------------------------------------------------------------------------
 void Partition_table_dialog::on_init_dialog(_In_ HWND window, _In_ HINSTANCE instance)
 {
-    set_window_icon(window, instance, MAKEINTRESOURCE(IDI_HARDDISK));
+    DiskTools::set_window_icon(window, instance, MAKEINTRESOURCE(IDI_HARDDISK));
 
     // Optional:
     // center_window_on_parent(window);
@@ -533,23 +517,21 @@ void Partition_table_dialog::on_init_dialog(_In_ HWND window, _In_ HINSTANCE ins
 
     // Save window rectangles for use during resize.
     ::GetClientRect(window, &m_original_client_rect);
-    get_clientspace_control_rect(window, IDC_PARTITIONS, &m_original_clientspace_listview_rect);
-    get_clientspace_control_rect(window, IDC_COPYRIGHT,  &m_original_clientspace_label_rect);
+    DiskTools::get_clientspace_control_rect(window, IDC_PARTITIONS, &m_original_clientspace_listview_rect);
+    DiskTools::get_clientspace_control_rect(window, IDC_COPYRIGHT,  &m_original_clientspace_label_rect);
 
     HWND listview = ::GetDlgItem(window, IDC_PARTITIONS);
     add_listview_headers(listview, instance, listview_columns, ARRAYSIZE(listview_columns));
     populate_listview(listview, instance);
-    adjust_listview_column_widths(listview, 0);
+    DiskTools::adjust_listview_column_widths(listview, 0);
 }
 
-//---------------------------------------------------------------------------
 void Partition_table_dialog::on_get_minmax_info(_In_ MINMAXINFO* minmax_info) const
 {
     minmax_info->ptMinTrackSize.x = m_minimum_dialog_size.cx;
     minmax_info->ptMinTrackSize.y = m_minimum_dialog_size.cy;
 }
 
-//---------------------------------------------------------------------------
 void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int new_client_height) const
 {
     int offset_width = new_client_width - m_original_client_rect.right;
@@ -558,14 +540,14 @@ void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int
     POINT position_offset = {};
     SIZE size_offset = { offset_width, offset_height };
 
-    reposition_control_by_offset(window, IDC_PARTITIONS, m_original_clientspace_listview_rect, position_offset, size_offset);
+    DiskTools::reposition_control_by_offset(window, IDC_PARTITIONS, m_original_clientspace_listview_rect, position_offset, size_offset);
 
     position_offset.x = 0;
     position_offset.y = offset_height;
     size_offset.cx = 0;
     size_offset.cy = 0;
 
-    reposition_control_by_offset(window, IDC_COPYRIGHT, m_original_clientspace_label_rect, position_offset, size_offset);
+    DiskTools::reposition_control_by_offset(window, IDC_COPYRIGHT, m_original_clientspace_label_rect, position_offset, size_offset);
 
     // Because a resize grip is displayed, invalidate the client rect.  Since
     // the whole client area is redrawn, there is no need for DeferWindowPos,
@@ -573,7 +555,6 @@ void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int
     ::InvalidateRect(window, nullptr, TRUE);
 }
 
-//---------------------------------------------------------------------------
 // Declspec SAL is used instead of attribute SAL, as the WinMain declaration
 // in the system headers still uses declspec SAL.
 int WINAPI _tWinMain(_In_ HINSTANCE instance,   // Handle to the program instance.
@@ -597,7 +578,7 @@ int WINAPI _tWinMain(_In_ HINSTANCE instance,   // Handle to the program instanc
     }
     else
     {
-        display_localized_error_dialog(nullptr, instance, IDS_ERRORLISTVIEWCAPTION, IDS_ERRORLISTVIEWMESSAGE);
+        DiskTools::display_localized_error_dialog(nullptr, instance, IDS_ERRORLISTVIEWCAPTION, IDS_ERRORLISTVIEWMESSAGE);
     }
 
     return 0;

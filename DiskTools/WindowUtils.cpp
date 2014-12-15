@@ -2,7 +2,9 @@
 #include "WindowUtils.h"    // Pick up forward declarations to ensure correctness.
 #include "Verify.h"
 
-//---------------------------------------------------------------------------
+namespace DiskTools
+{
+
 void set_window_icon(_In_ HWND window, _In_ HINSTANCE instance, _In_ PCTSTR icon_resource)
 {
     // 32 pixels is used as this icon is used as both the window icon
@@ -17,7 +19,6 @@ void set_window_icon(_In_ HWND window, _In_ HINSTANCE instance, _In_ PCTSTR icon
     ::SendMessage(window, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon_handle));
 }
 
-//---------------------------------------------------------------------------
 unsigned int get_imagelist_width_by_index(
     _In_opt_ HIMAGELIST image_list,
     unsigned int image_index)
@@ -34,14 +35,12 @@ unsigned int get_imagelist_width_by_index(
     return image_width;
 }
 
-//---------------------------------------------------------------------------
 bool is_listview_in_report_mode(_In_ HWND listview)
 {
     LONG style = ::GetWindowLong(listview, GWL_STYLE);
     return (style & LVS_TYPEMASK) == LVS_REPORT;
 }
 
-//---------------------------------------------------------------------------
 bool adjust_listview_column_widths(
     _In_ HWND listview,
     unsigned int image_index)
@@ -107,7 +106,6 @@ bool adjust_listview_column_widths(
     return success;
 }
 
-//---------------------------------------------------------------------------
 void get_clientspace_grip_rect(_In_ HWND window, _Out_ RECT* grip_rect)
 {
     ::GetClientRect(window, grip_rect);
@@ -117,7 +115,6 @@ void get_clientspace_grip_rect(_In_ HWND window, _Out_ RECT* grip_rect)
     grip_rect->top  = grip_rect->bottom - GetSystemMetrics(SM_CYVSCROLL);
 }
 
-//---------------------------------------------------------------------------
 void get_clientspace_control_rect(
     _In_ HWND window,
     _In_ int control_id,
@@ -137,7 +134,6 @@ void get_clientspace_control_rect(
     clientspace_rect->bottom = point.y + screenspace_rect.bottom - screenspace_rect.top;
 }
 
-//---------------------------------------------------------------------------
 void get_repositioned_rect_by_offset(
     const RECT& original_control_rect,
     const POINT& position_offset,
@@ -150,7 +146,6 @@ void get_repositioned_rect_by_offset(
     window_rect->bottom = original_control_rect.bottom - original_control_rect.top + size_offset.cy;
 }
 
-//---------------------------------------------------------------------------
 void reposition_control_by_offset(
     _In_ HWND parent_window,
     _In_ int control_id,
@@ -171,7 +166,6 @@ void reposition_control_by_offset(
                  FALSE);
 }
 
-//---------------------------------------------------------------------------
 void display_localized_error_dialog(
     _In_opt_ HWND parent_window,
     _In_ HINSTANCE instance,
@@ -187,5 +181,7 @@ void display_localized_error_dialog(
     message_buffer[ARRAYSIZE(message_buffer) - 1] = TEXT('\0'); // Suggested by static analysis.
 
     ::MessageBox(parent_window, message_buffer, caption_buffer, MB_OK | MB_ICONERROR);
+}
+
 }
 

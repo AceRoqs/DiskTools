@@ -1,6 +1,11 @@
 #pragma once
 
+// This is outside a namespace because it is used in some SAL annotations.  SAL, as of VC2013 Update 4,
+// doesn't correctly handle namespaces.
 const unsigned int partition_table_entry_count = 4;
+
+namespace DiskTools
+{
 
 #pragma pack(push, 1)
 struct Partition_table_entry
@@ -33,7 +38,10 @@ HRESULT read_sector_from_disk(
     uint8_t disk_number,
     uint64_t sector_number);
 
+// TODO: Expose as functions.
 extern PCTSTR cdrom_0;
 extern PCTSTR physical_disk_0;
 extern PCTSTR physical_disk_1;
+
+}
 

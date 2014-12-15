@@ -4,12 +4,13 @@
 #include "PreCompile.h"
 #include "DirectRead.h" // Pick up forward declarations to ensure correctness.
 
-//---------------------------------------------------------------------------
+namespace DiskTools
+{
+
 PCTSTR cdrom_0         = TEXT("\\\\.\\CDROM0");
 PCTSTR physical_disk_0 = TEXT("\\\\.\\PHYSICALDRIVE0");
 PCTSTR physical_disk_1 = TEXT("\\\\.\\PHYSICALDRIVE1");
 
-//---------------------------------------------------------------------------
 // Mappings of file system types to string names.
 // This table is not intended to be localized.
 static const struct File_system_type_map
@@ -41,13 +42,11 @@ static const struct File_system_type_map
 const unsigned int file_system_type_extended1 = 0x05;
 const unsigned int file_system_type_extended2 = 0x0F;
 
-//---------------------------------------------------------------------------
 static unsigned int file_system_type_count()
 {
     return ARRAYSIZE(file_system_types);
 }
 
-//---------------------------------------------------------------------------
 PCTSTR get_file_system_name(uint8_t file_system_type)
 {
     PCTSTR file_system_name = nullptr;
@@ -74,14 +73,12 @@ PCTSTR get_file_system_name(uint8_t file_system_type)
     return file_system_name;
 }
 
-//---------------------------------------------------------------------------
 bool is_extended_partition(uint8_t file_system_type)
 {
     return (file_system_type_extended1 == file_system_type) ||
            (file_system_type_extended2 == file_system_type);
 }
 
-//---------------------------------------------------------------------------
 static HRESULT seek_to_offset(HANDLE handle, uint64_t byte_offset)
 {
     HRESULT hr = S_OK;
@@ -103,7 +100,6 @@ static HRESULT seek_to_offset(HANDLE handle, uint64_t byte_offset)
     return hr;
 }
 
-//---------------------------------------------------------------------------
 static HRESULT can_buffer_hold_sector(
     HANDLE disk_handle,
     unsigned int buffer_size,
@@ -140,7 +136,6 @@ static HRESULT can_buffer_hold_sector(
     return S_OK;
 }
 
-//---------------------------------------------------------------------------
 HANDLE get_disk_handle(uint8_t disk_number)
 {
     static_assert(sizeof(disk_number) == 1, "disk_name array is too short to hold the disk_number.");
@@ -158,7 +153,6 @@ HANDLE get_disk_handle(uint8_t disk_number)
                         nullptr);
 }
 
-//---------------------------------------------------------------------------
 HRESULT read_sector_from_handle(
     _Out_cap_post_count_(*buffer_size, *buffer_size) uint8_t* buffer,
     _Inout_ unsigned int* buffer_size,
@@ -188,7 +182,6 @@ HRESULT read_sector_from_handle(
     return hr;
 }
 
-//---------------------------------------------------------------------------
 HRESULT read_sector_from_disk(
     _Out_cap_post_count_(*buffer_size, *buffer_size) uint8_t* buffer,
     _Inout_ unsigned int* buffer_size,
@@ -220,5 +213,7 @@ HRESULT read_sector_from_disk(
     }
 
     return hr;
+}
+
 }
 

@@ -24,7 +24,7 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
 
-    if(SUCCEEDED(read_sector_from_disk(buffer.data(), &buffer_size, 0, _ttoi64(argv[arg_sector]))))
+    if(SUCCEEDED(DiskTools::read_sector_from_disk(buffer.data(), &buffer_size, 0, _ttoi64(argv[arg_sector]))))
     {
         std::unique_ptr<FILE, int (*)(FILE*)> file(_tfopen(argv[arg_output_file], _TEXT("wb")), std::fclose);
         if(0 == file)

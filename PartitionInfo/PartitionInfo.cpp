@@ -4,11 +4,11 @@
 // Getting a handle to a disk requires Windows NT 4.0 or better.
 
 #include "PreCompile.h"
-#include "directread.h"
+#include "DirectRead.h"
 
 // Display partition table data to stdout.
 void output_partition_table_info(
-    _In_count_c_(partition_table_entry_count) const Partition_table_entry* entry,
+    _In_reads_(partition_table_entry_count) const DiskTools::Partition_table_entry* entry,
     unsigned int sector_size)
 {
     for(unsigned int index = 0; index < partition_table_entry_count; ++index)
@@ -18,7 +18,7 @@ void output_partition_table_info(
         _tprintf(_TEXT("Partition %u:\r\n"), index);
         _tprintf(_TEXT(" Bootable: %s\r\n"), entry[index].bootable ? _TEXT("Yes") : _TEXT("No"));
 
-        PCTSTR file_system_name = get_file_system_name(entry[index].file_system_type);
+        PCTSTR file_system_name = DiskTools::get_file_system_name(entry[index].file_system_type);
         if(nullptr != file_system_name)
         {
             _tprintf(_TEXT(" File System: %s\r\n"), file_system_name);
@@ -49,14 +49,14 @@ int _tmain(int, _In_ PTSTR*)
     // ERRORLEVEL zero is the success code.
     int error_level = 1;
 
-    HRESULT hr = read_sector_from_disk(buffer.data(), &bytes_to_read, 0, 0);
+    HRESULT hr = DiskTools::read_sector_from_disk(buffer.data(), &bytes_to_read, 0, 0);
     if(SUCCEEDED(hr))
     {
         if(sector_size == bytes_to_read)
         {
             // Final two bytes are a boot sector signature, and the partition table immediately preceeds it.
-            unsigned int table_start = sector_size - 2 - (sizeof(Partition_table_entry) * partition_table_entry_count);
-            auto entries = reinterpret_cast<Partition_table_entry*>(buffer.data() + table_start);
+            unsigned int table_start = sector_size - 2 - (sizeof(DiskTools::Partition_table_entry) * partition_table_entry_count);
+            auto entries = reinterpret_cast<DiskTools::Partition_table_entry*>(buffer.data() + table_start);
             output_partition_table_info(entries, sector_size);
 
             error_level = 0;

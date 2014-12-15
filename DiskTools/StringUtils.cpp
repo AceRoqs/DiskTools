@@ -1,7 +1,9 @@
 #include "PreCompile.h"
 #include "StringUtils.h"    // Pick up forward declarations to ensure correctness.
 
-//---------------------------------------------------------------------------
+namespace DiskTools
+{
+
 static int get_locale_info_number(
     LCID locale,
     LCTYPE type,
@@ -16,7 +18,6 @@ static int get_locale_info_number(
                            sizeof(*number) / sizeof(TCHAR));
 }
 
-//---------------------------------------------------------------------------
 // Wrapper for NUMBERFMT.
 class Number_format
 {
@@ -33,13 +34,11 @@ public:
     void get_number_format(_Out_ NUMBERFMT* pnf);
 };
 
-//---------------------------------------------------------------------------
 Number_format::Number_format()
 {
     ::ZeroMemory(&m_number_format, sizeof(m_number_format));
 }
 
-//---------------------------------------------------------------------------
 void Number_format::init_by_LCID(LCID lcid)
 {
     // No need to check for return codes, as failure only occurs for invalid parameters.
@@ -68,19 +67,16 @@ void Number_format::init_by_LCID(LCID lcid)
     m_number_format.lpThousandSep = m_thousands_separator;
 }
 
-//---------------------------------------------------------------------------
 void Number_format::strip_decimal()
 {
     m_number_format.NumDigits = 0;
 }
 
-//---------------------------------------------------------------------------
 void Number_format::get_number_format(_Out_ NUMBERFMT* pnf)
 {
     ::CopyMemory(pnf, &m_number_format, sizeof(m_number_format));
 }
 
-//---------------------------------------------------------------------------
 static void output_formatted_number(
     PTSTR number_string,
     _Out_z_cap_(size_in_chars) PTSTR output_string,
@@ -105,7 +101,6 @@ static void output_formatted_number(
     }
 }
 
-//---------------------------------------------------------------------------
 void pretty_print32(
     uint32_t value,
     _Out_z_cap_(size_in_chars) PTSTR output_string,
@@ -117,7 +112,6 @@ void pretty_print32(
     output_formatted_number(temp_buffer, output_string, size_in_chars);
 }
 
-//---------------------------------------------------------------------------
 void pretty_print64(
     uint64_t value,
     _Out_z_cap_(size_in_chars) PTSTR output_string,
@@ -127,5 +121,7 @@ void pretty_print64(
     _ui64tot_s(value, temp_buffer, ARRAYSIZE(temp_buffer), 10);
 
     output_formatted_number(temp_buffer, output_string, size_in_chars);
+}
+
 }
 
