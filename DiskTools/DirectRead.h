@@ -23,6 +23,10 @@ struct Partition_table_entry
 };
 #pragma pack(pop)
 
+PCTSTR get_filename_cdrom_0();
+PCTSTR get_filename_physical_disk_0();
+PCTSTR get_filename_physical_disk_1();
+
 PCTSTR get_file_system_name(uint8_t file_system_type);
 bool is_extended_partition(uint8_t file_system_type);
 
@@ -37,11 +41,6 @@ HRESULT read_sector_from_disk(
     _Inout_ unsigned int* buffer_size,
     uint8_t disk_number,
     uint64_t sector_number);
-
-// TODO: Expose as functions.
-extern PCTSTR cdrom_0;
-extern PCTSTR physical_disk_0;
-extern PCTSTR physical_disk_1;
 
 }
 

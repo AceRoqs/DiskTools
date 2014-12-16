@@ -7,9 +7,24 @@
 namespace DiskTools
 {
 
-PCTSTR cdrom_0         = TEXT("\\\\.\\CDROM0");
-PCTSTR physical_disk_0 = TEXT("\\\\.\\PHYSICALDRIVE0");
-PCTSTR physical_disk_1 = TEXT("\\\\.\\PHYSICALDRIVE1");
+static PCTSTR cdrom_0 = TEXT("\\\\.\\CDROM0");
+static PCTSTR physical_disk_0 = TEXT("\\\\.\\PHYSICALDRIVE0");
+static PCTSTR physical_disk_1 = TEXT("\\\\.\\PHYSICALDRIVE1");
+
+PCTSTR get_filename_cdrom_0()
+{
+    return cdrom_0;
+}
+
+PCTSTR get_filename_physical_disk_0()
+{
+    return physical_disk_0;
+}
+
+PCTSTR get_filename_physical_disk_1()
+{
+    return physical_disk_1;
+}
 
 // Mappings of file system types to string names.
 // This table is not intended to be localized.

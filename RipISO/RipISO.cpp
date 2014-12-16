@@ -24,7 +24,7 @@ int _tmain(int argc, _In_count_(argc) PTSTR* argv)
     };
 
     std::unique_ptr<void, std::function<void (HANDLE handle)>> disk_handle(
-        ::CreateFile(DiskTools::cdrom_0,
+        ::CreateFile(DiskTools::get_filename_cdrom_0(),
                      GENERIC_READ,
                      FILE_SHARE_READ,
                      nullptr,
