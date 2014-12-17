@@ -1,7 +1,7 @@
 #include "PreCompile.h"
 #include "DirectRead.h"
 
-int _tmain(int argc, _In_count_(argc) PTSTR* argv)
+int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 {
     const unsigned int arg_program_name = 0;
     const unsigned int arg_sector       = 1;

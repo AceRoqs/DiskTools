@@ -147,7 +147,7 @@ std::wstring sanitize_label(const std::wstring& input_label)
     return std::move(output_label);
 }
 
-void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
+void output_boot_sector(int argc, _In_reads_(argc) PTSTR* argv)
 {
     std::wstring boot_sector_file_name;
     std::wstring image_file_name;
@@ -202,7 +202,7 @@ void output_boot_sector(int argc, _In_count_(argc) PTSTR* argv)
     output_file.close();
 }
 
-int _tmain(int argc, _In_count_(argc) PTSTR* argv)
+int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 {
     // ERRORLEVEL zero is the success code.
     int error_level = 0;

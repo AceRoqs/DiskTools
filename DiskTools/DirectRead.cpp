@@ -94,7 +94,7 @@ bool is_extended_partition(uint8_t file_system_type)
            (file_system_type_extended2 == file_system_type);
 }
 
-static HRESULT seek_to_offset(HANDLE handle, uint64_t byte_offset)
+static HRESULT seek_to_offset(_In_ HANDLE handle, uint64_t byte_offset)
 {
     HRESULT hr = S_OK;
 
@@ -116,7 +116,7 @@ static HRESULT seek_to_offset(HANDLE handle, uint64_t byte_offset)
 }
 
 static HRESULT can_buffer_hold_sector(
-    HANDLE disk_handle,
+    _In_ HANDLE disk_handle,
     unsigned int buffer_size,
     unsigned int* minimum_buffer_size)
 {
@@ -169,7 +169,7 @@ HANDLE get_disk_handle(uint8_t disk_number)
 }
 
 HRESULT read_sector_from_handle(
-    _Out_cap_post_count_(*buffer_size, *buffer_size) uint8_t* buffer,
+    _Out_writes_to_(*buffer_size, *buffer_size) uint8_t* buffer,
     _Inout_ unsigned int* buffer_size,
     _In_ HANDLE handle,
     uint64_t sector_number)
@@ -198,7 +198,7 @@ HRESULT read_sector_from_handle(
 }
 
 HRESULT read_sector_from_disk(
-    _Out_cap_post_count_(*buffer_size, *buffer_size) uint8_t* buffer,
+    _Out_writes_to_(*buffer_size, *buffer_size) uint8_t* buffer,
     _Inout_ unsigned int* buffer_size,
     uint8_t disk_number,
     uint64_t sector_number)

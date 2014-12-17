@@ -36,7 +36,7 @@ void output_partition_table_info(
     }
 }
 
-// _In_count_(argc) is the correct SAL annotation, but argc is not defined.
+// _In_reads_(argc) is the correct SAL annotation, but argc is not defined.
 int _tmain(int, _In_ PTSTR*)
 {
     // Fixed disks with partition tables will generally have a sector

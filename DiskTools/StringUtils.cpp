@@ -79,7 +79,7 @@ void Number_format::get_number_format(_Out_ NUMBERFMT* pnf)
 
 static void output_formatted_number(
     PTSTR number_string,
-    _Out_z_cap_(size_in_chars) PTSTR output_string,
+    _Out_writes_z_(size_in_chars) PTSTR output_string,
     _In_range_(0, INT_MAX) size_t size_in_chars)
 {
     const LCID locale = LOCALE_USER_DEFAULT;
@@ -103,7 +103,7 @@ static void output_formatted_number(
 
 void pretty_print32(
     uint32_t value,
-    _Out_z_cap_(size_in_chars) PTSTR output_string,
+    _Out_writes_z_(size_in_chars) PTSTR output_string,
     _In_range_(0, INT_MAX) size_t size_in_chars)
 {
     TCHAR temp_buffer[11]; // Enough space to hold 2^32, including null, but not including commas.
@@ -114,7 +114,7 @@ void pretty_print32(
 
 void pretty_print64(
     uint64_t value,
-    _Out_z_cap_(size_in_chars) PTSTR output_string,
+    _Out_writes_z_(size_in_chars) PTSTR output_string,
     _In_range_(0, INT_MAX) size_t size_in_chars)
 {
     TCHAR temp_buffer[21]; // Enough space to hold 2^64, including null, but not including commas.

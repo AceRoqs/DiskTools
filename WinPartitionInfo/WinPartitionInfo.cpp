@@ -49,7 +49,7 @@ enum listview_column_ids
 void get_yesno_string(
     bool is_yes,
     HINSTANCE instance,
-    _Out_z_cap_(yesno_size) PTSTR yesno,
+    _Out_writes_z_(yesno_size) PTSTR yesno,
     _In_ unsigned int yesno_size)
 {
     if(is_yes)
@@ -64,7 +64,7 @@ void get_yesno_string(
 }
 
 void get_file_system_name_from_type(
-    _Out_z_cap_(file_system_name_size) PTSTR file_system_name,
+    _Out_writes_z_(file_system_name_size) PTSTR file_system_name,
     _In_ unsigned int file_system_name_size,
     uint8_t file_system_type)
 {
@@ -287,7 +287,7 @@ static void populate_listview(
 void add_listview_headers(
     _In_ HWND listview,
     _In_ HINSTANCE instance,
-    _In_count_(column_count) const Listview_columns* columns,
+    _In_reads_(column_count) const Listview_columns* columns,
     _In_ unsigned int column_count)
 {
     assert(INVALID_HANDLE_VALUE != listview);
