@@ -45,7 +45,7 @@ struct Root_directory_entry
 #pragma pack(pop)
 
 const unsigned int bytes_per_sector = 512;
-std::vector<uint8_t> get_default_boot_sector()
+static std::vector<uint8_t> get_default_boot_sector()
 {
     std::vector<uint8_t> boot_sector(bytes_per_sector);
 
@@ -56,7 +56,7 @@ std::vector<uint8_t> get_default_boot_sector()
     return std::move(boot_sector);
 }
 
-std::vector<uint8_t> get_empty_file_allocation_table(unsigned int sector_count)
+static std::vector<uint8_t> get_empty_file_allocation_table(unsigned int sector_count)
 {
     std::vector<uint8_t> file_allocation_table(sector_count * bytes_per_sector);
 
@@ -67,14 +67,14 @@ std::vector<uint8_t> get_empty_file_allocation_table(unsigned int sector_count)
     return std::move(file_allocation_table);
 }
 
-std::vector<uint8_t> get_empty_root_directory(unsigned int sector_count)
+static std::vector<uint8_t> get_empty_root_directory(unsigned int sector_count)
 {
     std::vector<uint8_t> root_directory(sector_count * bytes_per_sector);
 
     return std::move(root_directory);
 }
 
-void usage()
+static void usage()
 {
     std::cerr << "writeimage [-b=file] [-l=label] -f=file.img\n";
     std::cerr << "    -f=file   Output filename\n";
@@ -99,7 +99,7 @@ Usage: bfi [-v] [-t=type] [-o=file] [-o=file] [-l=mylabel] [-b=file]
 #endif
 }
 
-bool is_legal_fat_character(wchar_t ch)
+static bool is_legal_fat_character(wchar_t ch)
 {
     if((ch >= L'A') && (ch <= L'Z'))
     {
@@ -127,7 +127,7 @@ bool is_legal_fat_character(wchar_t ch)
 }
 
 // TODO: Consider outputting a std::string instead of std::wstring.
-std::wstring sanitize_label(const std::wstring& input_label)
+static std::wstring sanitize_label(const std::wstring& input_label)
 {
     static_assert(sizeof(Bios_parameter_block().volume_label) == (sizeof(Root_directory_entry().filename) + sizeof(Root_directory_entry().extension)),
                   "Directory entry and BPB must match size for volume label.");
@@ -147,36 +147,16 @@ std::wstring sanitize_label(const std::wstring& input_label)
     return std::move(output_label);
 }
 
-void output_boot_sector(int argc, _In_reads_(argc) PTSTR* argv)
+static void output_boot_sector(
+    const std::wstring& boot_sector_file_name,
+    const std::wstring& image_file_name,
+    const std::wstring& label)
 {
-    std::wstring boot_sector_file_name;
-    std::wstring image_file_name;
-    std::wstring label;
-    for(int ii = 0; ii < argc; ++ii)
-    {
-        if(_tcsncmp(argv[ii], _T("-b="), 3) == 0)
-        {
-            boot_sector_file_name = &argv[ii][3];
-        }
-        else if(_tcsncmp(argv[ii], _T("-f="), 3) == 0)
-        {
-            image_file_name = &argv[ii][3];
-        }
-        else if(_tcsncmp(argv[ii], _T("-l="), 3) == 0)
-        {
-            label = &argv[ii][3];
-        }
-    }
-
-    label = sanitize_label(label);
+    (label);    // TODO:
     auto boot_sector = get_default_boot_sector();
     const auto file_allocation_table = get_empty_file_allocation_table(9);
     const auto root_directory = get_empty_root_directory(14);
 
-    if(image_file_name.empty())
-    {
-        image_file_name = L"file.img";
-    }
     if(!boot_sector_file_name.empty())
     {
         std::basic_ifstream<uint8_t> boot_sector_file(boot_sector_file_name, std::ios::in | std::ios::binary);
@@ -215,7 +195,32 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
     {
         try
         {
-            output_boot_sector(argc, argv);
+            std::wstring boot_sector_file_name;
+            std::wstring image_file_name;
+            std::wstring label;
+            for(int ii = 0; ii < argc; ++ii)
+            {
+                if(_tcsncmp(argv[ii], _T("-b="), 3) == 0)
+                {
+                    boot_sector_file_name = &argv[ii][3];
+                }
+                else if(_tcsncmp(argv[ii], _T("-f="), 3) == 0)
+                {
+                    image_file_name = &argv[ii][3];
+                }
+                else if(_tcsncmp(argv[ii], _T("-l="), 3) == 0)
+                {
+                    label = &argv[ii][3];
+                }
+            }
+
+            if(image_file_name.empty())
+            {
+                image_file_name = L"file.img";
+            }
+            label = sanitize_label(label);
+
+            output_boot_sector(boot_sector_file_name, image_file_name, label);
         }
         catch(...)
         {
