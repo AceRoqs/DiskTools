@@ -182,6 +182,36 @@ static void output_boot_sector(
     output_file.close();
 }
 
+static std::tuple<std::wstring, std::wstring, std::wstring> parse_command_line(int argc, PTSTR* argv)
+{
+    std::wstring boot_sector_file_name;
+    std::wstring image_file_name;
+    std::wstring label;
+    for(int ii = 0; ii < argc; ++ii)
+    {
+        if(_tcsncmp(argv[ii], _T("-b="), 3) == 0)
+        {
+            boot_sector_file_name = &argv[ii][3];
+        }
+        else if(_tcsncmp(argv[ii], _T("-f="), 3) == 0)
+        {
+            image_file_name = &argv[ii][3];
+        }
+        else if(_tcsncmp(argv[ii], _T("-l="), 3) == 0)
+        {
+            label = &argv[ii][3];
+        }
+    }
+
+    if(image_file_name.empty())
+    {
+        image_file_name = L"file.img";
+    }
+    label = sanitize_label(label);
+
+    return std::make_tuple(boot_sector_file_name, image_file_name, label);
+}
+
 int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 {
     // ERRORLEVEL zero is the success code.
@@ -198,27 +228,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
             std::wstring boot_sector_file_name;
             std::wstring image_file_name;
             std::wstring label;
-            for(int ii = 0; ii < argc; ++ii)
-            {
-                if(_tcsncmp(argv[ii], _T("-b="), 3) == 0)
-                {
-                    boot_sector_file_name = &argv[ii][3];
-                }
-                else if(_tcsncmp(argv[ii], _T("-f="), 3) == 0)
-                {
-                    image_file_name = &argv[ii][3];
-                }
-                else if(_tcsncmp(argv[ii], _T("-l="), 3) == 0)
-                {
-                    label = &argv[ii][3];
-                }
-            }
-
-            if(image_file_name.empty())
-            {
-                image_file_name = L"file.img";
-            }
-            label = sanitize_label(label);
+            std::tie(boot_sector_file_name, image_file_name, label) = parse_command_line(argc, argv);
 
             output_boot_sector(boot_sector_file_name, image_file_name, label);
         }
