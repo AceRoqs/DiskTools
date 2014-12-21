@@ -492,8 +492,9 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
         }
     }
     // Don't allow std::bad_alloc to propagate across ABI boundaries.
-    catch(const std::bad_alloc&)
+    catch(const std::bad_alloc& ex)
     {
+        (ex);
         HINSTANCE instance = reinterpret_cast<HINSTANCE>(::GetWindowLongPtr(window, GWLP_HINSTANCE));
         DiskTools::display_localized_error_dialog(window, instance, IDS_OOMCAPTION, IDS_OOMMESSAGE);
     }
@@ -518,7 +519,6 @@ void Partition_table_dialog::on_init_dialog(_In_ HWND window, _In_ HINSTANCE ins
     // Save window rectangles for use during resize.
     ::GetClientRect(window, &m_original_client_rect);
     DiskTools::get_clientspace_control_rect(window, IDC_PARTITIONS, &m_original_clientspace_listview_rect);
-    DiskTools::get_clientspace_control_rect(window, IDC_COPYRIGHT,  &m_original_clientspace_label_rect);
 
     HWND listview = ::GetDlgItem(window, IDC_PARTITIONS);
     add_listview_headers(listview, instance, listview_columns, ARRAYSIZE(listview_columns));
@@ -541,13 +541,6 @@ void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int
     SIZE size_offset = { offset_width, offset_height };
 
     DiskTools::reposition_control_by_offset(window, IDC_PARTITIONS, m_original_clientspace_listview_rect, position_offset, size_offset);
-
-    position_offset.x = 0;
-    position_offset.y = offset_height;
-    size_offset.cx = 0;
-    size_offset.cy = 0;
-
-    DiskTools::reposition_control_by_offset(window, IDC_COPYRIGHT, m_original_clientspace_label_rect, position_offset, size_offset);
 
     // Because a resize grip is displayed, invalidate the client rect.  Since
     // the whole client area is redrawn, there is no need for DeferWindowPos,

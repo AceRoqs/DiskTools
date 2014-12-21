@@ -88,8 +88,9 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
                     bytes_left -= amount_to_read;
                 }
             }
-            catch(const std::bad_alloc&)
+            catch(const std::bad_alloc& ex)
             {
+                (ex);
                 _ftprintf(stderr, _TEXT("Not enough memory to allocate the transfer buffer.\r\n"));
                 error_level = 1;
             }
