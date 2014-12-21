@@ -28,8 +28,10 @@ unsigned int get_imagelist_width_by_index(
     if(nullptr != image_list)
     {
         IMAGEINFO image_info;
-        VERIFY((::ImageList_GetImageInfo(image_list, image_index, &image_info)) != 0);
-        image_width = image_info.rcImage.right - image_info.rcImage.left;
+        if(::ImageList_GetImageInfo(image_list, image_index, &image_info) != 0)
+        {
+            image_width = image_info.rcImage.right - image_info.rcImage.left;
+        }
     }
 
     return image_width;
@@ -69,7 +71,7 @@ bool adjust_listview_column_widths(
     for(unsigned int column = 0; column < column_count; ++column)
     {
         // Use the width of the column header as the default column width.
-        verify(ListView_GetColumn(listview, column, &column_data) != 0);
+        PortableRuntime::verify(ListView_GetColumn(listview, column, &column_data) != 0);
         int min_width = ListView_GetStringWidth(listview, column_data.pszText);
 
         // See if any of the rows require more width than the current minimum.

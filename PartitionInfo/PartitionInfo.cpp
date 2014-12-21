@@ -6,8 +6,12 @@
 #include "PreCompile.h"
 #include "DirectRead.h"
 
+namespace PartitionInfo
+{
+
 // Display partition table data to stdout.
-void output_partition_table_info(
+// TODO: Make this take an ostream and put it into DiskTools.
+static void output_partition_table_info(
     _In_reads_(partition_table_entry_count) const DiskTools::Partition_table_entry* entry,
     unsigned int sector_size)
 {
@@ -36,9 +40,14 @@ void output_partition_table_info(
     }
 }
 
+}
+
 // _In_reads_(argc) is the correct SAL annotation, but argc is not defined.
-int _tmain(int, _In_ PTSTR*)
+int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 {
+    UNREFERENCED_PARAMETER(argc);
+    UNREFERENCED_PARAMETER(argv);
+
     // Fixed disks with partition tables will generally have a sector
     // size of 512 bytes (valid as of 2011).
     const unsigned int sector_size = 512;
@@ -57,7 +66,7 @@ int _tmain(int, _In_ PTSTR*)
             // Final two bytes are a boot sector signature, and the partition table immediately preceeds it.
             unsigned int table_start = sector_size - 2 - (sizeof(DiskTools::Partition_table_entry) * partition_table_entry_count);
             auto entries = reinterpret_cast<DiskTools::Partition_table_entry*>(buffer.data() + table_start);
-            output_partition_table_info(entries, sector_size);
+            PartitionInfo::output_partition_table_info(entries, sector_size);
 
             error_level = 0;
         }

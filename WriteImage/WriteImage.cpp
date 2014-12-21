@@ -1,5 +1,8 @@
 #include "PreCompile.h"
 
+namespace WriteImage
+{
+
 const unsigned int fat_max_filename_length = 8;
 const unsigned int fat_max_extension_length = 3;
 
@@ -212,6 +215,8 @@ static std::tuple<std::wstring, std::wstring, std::wstring> parse_command_line(i
     return std::make_tuple(boot_sector_file_name, image_file_name, label);
 }
 
+}
+
 int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 {
     // ERRORLEVEL zero is the success code.
@@ -219,7 +224,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 
     if(argc < 2)
     {
-        usage();
+        WriteImage::usage();
     }
     else
     {
@@ -228,9 +233,9 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
             std::wstring boot_sector_file_name;
             std::wstring image_file_name;
             std::wstring label;
-            std::tie(boot_sector_file_name, image_file_name, label) = parse_command_line(argc, argv);
+            std::tie(boot_sector_file_name, image_file_name, label) = WriteImage::parse_command_line(argc, argv);
 
-            output_boot_sector(boot_sector_file_name, image_file_name, label);
+            WriteImage::output_boot_sector(boot_sector_file_name, image_file_name, label);
         }
         catch(...)
         {

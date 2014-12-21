@@ -5,6 +5,9 @@
 #include "StringUtils.h"
 #include "WindowUtils.h"
 
+namespace WinPartitionInfo
+{
+
 const unsigned int sector_size = 512;
 const unsigned int max_partitions = 32;
 
@@ -28,7 +31,7 @@ static const struct Listview_columns
 };
 
 // This enumeration must match the order of listview_columns.
-// NOTE: Once compilers support C++0x initialization lists, consider
+// NOTE: Once compilers support C++11 initialization lists, consider
 // putting the listview_columns entries into a std::map keyed with
 // the below enum.
 enum listview_column_ids
@@ -54,11 +57,11 @@ void get_yesno_string(
 {
     if(is_yes)
     {
-        verify(::LoadString(instance, IDS_YES, yesno, yesno_size) > 0);
+        PortableRuntime::verify(::LoadString(instance, IDS_YES, yesno, yesno_size) > 0);
     }
     else
     {
-        verify(::LoadString(instance, IDS_NO, yesno, yesno_size) > 0);
+        PortableRuntime::verify(::LoadString(instance, IDS_NO, yesno, yesno_size) > 0);
     }
     yesno[yesno_size - 1] = TEXT('\0');   // Suggested by static analysis.
 }
@@ -72,18 +75,18 @@ void get_file_system_name_from_type(
 
     if(nullptr != name)
     {
-        verify_hr(::StringCchPrintf(file_system_name,
-                                    file_system_name_size,
-                                    TEXT("(%02X) %s"),
-                                    file_system_type,
-                                    name));
+        WindowsCommon::verify_hr(::StringCchPrintf(file_system_name,
+                                                   file_system_name_size,
+                                                   TEXT("(%02X) %s"),
+                                                   file_system_type,
+                                                   name));
     }
     else
     {
-        verify_hr(::StringCchPrintf(file_system_name,
-                                    file_system_name_size,
-                                    TEXT("(%02X)"),
-                                    file_system_type));
+        WindowsCommon::verify_hr(::StringCchPrintf(file_system_name,
+                                                   file_system_name_size,
+                                                   TEXT("(%02X)"),
+                                                   file_system_type));
     }
 }
 
@@ -300,7 +303,7 @@ void add_listview_headers(
     for(unsigned int column_index = 0; column_index < column_count; ++column_index)
     {
         TCHAR label[32];
-        verify(::LoadString(instance, columns[column_index].name, label, ARRAYSIZE(label)) > 0);
+        PortableRuntime::verify(::LoadString(instance, columns[column_index].name, label, ARRAYSIZE(label)) > 0);
         label[ARRAYSIZE(label) - 1] = TEXT('\0');    // Suggested by static analysis.
 
         new_column.fmt = columns[column_index].format;
@@ -548,6 +551,8 @@ void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int
     ::InvalidateRect(window, nullptr, TRUE);
 }
 
+}
+
 // Declspec SAL is used instead of attribute SAL, as the WinMain declaration
 // in the system headers still uses declspec SAL.
 int WINAPI _tWinMain(_In_ HINSTANCE instance,   // Handle to the program instance.
@@ -566,7 +571,7 @@ int WINAPI _tWinMain(_In_ HINSTANCE instance,   // Handle to the program instanc
     // Load the ListView control from the common controls.
     if(::InitCommonControlsEx(&init_controls))
     {
-        Partition_table_dialog dialog;
+        WinPartitionInfo::Partition_table_dialog dialog;
         dialog.show(instance, MAKEINTRESOURCE(IDD_PARTITION_TABLE_DIALOG));
     }
     else
