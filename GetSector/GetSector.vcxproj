@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <DefaultLanguage>en-US</DefaultLanguage>
     <ProjectGuid>{75623C75-41B2-4D99-ACD2-88F65A8207AB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>GetSector</RootNamespace>

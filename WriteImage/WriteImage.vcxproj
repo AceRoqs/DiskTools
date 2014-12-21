@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <DefaultLanguage>en-US</DefaultLanguage>
     <ProjectGuid>{4A40E094-73F9-4D41-8263-6D508CBBC81D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>WriteImage</RootNamespace>

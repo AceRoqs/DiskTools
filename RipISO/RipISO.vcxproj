@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <DefaultLanguage>en-US</DefaultLanguage>
     <ProjectGuid>{E2F5AF6F-F713-4BC9-A66D-FFEBFA0B3967}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RipISO</RootNamespace>

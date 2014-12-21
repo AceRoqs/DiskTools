@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <DefaultLanguage>en-US</DefaultLanguage>
     <ProjectGuid>{008C02A9-9A09-46AE-BC30-DB64B59DC1BE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>PartitionInfo</RootNamespace>
