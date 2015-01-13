@@ -31,9 +31,6 @@ static const struct Listview_columns
 };
 
 // This enumeration must match the order of listview_columns.
-// NOTE: Once compilers support C++11 initialization lists, consider
-// putting the listview_columns entries into a std::map keyed with
-// the below enum.
 enum listview_column_ids
 {
     bootable_entry = 0,
