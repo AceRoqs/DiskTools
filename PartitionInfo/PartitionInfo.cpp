@@ -4,7 +4,7 @@
 // Getting a handle to a disk requires Windows NT 4.0 or better.
 
 #include "PreCompile.h"
-#include "DirectRead.h"
+#include <DiskTools/DirectRead.h>
 
 namespace PartitionInfo
 {

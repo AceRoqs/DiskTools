@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
-    <DiskToolsDir>$(SolutionDir)DiskTools\</DiskToolsDir>
+    <DiskToolsDir>$(SolutionDir)</DiskToolsDir>
     <DiskToolsLibDir>$(OutDir)</DiskToolsLibDir>
     <DiskToolsLibraries>DiskTools.lib</DiskToolsLibraries>
   </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(DiskToolsDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(DiskToolsLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(DiskToolsLibraries);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
 </Project>

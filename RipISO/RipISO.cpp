@@ -1,5 +1,5 @@
 #include "PreCompile.h"
-#include "DirectRead.h"
+#include <DiskTools/DirectRead.h>
 
 int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 {

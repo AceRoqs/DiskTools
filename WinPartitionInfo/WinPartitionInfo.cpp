@@ -1,9 +1,9 @@
 #include "PreCompile.h"
 #include "Resource.h"
-#include "DirectRead.h"
-#include "Verify.h"
-#include "StringUtils.h"
-#include "WindowUtils.h"
+#include <DiskTools/DirectRead.h>
+#include <DiskTools/Verify.h>
+#include <DiskTools/StringUtils.h>
+#include <DiskTools/WindowUtils.h>
 
 namespace WinPartitionInfo
 {
