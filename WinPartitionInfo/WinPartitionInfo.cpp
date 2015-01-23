@@ -210,7 +210,7 @@ void output_partition_table_info(
 
     unsigned int row = ListView_GetItemCount(listview);
     LVITEM item = {};
-    for(auto partition = std::begin(*partitions); partition != std::end(*partitions); ++partition)
+    for(auto partition = std::cbegin(*partitions); partition != std::cend(*partitions); ++partition)
     {
         // Insert a new row into the listview.
         item.iItem = row;
@@ -251,7 +251,7 @@ void output_partition_table_info(
             LVITEM row_item;
             row_item.iSubItem = column;
             row_item.pszText  = label;
-            if(!::SendMessage(listview, LVM_SETITEMTEXT, row, reinterpret_cast<LPARAM>(&row_item)))
+            if(!SendMessage(listview, LVM_SETITEMTEXT, row, reinterpret_cast<LPARAM>(&row_item)))
             {
                 throw std::bad_alloc();
             }
