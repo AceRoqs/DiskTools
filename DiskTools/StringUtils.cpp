@@ -12,10 +12,10 @@ static int get_locale_info_number(
     // The size of the buffer is in TCHARS, even if this function is requesting
     // a number returned.
     // http://msdn.microsoft.com/en-us/library/dd318101.aspx
-    return ::GetLocaleInfo(locale,
-                           type | LOCALE_RETURN_NUMBER,
-                           reinterpret_cast<PTSTR>(number),
-                           sizeof(*number) / sizeof(TCHAR));
+    return GetLocaleInfo(locale,
+                         type | LOCALE_RETURN_NUMBER,
+                         reinterpret_cast<PTSTR>(number),
+                         sizeof(*number) / sizeof(TCHAR));
 }
 
 // Wrapper for NUMBERFMT.
@@ -36,7 +36,7 @@ public:
 
 Number_format::Number_format()
 {
-    ::ZeroMemory(&m_number_format, sizeof(m_number_format));
+    ZeroMemory(&m_number_format, sizeof(m_number_format));
 }
 
 void Number_format::init_by_LCID(LCID lcid)
@@ -48,7 +48,7 @@ void Number_format::init_by_LCID(LCID lcid)
 
     TCHAR buffer[16];
 
-    ::GetLocaleInfo(lcid, LOCALE_SGROUPING, buffer, ARRAYSIZE(buffer));
+    GetLocaleInfo(lcid, LOCALE_SGROUPING, buffer, ARRAYSIZE(buffer));
     PTSTR string_pointer = buffer;
     while(*string_pointer)
     {
@@ -60,10 +60,10 @@ void Number_format::init_by_LCID(LCID lcid)
         ++string_pointer;
     }
 
-    ::GetLocaleInfo(lcid, LOCALE_SDECIMAL, m_decimal_separator, ARRAYSIZE(m_decimal_separator));
+    GetLocaleInfo(lcid, LOCALE_SDECIMAL, m_decimal_separator, ARRAYSIZE(m_decimal_separator));
     m_number_format.lpDecimalSep = m_decimal_separator;
 
-    ::GetLocaleInfo(lcid, LOCALE_SMONTHOUSANDSEP, m_thousands_separator, ARRAYSIZE(m_thousands_separator));
+    GetLocaleInfo(lcid, LOCALE_SMONTHOUSANDSEP, m_thousands_separator, ARRAYSIZE(m_thousands_separator));
     m_number_format.lpThousandSep = m_thousands_separator;
 }
 
@@ -74,7 +74,7 @@ void Number_format::strip_decimal()
 
 void Number_format::get_number_format(_Out_ NUMBERFMT* pnf)
 {
-    ::CopyMemory(pnf, &m_number_format, sizeof(m_number_format));
+    CopyMemory(pnf, &m_number_format, sizeof(m_number_format));
 }
 
 static void output_formatted_number(
@@ -91,10 +91,10 @@ static void output_formatted_number(
     NUMBERFMT number_format_no_decimal;
     number_format.get_number_format(&number_format_no_decimal);
 
-    if(0 == ::GetNumberFormat(locale, 0, number_string, &number_format_no_decimal, output_string, static_cast<int>(size_in_chars)))
+    if(0 == GetNumberFormat(locale, 0, number_string, &number_format_no_decimal, output_string, static_cast<int>(size_in_chars)))
     {
         // Output the string without formatting.
-        if(FAILED(::StringCchCopy(output_string, size_in_chars, number_string)))
+        if(FAILED(StringCchCopy(output_string, size_in_chars, number_string)))
         {
             assert(!"Input buffer not large enough for StringCchCopy.");
         }

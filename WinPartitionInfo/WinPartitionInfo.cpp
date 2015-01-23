@@ -54,11 +54,11 @@ void get_yesno_string(
 {
     if(is_yes)
     {
-        PortableRuntime::verify(::LoadString(instance, IDS_YES, yesno, yesno_size) > 0);
+        PortableRuntime::verify(LoadString(instance, IDS_YES, yesno, yesno_size) > 0);
     }
     else
     {
-        PortableRuntime::verify(::LoadString(instance, IDS_NO, yesno, yesno_size) > 0);
+        PortableRuntime::verify(LoadString(instance, IDS_NO, yesno, yesno_size) > 0);
     }
     yesno[yesno_size - 1] = TEXT('\0');   // Suggested by static analysis.
 }
@@ -72,18 +72,18 @@ void get_file_system_name_from_type(
 
     if(nullptr != name)
     {
-        WindowsCommon::verify_hr(::StringCchPrintf(file_system_name,
-                                                   file_system_name_size,
-                                                   TEXT("(%02X) %s"),
-                                                   file_system_type,
-                                                   name));
+        WindowsCommon::verify_hr(StringCchPrintf(file_system_name,
+                                                 file_system_name_size,
+                                                 TEXT("(%02X) %s"),
+                                                 file_system_type,
+                                                 name));
     }
     else
     {
-        WindowsCommon::verify_hr(::StringCchPrintf(file_system_name,
-                                                   file_system_name_size,
-                                                   TEXT("(%02X)"),
-                                                   file_system_type));
+        WindowsCommon::verify_hr(StringCchPrintf(file_system_name,
+                                                 file_system_name_size,
+                                                 TEXT("(%02X)"),
+                                                 file_system_type));
     }
 }
 
@@ -184,7 +184,7 @@ HRESULT read_disk_partitions(
         {
             if(INVALID_HANDLE_VALUE != handle)
             {
-                ::CloseHandle(handle);
+                CloseHandle(handle);
             }
         });
 
@@ -209,8 +209,7 @@ void output_partition_table_info(
     assert(max_partitions >= partitions->size());
 
     unsigned int row = ListView_GetItemCount(listview);
-    LVITEM item;
-    ::ZeroMemory(&item, sizeof(item));
+    LVITEM item = {};
     for(auto partition = std::begin(*partitions); partition != std::end(*partitions); ++partition)
     {
         // Insert a new row into the listview.
@@ -293,14 +292,13 @@ void add_listview_headers(
     assert(INVALID_HANDLE_VALUE != listview);
     assert(DiskTools::is_listview_in_report_mode(listview));
 
-    LVCOLUMN new_column;
-    ::ZeroMemory(&new_column, sizeof(new_column));
+    LVCOLUMN new_column = {};
     new_column.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_ORDER | LVCF_FMT;
 
     for(unsigned int column_index = 0; column_index < column_count; ++column_index)
     {
         TCHAR label[32];
-        PortableRuntime::verify(::LoadString(instance, columns[column_index].name, label, ARRAYSIZE(label)) > 0);
+        PortableRuntime::verify(LoadString(instance, columns[column_index].name, label, ARRAYSIZE(label)) > 0);
         label[ARRAYSIZE(label) - 1] = TEXT('\0');    // Suggested by static analysis.
 
         new_column.fmt = columns[column_index].format;
@@ -326,7 +324,7 @@ static BOOL on_command(_In_ HWND window, WORD id)
     if(IDCANCEL == id)
     {
         // Return 1 on success, as it makes the DialogBox* return code unambiguous.
-        ::EndDialog(window, 1);
+        EndDialog(window, 1);
         message_processed = TRUE;
     }
 
@@ -342,14 +340,14 @@ static void on_paint(_In_ HWND window)
 
     // Ensure EndPaint is called at the end of the method.
     std::unique_ptr<HDC__, std::function<void (HDC)>> context(
-        ::BeginPaint(window, &paint_struct),
+        BeginPaint(window, &paint_struct),
         [window, &paint_struct](HDC)
         {
-            ::EndPaint(window, &paint_struct);
+            EndPaint(window, &paint_struct);
         });
 
     // Paint the grip.
-    ::DrawFrameControl(context.get(), &grip_rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
+    DrawFrameControl(context.get(), &grip_rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
 }
 
 static _Success_(return) BOOL on_nc_hit_test(_In_ HWND window, int x_coord, int y_coord, _Out_ LONG* hit_location)
@@ -362,12 +360,12 @@ static _Success_(return) BOOL on_nc_hit_test(_In_ HWND window, int x_coord, int 
     POINT mouse_location;
     mouse_location.x = x_coord;
     mouse_location.y = y_coord;
-    ::ScreenToClient(window, &mouse_location);
+    ScreenToClient(window, &mouse_location);
 
     // Hit test the mouse, and allow drag resizing if the mouse
     // is over any part of the grip.  (Resizing is typically only
     // allowed if the mouse is over the corner of the grip).
-    if(::PtInRect(&grip_rect, mouse_location))
+    if(PtInRect(&grip_rect, mouse_location))
     {
         *hit_location = HTBOTTOMRIGHT;
         message_processed = TRUE;
@@ -401,19 +399,19 @@ private:
 
 Partition_table_dialog::Partition_table_dialog()
 {
-    ::ZeroMemory(&m_original_client_rect, sizeof(m_original_client_rect));
-    ::ZeroMemory(&m_original_clientspace_listview_rect, sizeof(m_original_clientspace_listview_rect));
-    ::ZeroMemory(&m_original_clientspace_label_rect, sizeof(m_original_clientspace_label_rect));
-    ::ZeroMemory(&m_minimum_dialog_size, sizeof(m_minimum_dialog_size));
+    ZeroMemory(&m_original_client_rect, sizeof(m_original_client_rect));
+    ZeroMemory(&m_original_clientspace_listview_rect, sizeof(m_original_clientspace_listview_rect));
+    ZeroMemory(&m_original_clientspace_label_rect, sizeof(m_original_clientspace_label_rect));
+    ZeroMemory(&m_minimum_dialog_size, sizeof(m_minimum_dialog_size));
 }
 
 void Partition_table_dialog::show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id) const
 {
-    ::DialogBoxParam(instance,
-                     dialog_id,
-                     nullptr,
-                     dialog_proc,
-                     reinterpret_cast<LPARAM>(this));
+    DialogBoxParam(instance,
+                   dialog_id,
+                   nullptr,
+                   dialog_proc,
+                   reinterpret_cast<LPARAM>(this));
 }
 
 INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
@@ -435,10 +433,10 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
                 // Set message_processed first before any exception is thrown.
                 message_processed = TRUE;
 
-                ::SetWindowLongPtr(window, DWLP_USER, l_param);
+                SetWindowLongPtr(window, DWLP_USER, l_param);
 
                 auto dialog = reinterpret_cast<Partition_table_dialog*>(l_param);
-                HINSTANCE instance = reinterpret_cast<HINSTANCE>(::GetWindowLongPtr(window, GWLP_HINSTANCE));
+                HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(window, GWLP_HINSTANCE));
                 dialog->on_init_dialog(window, instance);
                 break;
             }
@@ -463,7 +461,7 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
 
                 if(message_processed)
                 {
-                    ::SetWindowLong(window, DWLP_MSGRESULT, hit_location);
+                    SetWindowLong(window, DWLP_MSGRESULT, hit_location);
                 }
                 break;
             }
@@ -474,7 +472,7 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
 
                 // GetWindowLongPtr should never fail.
                 // dialog is not valid until WM_INITDIALOG has been sent.
-                auto dialog = reinterpret_cast<Partition_table_dialog*>(::GetWindowLongPtr(window, DWLP_USER));
+                auto dialog = reinterpret_cast<Partition_table_dialog*>(GetWindowLongPtr(window, DWLP_USER));
                 dialog->on_get_minmax_info(reinterpret_cast<MINMAXINFO*>(l_param));
                 break;
             }
@@ -485,7 +483,7 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
 
                 // GetWindowLongPtr should never fail.
                 // dialog is not valid until WM_INITDIALOG has been sent.
-                auto dialog = reinterpret_cast<Partition_table_dialog*>(::GetWindowLongPtr(window, DWLP_USER));
+                auto dialog = reinterpret_cast<Partition_table_dialog*>(GetWindowLongPtr(window, DWLP_USER));
                 dialog->on_size(window, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param));
                 break;
             }
@@ -494,8 +492,8 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
     // Don't allow std::bad_alloc to propagate across ABI boundaries.
     catch(const std::bad_alloc& ex)
     {
-        (ex);
-        HINSTANCE instance = reinterpret_cast<HINSTANCE>(::GetWindowLongPtr(window, GWLP_HINSTANCE));
+        UNREFERENCED_PARAMETER(ex);
+        HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(window, GWLP_HINSTANCE));
         DiskTools::display_localized_error_dialog(window, instance, IDS_OOMCAPTION, IDS_OOMMESSAGE);
     }
 
@@ -512,15 +510,15 @@ void Partition_table_dialog::on_init_dialog(_In_ HWND window, _In_ HINSTANCE ins
 
     // Use the original dialog size as the minimum window size.
     RECT window_rect;
-    ::GetWindowRect(window, &window_rect);
+    GetWindowRect(window, &window_rect);
     m_minimum_dialog_size.cx = window_rect.right - window_rect.left;
     m_minimum_dialog_size.cy = window_rect.bottom - window_rect.top;
 
     // Save window rectangles for use during resize.
-    ::GetClientRect(window, &m_original_client_rect);
+    GetClientRect(window, &m_original_client_rect);
     DiskTools::get_clientspace_control_rect(window, IDC_PARTITIONS, &m_original_clientspace_listview_rect);
 
-    HWND listview = ::GetDlgItem(window, IDC_PARTITIONS);
+    HWND listview = GetDlgItem(window, IDC_PARTITIONS);
     add_listview_headers(listview, instance, listview_columns, ARRAYSIZE(listview_columns));
     populate_listview(listview, instance);
     DiskTools::adjust_listview_column_widths(listview, 0);
@@ -545,7 +543,7 @@ void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int
     // Because a resize grip is displayed, invalidate the client rect.  Since
     // the whole client area is redrawn, there is no need for DeferWindowPos,
     // since the window will flicker anyway.
-    ::InvalidateRect(window, nullptr, TRUE);
+    InvalidateRect(window, nullptr, TRUE);
 }
 
 }
@@ -564,7 +562,7 @@ int WINAPI _tWinMain(_In_ HINSTANCE instance,   // Handle to the program instanc
     init_controls.dwICC  = ICC_LISTVIEW_CLASSES;
 
     // Load the ListView control from the common controls.
-    if(::InitCommonControlsEx(&init_controls))
+    if(InitCommonControlsEx(&init_controls))
     {
         WinPartitionInfo::Partition_table_dialog dialog;
         dialog.show(instance, MAKEINTRESOURCE(IDD_PARTITION_TABLE_DIALOG));

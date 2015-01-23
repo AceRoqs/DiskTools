@@ -9,14 +9,14 @@ void set_window_icon(_In_ HWND window, _In_ HINSTANCE instance, _In_ PCTSTR icon
 {
     // 32 pixels is used as this icon is used as both the window icon
     // and the taskbar icon.
-    HICON icon_handle = static_cast<HICON>(::LoadImage(instance,
-                                                       icon_resource,
-                                                       IMAGE_ICON,
-                                                       32,
-                                                       32,
-                                                       LR_DEFAULTCOLOR | LR_SHARED));
+    HICON icon_handle = static_cast<HICON>(LoadImage(instance,
+                                                     icon_resource,
+                                                     IMAGE_ICON,
+                                                     32,
+                                                     32,
+                                                     LR_DEFAULTCOLOR | LR_SHARED));
 
-    ::SendMessage(window, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon_handle));
+    SendMessage(window, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon_handle));
 }
 
 unsigned int get_imagelist_width_by_index(
@@ -28,7 +28,7 @@ unsigned int get_imagelist_width_by_index(
     if(nullptr != image_list)
     {
         IMAGEINFO image_info;
-        if(::ImageList_GetImageInfo(image_list, image_index, &image_info) != 0)
+        if(ImageList_GetImageInfo(image_list, image_index, &image_info) != 0)
         {
             image_width = image_info.rcImage.right - image_info.rcImage.left;
         }
@@ -39,7 +39,7 @@ unsigned int get_imagelist_width_by_index(
 
 bool is_listview_in_report_mode(_In_ HWND listview)
 {
-    LONG style = ::GetWindowLong(listview, GWL_STYLE);
+    LONG style = GetWindowLong(listview, GWL_STYLE);
     return (style & LVS_TYPEMASK) == LVS_REPORT;
 }
 
@@ -110,7 +110,7 @@ bool adjust_listview_column_widths(
 
 void get_clientspace_grip_rect(_In_ HWND window, _Out_ RECT* grip_rect)
 {
-    ::GetClientRect(window, grip_rect);
+    GetClientRect(window, grip_rect);
 
     // Grip is a type of scroll bar control (DFCS_SCROLLSIZEGRIP).
     grip_rect->left = grip_rect->right  - GetSystemMetrics(SM_CXHSCROLL);
@@ -122,13 +122,13 @@ void get_clientspace_control_rect(
     _In_ int control_id,
     _Out_ RECT* clientspace_rect)
 {
-    HWND control_window = ::GetDlgItem(window, control_id);
+    HWND control_window = GetDlgItem(window, control_id);
 
     RECT screenspace_rect;
-    ::GetWindowRect(control_window, &screenspace_rect);
+    GetWindowRect(control_window, &screenspace_rect);
 
     POINT point = { screenspace_rect.left, screenspace_rect.top };
-    ::ScreenToClient(window, &point);
+    ScreenToClient(window, &point);
 
     clientspace_rect->left   = point.x;
     clientspace_rect->top    = point.y;
@@ -155,17 +155,17 @@ void reposition_control_by_offset(
     const POINT& position_offset,
     const SIZE& size_offset)
 {
-    HWND control_window = ::GetDlgItem(parent_window, control_id);
+    HWND control_window = GetDlgItem(parent_window, control_id);
 
     RECT control_rect;
     get_repositioned_rect_by_offset(original_control_rect, position_offset, size_offset, &control_rect);
 
-    ::MoveWindow(control_window,
-                 control_rect.left,
-                 control_rect.top,
-                 control_rect.right,
-                 control_rect.bottom,
-                 FALSE);
+    MoveWindow(control_window,
+               control_rect.left,
+               control_rect.top,
+               control_rect.right,
+               control_rect.bottom,
+               FALSE);
 }
 
 void display_localized_error_dialog(
@@ -175,14 +175,14 @@ void display_localized_error_dialog(
     UINT message_id)
 {
     TCHAR caption_buffer[32];
-    ::LoadString(instance, caption_id, caption_buffer, ARRAYSIZE(caption_buffer));
+    LoadString(instance, caption_id, caption_buffer, ARRAYSIZE(caption_buffer));
     caption_buffer[ARRAYSIZE(caption_buffer) - 1] = TEXT('\0'); // Suggested by static analysis.
 
     TCHAR message_buffer[256];
-    ::LoadString(instance, message_id, message_buffer, ARRAYSIZE(message_buffer));
+    LoadString(instance, message_id, message_buffer, ARRAYSIZE(message_buffer));
     message_buffer[ARRAYSIZE(message_buffer) - 1] = TEXT('\0'); // Suggested by static analysis.
 
-    ::MessageBox(parent_window, message_buffer, caption_buffer, MB_OK | MB_ICONERROR);
+    MessageBox(parent_window, message_buffer, caption_buffer, MB_OK | MB_ICONERROR);
 }
 
 }

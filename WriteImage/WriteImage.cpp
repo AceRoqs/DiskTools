@@ -138,7 +138,7 @@ static std::wstring sanitize_label(const std::wstring& input_label)
     std::wstring output_label(input_label);
 
     output_label.erase(sizeof(Bios_parameter_block().volume_label), std::wstring::npos);
-    std::transform(std::begin(output_label), std::end(output_label), std::begin(output_label), ::towupper);
+    std::transform(std::begin(output_label), std::end(output_label), std::begin(output_label), towupper);
     std::for_each(std::cbegin(output_label), std::cend(output_label), [](wchar_t ch)
     {
         if(!is_legal_fat_character(ch))

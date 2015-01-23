@@ -101,11 +101,11 @@ static HRESULT seek_to_offset(_In_ HANDLE handle, uint64_t byte_offset)
     uint32_t low_dword, high_dword;
     low_dword  = static_cast<uint32_t>(byte_offset & 0xffffffff);
     high_dword = static_cast<uint32_t>(byte_offset >> 32);
-    DWORD pointer = ::SetFilePointer(handle,
-                                     static_cast<LONG>(low_dword),
-                                     reinterpret_cast<PLONG>(&high_dword),
-                                     FILE_BEGIN);
-    DWORD last_error = ::GetLastError();
+    DWORD pointer = SetFilePointer(handle,
+                                   static_cast<LONG>(low_dword),
+                                   reinterpret_cast<PLONG>(&high_dword),
+                                   FILE_BEGIN);
+    DWORD last_error = GetLastError();
 
     if((INVALID_SET_FILE_POINTER == pointer) && (0 != last_error))
     {
@@ -126,14 +126,14 @@ static HRESULT can_buffer_hold_sector(
     // non-shiny disk media.
     DWORD bytes_read;
     DISK_GEOMETRY disk_geometry;
-    if(::DeviceIoControl(disk_handle,
-                         IOCTL_DISK_GET_DRIVE_GEOMETRY,
-                         nullptr,
-                         0,
-                         &disk_geometry,
-                         sizeof(disk_geometry),
-                         &bytes_read,
-                         nullptr) != 0)
+    if(DeviceIoControl(disk_handle,
+                       IOCTL_DISK_GET_DRIVE_GEOMETRY,
+                       nullptr,
+                       0,
+                       &disk_geometry,
+                       sizeof(disk_geometry),
+                       &bytes_read,
+                       nullptr) != 0)
     {
         if(disk_geometry.BytesPerSector > buffer_size)
         {
@@ -144,7 +144,7 @@ static HRESULT can_buffer_hold_sector(
     }
     else
     {
-        DWORD last_error = ::GetLastError();
+        DWORD last_error = GetLastError();
         hr = HRESULT_FROM_WIN32(last_error);
     }
 
@@ -155,17 +155,17 @@ HANDLE get_disk_handle(uint8_t disk_number)
 {
     static_assert(sizeof(disk_number) == 1, "disk_name array is too short to hold the disk_number.");
     TCHAR disk_name[ARRAYSIZE(TEXT("\\\\.\\PHYSICALDRIVE000"))];
-    ::StringCchPrintf(disk_name, ARRAYSIZE(disk_name), TEXT("\\\\.\\PHYSICALDRIVE%u"), disk_number);
+    StringCchPrintf(disk_name, ARRAYSIZE(disk_name), TEXT("\\\\.\\PHYSICALDRIVE%u"), disk_number);
 
     // Open a read handle to the physical disk.
     // This call requires elevation to administrator.
-    return ::CreateFile(disk_name,
-                        GENERIC_READ,
-                        FILE_SHARE_READ,
-                        nullptr,
-                        OPEN_EXISTING,
-                        FILE_ATTRIBUTE_NORMAL,
-                        nullptr);
+    return CreateFile(disk_name,
+                      GENERIC_READ,
+                      FILE_SHARE_READ,
+                      nullptr,
+                      OPEN_EXISTING,
+                      FILE_ATTRIBUTE_NORMAL,
+                      nullptr);
 }
 
 HRESULT read_sector_from_handle(
@@ -187,7 +187,7 @@ HRESULT read_sector_from_handle(
     {
         // Read in the sector.
         DWORD bytes_read;
-        if(::ReadFile(handle, buffer, *buffer_size, &bytes_read, nullptr) == 0)
+        if(ReadFile(handle, buffer, *buffer_size, &bytes_read, nullptr) == 0)
         {
             hr = HRESULT_FROM_WIN32(ERROR_READ_FAULT);
         }
@@ -213,7 +213,7 @@ HRESULT read_sector_from_disk(
         {
             if(INVALID_HANDLE_VALUE != handle)
             {
-                ::CloseHandle(handle);
+                CloseHandle(handle);
             }
         });
 

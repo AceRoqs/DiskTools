@@ -19,42 +19,42 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
     {
         if(INVALID_HANDLE_VALUE != handle)
         {
-            ::CloseHandle(handle);
+            CloseHandle(handle);
         }
     };
 
     std::unique_ptr<void, std::function<void (HANDLE handle)>> disk_handle(
-        ::CreateFile(DiskTools::get_filename_cdrom_0(),
-                     GENERIC_READ,
-                     FILE_SHARE_READ,
-                     nullptr,
-                     OPEN_EXISTING,
-                     FILE_ATTRIBUTE_NORMAL,
-                     nullptr),
+        CreateFile(DiskTools::get_filename_cdrom_0(),
+                   GENERIC_READ,
+                   FILE_SHARE_READ,
+                   nullptr,
+                   OPEN_EXISTING,
+                   FILE_ATTRIBUTE_NORMAL,
+                   nullptr),
         handle_deleter);
 
     std::unique_ptr<void, std::function<void (HANDLE handle)>> output_file(
-        ::CreateFile(argv[arg_output_file],
-                     GENERIC_WRITE,
-                     0,
-                     nullptr,
-                     CREATE_ALWAYS,
-                     FILE_ATTRIBUTE_NORMAL,
-                     nullptr),
+        CreateFile(argv[arg_output_file],
+                   GENERIC_WRITE,
+                   0,
+                   nullptr,
+                   CREATE_ALWAYS,
+                   FILE_ATTRIBUTE_NORMAL,
+                   nullptr),
         handle_deleter);
 
     if((disk_handle.get() != INVALID_HANDLE_VALUE) && (output_file.get() != INVALID_HANDLE_VALUE))
     {
         DWORD bytes_returned;
         GET_LENGTH_INFORMATION length_information;
-        if(::DeviceIoControl(disk_handle.get(),
-                             IOCTL_DISK_GET_LENGTH_INFO,
-                             nullptr,
-                             0,
-                             &length_information,
-                             sizeof(length_information),
-                             &bytes_returned,
-                             nullptr) != 0)
+        if(DeviceIoControl(disk_handle.get(),
+                           IOCTL_DISK_GET_LENGTH_INFO,
+                           nullptr,
+                           0,
+                           &length_information,
+                           sizeof(length_information),
+                           &bytes_returned,
+                           nullptr) != 0)
         {
             try
             {
@@ -71,16 +71,16 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
                     // A fast approach might be to use uncached aligned async reads, at the
                     // expense of considerable complexity.
                     DWORD amount_read;
-                    if(::ReadFile(disk_handle.get(), buffer.get(), amount_to_read, &amount_read, nullptr) == 0)
+                    if(ReadFile(disk_handle.get(), buffer.get(), amount_to_read, &amount_read, nullptr) == 0)
                     {
-                        _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), ::GetLastError());
+                        _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), GetLastError());
                         error_level = 1;
                         break;
                     }
 
-                    if(::WriteFile(output_file.get(), buffer.get(), amount_read, &amount_read, nullptr) == 0)
+                    if(WriteFile(output_file.get(), buffer.get(), amount_read, &amount_read, nullptr) == 0)
                     {
-                        _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), ::GetLastError());
+                        _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), GetLastError());
                         error_level = 1;
                         break;
                     }
@@ -97,7 +97,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
         }
         else
         {
-            _ftprintf(stderr, _TEXT("Unexpected error occured (%u).\r\n"), ::GetLastError());
+            _ftprintf(stderr, _TEXT("Unexpected error occured (%u).\r\n"), GetLastError());
             error_level = 1;
         }
     }
