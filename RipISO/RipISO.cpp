@@ -11,7 +11,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 
     if(2 != argc)
     {
-        _tprintf(_TEXT("Usage: %s filename.iso\r\n"), argv[arg_program_name]);
+        _tprintf(_TEXT("Usage: %s file_name.iso\r\n"), argv[arg_program_name]);
         return 0;
     }
 
@@ -24,7 +24,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
     };
 
     std::unique_ptr<void, std::function<void (HANDLE handle)>> disk_handle(
-        CreateFile(DiskTools::get_filename_cdrom_0(),
+        CreateFile(DiskTools::get_file_name_cdrom_0(),
                    GENERIC_READ,
                    FILE_SHARE_READ,
                    nullptr,

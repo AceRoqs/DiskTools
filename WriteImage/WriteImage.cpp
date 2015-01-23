@@ -3,7 +3,7 @@
 namespace WriteImage
 {
 
-const unsigned int fat_max_filename_length = 8;
+const unsigned int fat_max_file_name_length = 8;
 const unsigned int fat_max_extension_length = 3;
 
 #pragma pack(push, 1)
@@ -26,13 +26,13 @@ struct Bios_parameter_block
     uint8_t reserved;
     uint8_t boot_signature;
     uint32_t volume_id;
-    uint8_t volume_label[fat_max_filename_length + fat_max_extension_length];
+    uint8_t volume_label[fat_max_file_name_length + fat_max_extension_length];
     uint8_t file_system_type[8];
 };
 
 struct Root_directory_entry
 {
-    uint8_t filename[fat_max_filename_length];
+    uint8_t file_name[fat_max_file_name_length];
     uint8_t extension[fat_max_extension_length];
     uint8_t attributes;
     uint16_t reserved;
@@ -80,7 +80,7 @@ static std::vector<uint8_t> get_empty_root_directory(unsigned int sector_count)
 static void usage()
 {
     std::cerr << "writeimage [-b=file] [-l=label] -f=file.img\n";
-    std::cerr << "    -f=file   Output filename\n";
+    std::cerr << "    -f=file   Output file name\n";
     std::cerr << "    -b=file   Install bootsector from \"file\"\n";
     std::cerr << "    -l=label  Set volume label to \"label\"\n";
     std::cerr << std::endl;
@@ -94,7 +94,7 @@ Usage: bfi [-v] [-t=type] [-o=file] [-o=file] [-l=mylabel] [-b=file]
               4=720K,6=1440K,7=2880K,8=DMF2048,9=DMF1024,10=1680K
               0=160K,1=180K,2=320K,3=360K,5=1200K
               Default is 1.44MB
-   -f=file    Image filename
+   -f=file    Image file name
    -o=file    Order file, put these file on the image first
    -l=mylabel Set volume label to "mylabel"
    -b=file    Install bootsector from "file"
@@ -132,7 +132,7 @@ static bool is_legal_fat_character(wchar_t ch)
 // TODO: Consider outputting a std::string instead of std::wstring.
 static std::wstring sanitize_label(const std::wstring& input_label)
 {
-    static_assert(sizeof(Bios_parameter_block().volume_label) == (sizeof(Root_directory_entry().filename) + sizeof(Root_directory_entry().extension)),
+    static_assert(sizeof(Bios_parameter_block().volume_label) == (sizeof(Root_directory_entry().file_name) + sizeof(Root_directory_entry().extension)),
                   "Directory entry and BPB must match size for volume label.");
 
     std::wstring output_label(input_label);

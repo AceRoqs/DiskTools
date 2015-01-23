@@ -23,9 +23,9 @@ struct Partition_table_entry
 };
 #pragma pack(pop)
 
-PCTSTR get_filename_cdrom_0();
-PCTSTR get_filename_physical_disk_0();
-PCTSTR get_filename_physical_disk_1();
+PCTSTR get_file_name_cdrom_0();
+PCTSTR get_file_name_physical_disk_0();
+PCTSTR get_file_name_physical_disk_1();
 
 PCTSTR get_file_system_name(uint8_t file_system_type);
 bool is_extended_partition(uint8_t file_system_type);

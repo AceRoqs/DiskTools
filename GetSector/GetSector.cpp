@@ -16,7 +16,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 
     if(3 != argc)
     {
-        _tprintf(_TEXT("Usage: %s sector filename\r\n"), argv[arg_program_name]);
+        _tprintf(_TEXT("Usage: %s sector file_name\r\n"), argv[arg_program_name]);
         _tprintf(_TEXT("To read MBR: %s 1 mbr.bin\r\n"), argv[arg_program_name]);
         return 0;
     }
