@@ -333,8 +333,7 @@ static BOOL on_command(_In_ HWND window, WORD id)
 
 static void on_paint(_In_ HWND window)
 {
-    RECT grip_rect;
-    DiskTools::get_clientspace_grip_rect(window, &grip_rect);
+    RECT grip_rect = DiskTools::get_clientspace_grip_rect(window);
 
     PAINTSTRUCT paint_struct;
 
@@ -350,12 +349,12 @@ static void on_paint(_In_ HWND window)
     DrawFrameControl(context.get(), &grip_rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
 }
 
-static _Success_(return) BOOL on_nc_hit_test(_In_ HWND window, int x_coord, int y_coord, _Out_ LONG* hit_location)
+static std::tuple<BOOL, LONG> on_nc_hit_test(_In_ HWND window, int x_coord, int y_coord)
 {
     BOOL message_processed = FALSE;
+    LONG hit_location = HTERROR;
 
-    RECT grip_rect;
-    DiskTools::get_clientspace_grip_rect(window, &grip_rect);
+    RECT grip_rect = DiskTools::get_clientspace_grip_rect(window);
 
     POINT mouse_location;
     mouse_location.x = x_coord;
@@ -367,11 +366,11 @@ static _Success_(return) BOOL on_nc_hit_test(_In_ HWND window, int x_coord, int 
     // allowed if the mouse is over the corner of the grip).
     if(PtInRect(&grip_rect, mouse_location))
     {
-        *hit_location = HTBOTTOMRIGHT;
+        hit_location = HTBOTTOMRIGHT;
         message_processed = TRUE;
     }
 
-    return message_processed;
+    return std::make_tuple(message_processed, hit_location);
 }
 
 class Partition_table_dialog
@@ -457,7 +456,7 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
             case WM_NCHITTEST:
             {
                 LONG hit_location;
-                message_processed = on_nc_hit_test(window, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param), &hit_location);
+                std::tie<BOOL, LONG>(message_processed, hit_location) = on_nc_hit_test(window, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param));
 
                 if(message_processed)
                 {
@@ -516,7 +515,7 @@ void Partition_table_dialog::on_init_dialog(_In_ HWND window, _In_ HINSTANCE ins
 
     // Save window rectangles for use during resize.
     GetClientRect(window, &m_original_client_rect);
-    DiskTools::get_clientspace_control_rect(window, IDC_PARTITIONS, &m_original_clientspace_listview_rect);
+    m_original_clientspace_listview_rect = DiskTools::get_clientspace_control_rect(window, IDC_PARTITIONS);
 
     HWND listview = GetDlgItem(window, IDC_PARTITIONS);
     add_listview_headers(listview, instance, listview_columns, ARRAYSIZE(listview_columns));

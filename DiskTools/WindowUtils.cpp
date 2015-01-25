@@ -108,19 +108,19 @@ bool adjust_listview_column_widths(
     return success;
 }
 
-void get_clientspace_grip_rect(_In_ HWND window, _Out_ RECT* grip_rect)
+RECT get_clientspace_grip_rect(_In_ HWND window)
 {
-    GetClientRect(window, grip_rect);
+    RECT grip_rect;
+    GetClientRect(window, &grip_rect);
 
     // Grip is a type of scroll bar control (DFCS_SCROLLSIZEGRIP).
-    grip_rect->left = grip_rect->right  - GetSystemMetrics(SM_CXHSCROLL);
-    grip_rect->top  = grip_rect->bottom - GetSystemMetrics(SM_CYVSCROLL);
+    grip_rect.left = grip_rect.right  - GetSystemMetrics(SM_CXHSCROLL);
+    grip_rect.top  = grip_rect.bottom - GetSystemMetrics(SM_CYVSCROLL);
+
+    return grip_rect;
 }
 
-void get_clientspace_control_rect(
-    _In_ HWND window,
-    _In_ int control_id,
-    _Out_ RECT* clientspace_rect)
+RECT get_clientspace_control_rect(_In_ HWND window, _In_ int control_id)
 {
     HWND control_window = GetDlgItem(window, control_id);
 
@@ -130,22 +130,27 @@ void get_clientspace_control_rect(
     POINT point = { screenspace_rect.left, screenspace_rect.top };
     ScreenToClient(window, &point);
 
-    clientspace_rect->left   = point.x;
-    clientspace_rect->top    = point.y;
-    clientspace_rect->right  = point.x + screenspace_rect.right - screenspace_rect.left;
-    clientspace_rect->bottom = point.y + screenspace_rect.bottom - screenspace_rect.top;
+    RECT clientspace_rect;
+    clientspace_rect.left   = point.x;
+    clientspace_rect.top    = point.y;
+    clientspace_rect.right  = point.x + screenspace_rect.right - screenspace_rect.left;
+    clientspace_rect.bottom = point.y + screenspace_rect.bottom - screenspace_rect.top;
+
+    return clientspace_rect;
 }
 
-void get_repositioned_rect_by_offset(
+RECT get_repositioned_rect_by_offset(
     const RECT& original_control_rect,
     const POINT& position_offset,
-    const SIZE& size_offset,
-    _Out_ RECT* window_rect)
+    const SIZE& size_offset)
 {
-    window_rect->left   = original_control_rect.left + position_offset.x;
-    window_rect->top    = original_control_rect.top + position_offset.y;
-    window_rect->right  = original_control_rect.right - original_control_rect.left + size_offset.cx;
-    window_rect->bottom = original_control_rect.bottom - original_control_rect.top + size_offset.cy;
+    RECT window_rect;
+    window_rect.left   = original_control_rect.left + position_offset.x;
+    window_rect.top    = original_control_rect.top + position_offset.y;
+    window_rect.right  = original_control_rect.right - original_control_rect.left + size_offset.cx;
+    window_rect.bottom = original_control_rect.bottom - original_control_rect.top + size_offset.cy;
+
+    return window_rect;
 }
 
 void reposition_control_by_offset(
@@ -155,10 +160,8 @@ void reposition_control_by_offset(
     const POINT& position_offset,
     const SIZE& size_offset)
 {
-    HWND control_window = GetDlgItem(parent_window, control_id);
-
-    RECT control_rect;
-    get_repositioned_rect_by_offset(original_control_rect, position_offset, size_offset, &control_rect);
+    const HWND control_window = GetDlgItem(parent_window, control_id);
+    const RECT control_rect = get_repositioned_rect_by_offset(original_control_rect, position_offset, size_offset);
 
     MoveWindow(control_window,
                control_rect.left,
