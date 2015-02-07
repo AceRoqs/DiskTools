@@ -116,5 +116,20 @@ Scoped_font make_scoped_font(_In_ HFONT font, std::function<void (HFONT)> delete
     return std::move(Scoped_font(font, std::move(deleter)));
 }
 
+static void local_free(_In_ HLOCAL local) NOEXCEPT
+{
+    if(LocalFree(local) != nullptr)
+    {
+        auto hr = hresult_from_last_error();
+        (hr);
+        assert(SUCCEEDED(hr));
+    }
+}
+
+Scoped_local make_scoped_local(_In_ HLOCAL local)
+{
+    return std::move(Scoped_local(local, std::function<void (HLOCAL)>(local_free)));
+}
+
 }
 
