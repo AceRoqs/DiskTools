@@ -5,7 +5,7 @@
 namespace PortableRuntime
 {
 
-// TODO: Revisit the types once there are string types that are templated on char16_t instead of wchar_t.
+// TODO: char16_t is the correct type for UTF-16.  Revisit the types once there are string types that are templated on char16_t instead of wchar_t.
 std::wstring utf16_from_utf8(const std::string& utf8_string)
 {
     std::wstring utf16_string;
