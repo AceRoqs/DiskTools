@@ -1,6 +1,6 @@
 #include "PreCompile.h"
 
-namespace WriteImage
+namespace BuildImage
 {
 
 const unsigned int fat_max_file_name_length = 8;
@@ -79,7 +79,7 @@ static std::vector<uint8_t> get_empty_root_directory(unsigned int sector_count)
 
 static void usage()
 {
-    std::cerr << "writeimage [-b=file] [-l=label] -f=file.img\n";
+    std::cerr << "buildimage [-b=file] [-l=label] -f=file.img\n";
     std::cerr << "    -f=file   Output file name\n";
     std::cerr << "    -b=file   Install bootsector from \"file\"\n";
     std::cerr << "    -l=label  Set volume label to \"label\"\n";
@@ -224,7 +224,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 
     if(argc < 2)
     {
-        WriteImage::usage();
+        BuildImage::usage();
     }
     else
     {
@@ -233,9 +233,9 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
             std::wstring boot_sector_file_name;
             std::wstring image_file_name;
             std::wstring label;
-            std::tie(boot_sector_file_name, image_file_name, label) = WriteImage::parse_command_line(argc, argv);
+            std::tie(boot_sector_file_name, image_file_name, label) = BuildImage::parse_command_line(argc, argv);
 
-            WriteImage::output_boot_sector(boot_sector_file_name, image_file_name, label);
+            BuildImage::output_boot_sector(boot_sector_file_name, image_file_name, label);
         }
         catch(...)
         {

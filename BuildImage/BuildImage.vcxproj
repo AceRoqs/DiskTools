@@ -21,7 +21,7 @@
   <Import Project="$(SolutionDir)Configurations\Project.Default.props" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4A40E094-73F9-4D41-8263-6D508CBBC81D}</ProjectGuid>
-    <RootNamespace>WriteImage</RootNamespace>
+    <RootNamespace>BuildImage</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -44,7 +44,7 @@
     <ClCompile Include="PreCompile.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="WriteImage.cpp" />
+    <ClCompile Include="BuildImage.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
