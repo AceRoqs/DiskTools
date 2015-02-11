@@ -11,7 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WriteImage.cpp">
+    <ClCompile Include="BuildImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PreCompile.cpp">
