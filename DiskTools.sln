@@ -34,6 +34,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PortableRuntime", "Portable
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsCommon", "WindowsCommon\WindowsCommon.vcxproj", "{F87DF4F3-6744-4DFF-BDCF-1CB9AAA654D1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WriteImage", "WriteImage\WriteImage.vcxproj", "{E465889F-73AE-47B9-BCC9-1FEE2542A862}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -126,6 +131,16 @@ Global
 		{F87DF4F3-6744-4DFF-BDCF-1CB9AAA654D1}.Release|Win32.Build.0 = Release|Win32
 		{F87DF4F3-6744-4DFF-BDCF-1CB9AAA654D1}.Release|x64.ActiveCfg = Release|x64
 		{F87DF4F3-6744-4DFF-BDCF-1CB9AAA654D1}.Release|x64.Build.0 = Release|x64
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Debug|ARM.ActiveCfg = Debug|Win32
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Debug|Win32.Build.0 = Debug|Win32
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Debug|x64.ActiveCfg = Debug|x64
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Debug|x64.Build.0 = Debug|x64
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Release|ARM.ActiveCfg = Release|Win32
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Release|Win32.ActiveCfg = Release|Win32
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Release|Win32.Build.0 = Release|Win32
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Release|x64.ActiveCfg = Release|x64
+		{E465889F-73AE-47B9-BCC9-1FEE2542A862}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
