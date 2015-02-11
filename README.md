@@ -15,6 +15,7 @@ to run them.
 All other apps are buildable with Visual C++ 2013, and have a dependency on
 C++11.
 
+* _BuildImage_ is an in-progress tool for customizing the files on disk images.
 * _GetSector_ will read a given sector from the first physical disk.
 * _PartitionInfo_ will display the partition table information from the
 [MBR](http://en.wikipedia.org/wiki/Master_boot_record) of the first physical
@@ -23,7 +24,7 @@ disk.
 * _WinPartitionInfo_ is a GUI program which is a bit more complete than the other
 utilities. It will display the complete partition information \(including
 extended partitions\) of the first two physical disks.
-* _WriteImage_ is an in-progress tool for customizing the files on disk images.
+* _WriteImage_ takes a disk image file and writes it to a physical disk.
 * _DiskTools_ is a shared library for disk reading and other code that is tool
 agnostic. The pretty printing code is probably useful to others.
 
