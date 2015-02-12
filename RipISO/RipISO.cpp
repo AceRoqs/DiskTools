@@ -1,7 +1,46 @@
 #include "PreCompile.h"
 #include <DiskTools/DirectRead.h>
+#include <PortableRuntime/Unicode.h>
+#include <WindowsCommon/ScopedWindowsTypes.h>
+#include <WindowsCommon/CheckHR.h>
 
-int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
+namespace RipISO
+{
+
+// TODO: This should eventually go in the PlatformServices library.
+std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
+{
+    std::vector<std::string> args;
+
+#ifdef WIN32
+    UNREFERENCED_PARAMETER(argv);
+
+    const auto command_line = GetCommandLineW();
+
+    int arg_count;
+    const auto naked_args = CommandLineToArgvW(command_line, &arg_count);
+    WindowsCommon::check_windows_error(naked_args != nullptr);
+    assert(argc == arg_count);
+
+    const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
+
+    std::for_each(naked_args, naked_args + arg_count, [&args](PCWSTR arg)
+    {
+        args.push_back(PortableRuntime::utf8_from_utf16(arg));
+    });
+#else
+    std::for_each(argv, argv + argc, [&args](char* arg)
+    {
+        args.push_back(arg);
+    });
+#endif
+
+    return args;
+}
+
+}
+
+int main(int argc, _In_reads_(argc) char** argv)
 {
     const unsigned int arg_program_name = 0;
     const unsigned int arg_output_file  = 1;
@@ -9,9 +48,12 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
 
-    if(2 != argc)
+    // TODO: Consider try/catch at this scope.
+    const auto args = RipISO::get_utf8_args(argc, argv);
+
+    if(2 != args.size())
     {
-        _tprintf(_TEXT("Usage: %s file_name.iso\r\n"), argv[arg_program_name]);
+        printf("Usage: %s file_name.iso\n", args[arg_program_name].c_str());
         return 0;
     }
 
@@ -34,7 +76,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
         handle_deleter);
 
     std::unique_ptr<void, std::function<void (HANDLE handle)>> output_file(
-        CreateFile(argv[arg_output_file],
+        CreateFileW(PortableRuntime::utf16_from_utf8(args[arg_output_file]).c_str(),
                    GENERIC_WRITE,
                    0,
                    nullptr,
