@@ -23,7 +23,7 @@ struct Partition_table_entry
 };
 #pragma pack(pop)
 
-PCTSTR get_file_name_cdrom_0();
+PCSTR get_file_name_cdrom_0();
 PCTSTR get_file_name_physical_disk_0();
 PCTSTR get_file_name_physical_disk_1();
 

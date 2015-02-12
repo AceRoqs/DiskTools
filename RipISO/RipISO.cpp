@@ -1,8 +1,9 @@
 #include "PreCompile.h"
 #include <DiskTools/DirectRead.h>
 #include <PortableRuntime/Unicode.h>
-#include <WindowsCommon/ScopedWindowsTypes.h>
 #include <WindowsCommon/CheckHR.h>
+#include <WindowsCommon/ScopedWindowsTypes.h>
+#include <WindowsCommon/Wrappers.h>
 
 namespace RipISO
 {
@@ -57,39 +58,29 @@ int main(int argc, _In_reads_(argc) char** argv)
         return 0;
     }
 
-    auto handle_deleter = [](HANDLE handle)
+    try
     {
-        if(INVALID_HANDLE_VALUE != handle)
-        {
-            CloseHandle(handle);
-        }
-    };
+        const auto disk_handle = WindowsCommon::create_file(
+            DiskTools::get_file_name_cdrom_0(),
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            nullptr,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            nullptr);
 
-    std::unique_ptr<void, std::function<void (HANDLE handle)>> disk_handle(
-        CreateFile(DiskTools::get_file_name_cdrom_0(),
-                   GENERIC_READ,
-                   FILE_SHARE_READ,
-                   nullptr,
-                   OPEN_EXISTING,
-                   FILE_ATTRIBUTE_NORMAL,
-                   nullptr),
-        handle_deleter);
+        const auto output_file = WindowsCommon::create_file(
+            args[arg_output_file].c_str(),
+            GENERIC_WRITE,
+            0,
+            nullptr,
+            CREATE_ALWAYS,
+            FILE_ATTRIBUTE_NORMAL,
+            nullptr);
 
-    std::unique_ptr<void, std::function<void (HANDLE handle)>> output_file(
-        CreateFileW(PortableRuntime::utf16_from_utf8(args[arg_output_file]).c_str(),
-                   GENERIC_WRITE,
-                   0,
-                   nullptr,
-                   CREATE_ALWAYS,
-                   FILE_ATTRIBUTE_NORMAL,
-                   nullptr),
-        handle_deleter);
-
-    if((disk_handle.get() != INVALID_HANDLE_VALUE) && (output_file.get() != INVALID_HANDLE_VALUE))
-    {
         DWORD bytes_returned;
         GET_LENGTH_INFORMATION length_information;
-        if(DeviceIoControl(disk_handle.get(),
+        if(DeviceIoControl(disk_handle,
                            IOCTL_DISK_GET_LENGTH_INFO,
                            nullptr,
                            0,
@@ -113,14 +104,14 @@ int main(int argc, _In_reads_(argc) char** argv)
                     // A fast approach might be to use uncached aligned async reads, at the
                     // expense of considerable complexity.
                     DWORD amount_read;
-                    if(ReadFile(disk_handle.get(), buffer.get(), amount_to_read, &amount_read, nullptr) == 0)
+                    if(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) == 0)
                     {
                         _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), GetLastError());
                         error_level = 1;
                         break;
                     }
 
-                    if(WriteFile(output_file.get(), buffer.get(), amount_read, &amount_read, nullptr) == 0)
+                    if(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) == 0)
                     {
                         _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), GetLastError());
                         error_level = 1;
@@ -143,7 +134,7 @@ int main(int argc, _In_reads_(argc) char** argv)
             error_level = 1;
         }
     }
-    else
+    catch(...)
     {
         _ftprintf(stderr, _TEXT("Unable to open input or output device.\r\n"));
         error_level = 1;

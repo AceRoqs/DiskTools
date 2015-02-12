@@ -7,11 +7,11 @@
 namespace DiskTools
 {
 
-static PCTSTR cdrom_0 = TEXT("\\\\.\\CDROM0");
+static PCSTR cdrom_0 = "\\\\.\\CDROM0";
 static PCTSTR physical_disk_0 = TEXT("\\\\.\\PHYSICALDRIVE0");
 static PCTSTR physical_disk_1 = TEXT("\\\\.\\PHYSICALDRIVE1");
 
-PCTSTR get_file_name_cdrom_0()
+PCSTR get_file_name_cdrom_0()
 {
     return cdrom_0;
 }
