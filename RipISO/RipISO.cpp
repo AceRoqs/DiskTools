@@ -92,7 +92,7 @@ int main(int argc, _In_reads_(argc) char** argv)
             try
             {
                 const unsigned int buffer_size = 1024 * 1024;
-                std::unique_ptr<uint8_t> buffer(new uint8_t[buffer_size]);
+                std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(buffer_size);
 
                 ULONGLONG bytes_left = length_information.Length.QuadPart;
                 while(bytes_left > 0)
