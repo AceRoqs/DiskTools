@@ -54,8 +54,8 @@ int main(int argc, _In_reads_(argc) char** argv)
 
     if(2 != args.size())
     {
-        printf("Usage: %s file_name.iso\n", args[arg_program_name].c_str());
-        return 0;
+        fprintf(stderr, "Usage: %s file_name.iso\n", args[arg_program_name].c_str());
+        return 1;
     }
 
     try
