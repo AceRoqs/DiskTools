@@ -89,8 +89,8 @@ int main(int argc, _In_reads_(argc) char** argv)
                            &bytes_returned,
                            nullptr) != 0)
         {
-            try
-            {
+//            try
+//            {
                 const unsigned int buffer_size = 1024 * 1024;
                 std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(buffer_size);
 
@@ -120,13 +120,13 @@ int main(int argc, _In_reads_(argc) char** argv)
 
                     bytes_left -= amount_to_read;
                 }
-            }
-            catch(const std::bad_alloc& ex)
-            {
-                (ex);
-                _ftprintf(stderr, _TEXT("Not enough memory to allocate the transfer buffer.\r\n"));
-                error_level = 1;
-            }
+//            }
+//            catch(const std::bad_alloc& ex)
+//            {
+//                (ex);
+//                _ftprintf(stderr, _TEXT("Not enough memory to allocate the transfer buffer.\r\n"));
+//                error_level = 1;
+//            }
         }
         else
         {
@@ -136,7 +136,10 @@ int main(int argc, _In_reads_(argc) char** argv)
     }
     catch(...)
     {
-        _ftprintf(stderr, _TEXT("Unable to open input or output device.\r\n"));
+//        _ftprintf(stderr, _TEXT("Unable to open input or output device.\r\n"));
+
+// TODO:
+// fprintf(stderr, "%s\n", ex.what());  // etc
         error_level = 1;
     }
 
