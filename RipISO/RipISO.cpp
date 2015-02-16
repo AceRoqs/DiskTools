@@ -1,5 +1,6 @@
 #include "PreCompile.h"
 #include <DiskTools/DirectRead.h>
+#include <PortableRuntime/CheckException.h>
 #include <PortableRuntime/Unicode.h>
 #include <WindowsCommon/CheckHR.h>
 #include <WindowsCommon/ScopedWindowsTypes.h>
@@ -43,7 +44,7 @@ std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
 
 int main(int argc, _In_reads_(argc) char** argv)
 {
-    const unsigned int arg_program_name = 0;
+    //const unsigned int arg_program_name = 0;
     const unsigned int arg_output_file  = 1;
 
     // ERRORLEVEL zero is the success code.
@@ -52,14 +53,10 @@ int main(int argc, _In_reads_(argc) char** argv)
     // TODO: Consider try/catch at this scope.
     const auto args = RipISO::get_utf8_args(argc, argv);
 
-    if(2 != args.size())
-    {
-        fprintf(stderr, "Usage: %s file_name.iso\n", args[arg_program_name].c_str());
-        return 1;
-    }
-
     try
     {
+        PortableRuntime::check_exception(2 == args.size()); // TODO: Usage: %s file_name.iso\n", args[arg_program_name].c_str()
+
         const auto disk_handle = WindowsCommon::create_file(
             DiskTools::get_file_name_cdrom_0(),
             GENERIC_READ,
