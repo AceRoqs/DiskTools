@@ -44,17 +44,15 @@ std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
 
 int main(int argc, _In_reads_(argc) char** argv)
 {
-    //const unsigned int arg_program_name = 0;
-    const unsigned int arg_output_file  = 1;
-
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
 
-    // TODO: Consider try/catch at this scope.
-    const auto args = RipISO::get_utf8_args(argc, argv);
-
     try
     {
+        //const unsigned int arg_program_name = 0;
+        const unsigned int arg_output_file  = 1;
+
+        const auto args = RipISO::get_utf8_args(argc, argv);
         PortableRuntime::check_exception(2 == args.size()); // TODO: Usage: %s file_name.iso\n", args[arg_program_name].c_str()
 
         const auto disk_handle = WindowsCommon::create_file(
@@ -77,15 +75,15 @@ int main(int argc, _In_reads_(argc) char** argv)
 
         DWORD bytes_returned;
         GET_LENGTH_INFORMATION length_information;
-        if(DeviceIoControl(disk_handle,
-                           IOCTL_DISK_GET_LENGTH_INFO,
-                           nullptr,
-                           0,
-                           &length_information,
-                           sizeof(length_information),
-                           &bytes_returned,
-                           nullptr) != 0)
-        {
+        WindowsCommon::check_windows_error(DeviceIoControl(disk_handle,
+                                                           IOCTL_DISK_GET_LENGTH_INFO,
+                                                           nullptr,
+                                                           0,
+                                                           &length_information,
+                                                           sizeof(length_information),
+                                                           &bytes_returned,
+                                                           nullptr));
+//        {
 //            try
 //            {
                 const unsigned int buffer_size = 1024 * 1024;
@@ -124,15 +122,16 @@ int main(int argc, _In_reads_(argc) char** argv)
 //                _ftprintf(stderr, _TEXT("Not enough memory to allocate the transfer buffer.\r\n"));
 //                error_level = 1;
 //            }
-        }
-        else
-        {
-            _ftprintf(stderr, _TEXT("Unexpected error occured (%u).\r\n"), GetLastError());
-            error_level = 1;
-        }
+//        }
+//        else
+//        {
+//            _ftprintf(stderr, _TEXT("Unexpected error occured (%u).\r\n"), GetLastError());
+//            error_level = 1;
+//        }
     }
-    catch(...)
+    catch(const std::exception& ex)
     {
+        UNREFERENCED_PARAMETER(ex);
 //        _ftprintf(stderr, _TEXT("Unable to open input or output device.\r\n"));
 
 // TODO:
