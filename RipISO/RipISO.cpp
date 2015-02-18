@@ -82,7 +82,7 @@ int main(int argc, _In_reads_(argc) char** argv)
                                                            &length_information,
                                                            sizeof(length_information),
                                                            &bytes_returned,
-                                                           nullptr));
+                                                           nullptr) != 0);
 //        {
 //            try
 //            {
@@ -99,19 +99,19 @@ int main(int argc, _In_reads_(argc) char** argv)
                     // A fast approach might be to use uncached aligned async reads, at the
                     // expense of considerable complexity.
                     DWORD amount_read;
-                    if(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) == 0)
-                    {
-                        _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), GetLastError());
-                        error_level = 1;
-                        break;
-                    }
+                    WindowsCommon::check_windows_error(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0);
+//                    {
+//                        _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), GetLastError());
+//                        error_level = 1;
+//                        break;
+//                    }
 
-                    if(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) == 0)
-                    {
-                        _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), GetLastError());
-                        error_level = 1;
-                        break;
-                    }
+                    WindowsCommon::check_windows_error(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0);
+//                    {
+//                        _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), GetLastError());
+//                        error_level = 1;
+//                        break;
+//                    }
 
                     bytes_left -= amount_to_read;
                 }
