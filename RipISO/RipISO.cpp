@@ -83,59 +83,34 @@ int main(int argc, _In_reads_(argc) char** argv)
                                                            sizeof(length_information),
                                                            &bytes_returned,
                                                            nullptr) != 0);
-//        {
-//            try
-//            {
-                const unsigned int buffer_size = 1024 * 1024;
-                std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(buffer_size);
+        const unsigned int buffer_size = 1024 * 1024;
+        std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(buffer_size);
 
-                ULONGLONG bytes_left = length_information.Length.QuadPart;
-                while(bytes_left > 0)
-                {
-                    // Cast is safe as buffer_size is less than MAX_DWORD.
-                    DWORD amount_to_read = bytes_left > buffer_size ? buffer_size : static_cast<DWORD>(bytes_left);
+        ULONGLONG bytes_left = length_information.Length.QuadPart;
+        while(bytes_left > 0)
+        {
+            // Cast is safe as buffer_size is less than MAX_DWORD.
+            DWORD amount_to_read = bytes_left > buffer_size ? buffer_size : static_cast<DWORD>(bytes_left);
 
-                    // This is reasonably slow, but it is fast enough for single CDs or DVDs.
-                    // A fast approach might be to use uncached aligned async reads, at the
-                    // expense of considerable complexity.
-                    DWORD amount_read;
-                    WindowsCommon::check_windows_error(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0);
-//                    {
-//                        _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), GetLastError());
-//                        error_level = 1;
-//                        break;
-//                    }
+            // This is reasonably slow, but it is fast enough for single CDs or DVDs.
+            // A fast approach might be to use uncached aligned async reads, at the
+            // expense of considerable complexity.
+            DWORD amount_read;
+            WindowsCommon::check_windows_error(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0);
+            WindowsCommon::check_windows_error(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0);
 
-                    WindowsCommon::check_windows_error(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0);
-//                    {
-//                        _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), GetLastError());
-//                        error_level = 1;
-//                        break;
-//                    }
-
-                    bytes_left -= amount_to_read;
-                }
-//            }
-//            catch(const std::bad_alloc& ex)
-//            {
-//                (ex);
-//                _ftprintf(stderr, _TEXT("Not enough memory to allocate the transfer buffer.\r\n"));
-//                error_level = 1;
-//            }
-//        }
-//        else
-//        {
-//            _ftprintf(stderr, _TEXT("Unexpected error occured (%u).\r\n"), GetLastError());
-//            error_level = 1;
-//        }
+            bytes_left -= amount_to_read;
+        }
     }
     catch(const std::exception& ex)
     {
-        UNREFERENCED_PARAMETER(ex);
-//        _ftprintf(stderr, _TEXT("Unable to open input or output device.\r\n"));
+//      _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), GetLastError());
+//      _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), GetLastError());
+//      _ftprintf(stderr, _TEXT("Not enough memory to allocate the transfer buffer.\r\n"));
+//      _ftprintf(stderr, _TEXT("Unexpected error occured (%u).\r\n"), GetLastError());
+//      _ftprintf(stderr, _TEXT("Unable to open input or output device.\r\n"));
 
-// TODO:
-// fprintf(stderr, "%s\n", ex.what());  // etc
+        fprintf(stderr, "%s\n", ex.what());
         error_level = 1;
     }
 
