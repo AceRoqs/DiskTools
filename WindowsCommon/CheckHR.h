@@ -7,11 +7,17 @@ class HRESULT_exception : public std::exception
 {
 public:
     HRESULT_exception(HRESULT hr) NOEXCEPT;
+    HRESULT_exception(const HRESULT_exception& that);
+    HRESULT_exception& operator=(const HRESULT_exception& that);
 
     // Define a method besides exception::what() that doesn't require heap memory allocation.
     virtual void get_error_string(_Out_writes_z_(size) PTSTR error_string, size_t size) const NOEXCEPT;
+    virtual const char* what() const NOEXCEPT override;
 
     HRESULT m_hr;
+
+private:
+    std::unique_ptr<char[]> m_error_string;
 };
 
 HRESULT hresult_from_last_error() NOEXCEPT;
