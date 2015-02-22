@@ -54,12 +54,12 @@ HRESULT_exception::HRESULT_exception(HRESULT hr) NOEXCEPT : m_hr(hr), m_error_st
     }
 }
 
-HRESULT_exception::HRESULT_exception(const HRESULT_exception& that)
+HRESULT_exception::HRESULT_exception(const HRESULT_exception& that) NOEXCEPT
 {
     *this = that;
 }
 
-HRESULT_exception& HRESULT_exception::operator=(const HRESULT_exception& that)
+HRESULT_exception& HRESULT_exception::operator=(const HRESULT_exception& that) NOEXCEPT
 {
     if(this != &that)
     {
