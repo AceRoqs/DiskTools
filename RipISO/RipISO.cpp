@@ -15,6 +15,7 @@ std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
     std::vector<std::string> args;
 
 #ifdef WIN32
+    UNREFERENCED_PARAMETER(argc);
     UNREFERENCED_PARAMETER(argv);
 
     const auto command_line = GetCommandLineW();
