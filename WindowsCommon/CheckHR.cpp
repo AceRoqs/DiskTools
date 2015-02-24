@@ -28,7 +28,7 @@ HRESULT_exception::HRESULT_exception(HRESULT hr) NOEXCEPT : m_hr(hr), m_error_st
     }
 
     StringCchPrintfW(wide_error_string, ARRAYSIZE(wide_error_string), L"Error: %08x: %s", m_hr, message);
-    int byte_count = WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, nullptr, -1, nullptr, nullptr);
+    int byte_count = WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, nullptr, 0, nullptr, nullptr);
     if(byte_count != 0)
     {
         std::unique_ptr<char[]> utf8_error_string(new(std::nothrow) char[byte_count]);
