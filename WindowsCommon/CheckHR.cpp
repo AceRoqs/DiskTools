@@ -5,36 +5,47 @@
 namespace WindowsCommon
 {
 
-// TODO: Consider a constructor that takes an extra string parameter as context.
-HRESULT_exception::HRESULT_exception(HRESULT hr) NOEXCEPT : m_hr(hr), m_error_string(nullptr)
+HRESULT_exception::HRESULT_exception(HRESULT hr) NOEXCEPT : HRESULT_exception(hr, nullptr)
+{
+}
+
+HRESULT_exception::HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message) NOEXCEPT : m_hr(hr), m_error_string(nullptr)
 {
 #ifdef _D3D9_H_
     // D3D errors should use D3D9_exception.
     assert(HRESULT_FACILITY(m_hr) != _FACD3D);
 #endif
 
-    // TODO: Alloc memory, FormatMessage, WideCharToMultiByte, etc.
-    WCHAR message[128];
-    WCHAR wide_error_string[1024];
+    const size_t message_length = message == nullptr ? 0 : strlen(message);
+
+    WCHAR system_message[128];
     if(0 == FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                            nullptr,
-                            m_hr,
-                            0,
-                            message,
-                            ARRAYSIZE(message),
-                            nullptr))
+                           nullptr,
+                           m_hr,
+                           0,
+                           system_message,
+                           ARRAYSIZE(system_message),
+                           nullptr))
     {
-        StringCchCopyW(message, ARRAYSIZE(message), L"Unknown");
+        StringCchCopyW(system_message, ARRAYSIZE(system_message), L"Unknown");
     }
 
-    StringCchPrintfW(wide_error_string, ARRAYSIZE(wide_error_string), L"Error: %08x: %s", m_hr, message);
-    int byte_count = WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, nullptr, 0, nullptr, nullptr);
-    if(byte_count != 0)
+    WCHAR wide_error_string[1024];
+    StringCchPrintfW(wide_error_string, ARRAYSIZE(wide_error_string), L"Error: %08x: %s", m_hr, system_message);
+    const int byte_count = WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, nullptr, 0, nullptr, nullptr);
+
+    // Bound message_length to something reasonable to mitigate integer overflow potential on operator new.
+    if((byte_count > 0) && (message_length < ARRAYSIZE(wide_error_string)))
     {
-        std::unique_ptr<char[]> utf8_error_string(new(std::nothrow) char[byte_count]);
+        std::unique_ptr<char[]> utf8_error_string(new(std::nothrow) char[byte_count + message_length]);
         if(utf8_error_string != nullptr)
         {
-            if(WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, utf8_error_string.get(), byte_count, nullptr, nullptr) == byte_count)
+            if(message != nullptr)
+            {
+                strcpy_s(utf8_error_string.get(), byte_count + message_length, message);
+            }
+
+            if(WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, utf8_error_string.get() + message_length, byte_count, nullptr, nullptr) == byte_count)
             {
                 std::swap(utf8_error_string, m_error_string);
             }

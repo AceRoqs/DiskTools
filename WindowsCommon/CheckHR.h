@@ -3,10 +3,12 @@
 namespace WindowsCommon
 {
 
+// TODO: Consider making this class private once get_error_string is removed.
 class HRESULT_exception : public std::exception
 {
 public:
     HRESULT_exception(HRESULT hr) NOEXCEPT;
+    HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message) NOEXCEPT;
     HRESULT_exception(const HRESULT_exception& that) NOEXCEPT;
     HRESULT_exception& operator=(const HRESULT_exception& that) NOEXCEPT;
 
