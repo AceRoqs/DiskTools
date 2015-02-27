@@ -97,20 +97,14 @@ int main(int argc, _In_reads_(argc) char** argv)
             // A fast approach might be to use uncached aligned async reads, at the
             // expense of considerable complexity.
             DWORD amount_read;
-            WindowsCommon::check_windows_error(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0);
-            WindowsCommon::check_windows_error(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0);
+            WindowsCommon::check_windows_error(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0, "Error reading disk: ");
+            WindowsCommon::check_windows_error(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0, "Error writing file: ");
 
             bytes_left -= amount_to_read;
         }
     }
     catch(const std::exception& ex)
     {
-//      _ftprintf(stderr, _TEXT("Error reading disk (%u).\r\n"), GetLastError());
-//      _ftprintf(stderr, _TEXT("Error writing file (%u).\r\n"), GetLastError());
-//      _ftprintf(stderr, _TEXT("Not enough memory to allocate the transfer buffer.\r\n"));
-//      _ftprintf(stderr, _TEXT("Unexpected error occured (%u).\r\n"), GetLastError());
-//      _ftprintf(stderr, _TEXT("Unable to open input or output device.\r\n"));
-
         fprintf(stderr, "%s\n", ex.what());
         error_level = 1;
     }
