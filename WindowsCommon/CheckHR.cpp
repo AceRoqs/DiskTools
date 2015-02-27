@@ -5,10 +5,6 @@
 namespace WindowsCommon
 {
 
-HRESULT_exception::HRESULT_exception(HRESULT hr) NOEXCEPT : HRESULT_exception(hr, nullptr)
-{
-}
-
 HRESULT_exception::HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message) NOEXCEPT : m_hr(hr), m_error_string(nullptr)
 {
 #ifdef _D3D9_H_
@@ -130,35 +126,35 @@ HRESULT hresult_from_last_error() NOEXCEPT
     return hr;
 }
 
-void check_hr(HRESULT hr)
+void check_hr(HRESULT hr, _In_opt_z_ const char* message)
 {
     assert(SUCCEEDED(hr));
     if(FAILED(hr))
     {
         assert(false);
-        throw HRESULT_exception(hr);
+        throw HRESULT_exception(hr, message);
     }
 }
 
-void check_windows_error(BOOL result)
+void check_windows_error(BOOL result, _In_opt_z_ const char* message)
 {
     assert(result);
     if(!result)
     {
         HRESULT hr = hresult_from_last_error();
         assert(FAILED(hr));
-        throw HRESULT_exception(hr);
+        throw HRESULT_exception(hr, message);
     }
 }
 
 // TODO: This should go away when an extended check_exception is introduced.
-void check_with_custom_hr(BOOL result, HRESULT hr)
+void check_with_custom_hr(BOOL result, HRESULT hr, _In_opt_z_ const char* message)
 {
     assert(result);
     if(!result)
     {
         assert(FAILED(hr));
-        throw HRESULT_exception(hr);
+        throw HRESULT_exception(hr, message);
     }
 }
 
