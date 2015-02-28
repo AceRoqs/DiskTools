@@ -31,8 +31,10 @@ HRESULT_exception::HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message)
     const int byte_count = WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, nullptr, 0, nullptr, nullptr);
 
     // Bound message_length to something reasonable to mitigate integer overflow potential on operator new.
+    // byte_count includes null terminator.  message_length does not include null terminator.
     if((byte_count > 0) && (message_length < ARRAYSIZE(wide_error_string)))
     {
+        // Allow the possibility of memory failure in this exception, as this matches the behavior of MSVC CRT.
         std::unique_ptr<char[]> utf8_error_string(new(std::nothrow) char[byte_count + message_length]);
         if(utf8_error_string != nullptr)
         {
@@ -126,35 +128,46 @@ HRESULT hresult_from_last_error() NOEXCEPT
     return hr;
 }
 
+static void debug_HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message)
+{
+#if defined(_MSC_VER) && !defined(NDEBUG)
+        // Work around MSVC issue where the abort() message box is displayed instead of the assert messagebox.
+        // This makes the abort/retry/ignore of the dialog not work for the "ignore" case.  Since the abort dialog is called
+        // even for console apps where blocking for a GUI response is not ideal, just mimic the behavior as it is no worse.
+        // This also has the nice side effect of printing error information to the debugger window.
+        _set_error_mode(_OUT_TO_MSGBOX);
+#endif
+        // Force break.
+        assert(false);
+
+        throw HRESULT_exception(hr, message);
+}
+
 void check_hr(HRESULT hr, _In_opt_z_ const char* message)
 {
-    assert(SUCCEEDED(hr));
     if(FAILED(hr))
     {
-        assert(false);
-        throw HRESULT_exception(hr, message);
+        debug_HRESULT_exception(hr, message);
     }
 }
 
 void check_windows_error(BOOL result, _In_opt_z_ const char* message)
 {
-    assert(result);
     if(!result)
     {
         HRESULT hr = hresult_from_last_error();
         assert(FAILED(hr));
-        throw HRESULT_exception(hr, message);
+        debug_HRESULT_exception(hr, message);
     }
 }
 
 // TODO: This should go away when an extended check_exception is introduced.
 void check_with_custom_hr(BOOL result, HRESULT hr, _In_opt_z_ const char* message)
 {
-    assert(result);
+    assert(FAILED(hr));
     if(!result)
     {
-        assert(FAILED(hr));
-        throw HRESULT_exception(hr, message);
+        debug_HRESULT_exception(hr, message);
     }
 }
 
