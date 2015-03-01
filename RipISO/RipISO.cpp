@@ -22,7 +22,7 @@ std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
 
     int arg_count;
     const auto naked_args = CommandLineToArgvW(command_line, &arg_count);
-    WindowsCommon::check_windows_error(naked_args != nullptr);
+    CHECK_WINDOWS_ERROR(naked_args != nullptr);
     assert(argc == arg_count);
 
     const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
