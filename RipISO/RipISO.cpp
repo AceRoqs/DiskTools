@@ -105,7 +105,8 @@ int main(int argc, _In_reads_(argc) char** argv)
     }
     catch(const std::exception& ex)
     {
-        fprintf(stderr, "%s\n", ex.what());
+        // TODO: Under MSVC, fprintf expects ANSI, not UTF-8.
+        std::fprintf(stderr, "%s\n", ex.what());
         error_level = 1;
     }
 
