@@ -5,43 +5,7 @@
 #include <WindowsCommon/CheckHR.h>
 #include <WindowsCommon/ScopedWindowsTypes.h>
 #include <WindowsCommon/Wrappers.h>
-
-namespace RipISO
-{
-
-// TODO: This should eventually go in the PlatformServices library.
-std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
-{
-    std::vector<std::string> args;
-
-#ifdef WIN32
-    UNREFERENCED_PARAMETER(argc);
-    UNREFERENCED_PARAMETER(argv);
-
-    const auto command_line = GetCommandLineW();
-
-    int arg_count;
-    const auto naked_args = CommandLineToArgvW(command_line, &arg_count);
-    CHECK_WINDOWS_ERROR(naked_args != nullptr);
-    assert(argc == arg_count);
-
-    const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
-
-    std::for_each(naked_args, naked_args + arg_count, [&args](PCWSTR arg)
-    {
-        args.push_back(PortableRuntime::utf8_from_utf16(arg));
-    });
-#else
-    std::for_each(argv, argv + argc, [&args](char* arg)
-    {
-        args.push_back(arg);
-    });
-#endif
-
-    return args;
-}
-
-}
+#include <PlatformServices/Shell.h>
 
 int main(int argc, _In_reads_(argc) char** argv)
 {
@@ -53,7 +17,7 @@ int main(int argc, _In_reads_(argc) char** argv)
         //const unsigned int arg_program_name = 0;
         const unsigned int arg_output_file  = 1;
 
-        const auto args = RipISO::get_utf8_args(argc, argv);
+        const auto args = PlatformServices::get_utf8_args(argc, argv);
         PortableRuntime::check_exception(2 == args.size()); // TODO: Usage: %s file_name.iso\n", args[arg_program_name].c_str()
 
         const auto disk_handle = WindowsCommon::create_file(
