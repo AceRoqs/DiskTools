@@ -2,7 +2,7 @@
 #include "Shell.h"          // Pick up forward declarations to ensure correctness.
 #include <PortableRuntime/Unicode.h>
 
-#ifdef WIN32
+#if defined(WIN32) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #include <WindowsCommon/CheckHR.h>
 #include <WindowsCommon/ScopedWindowsTypes.h>
 #endif
@@ -14,7 +14,7 @@ std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
 {
     std::vector<std::string> args;
 
-#ifdef WIN32
+#if defined(WIN32) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
     UNREFERENCED_PARAMETER(argc);
     UNREFERENCED_PARAMETER(argv);
 
