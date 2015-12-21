@@ -18,7 +18,7 @@
 #include <vector>
 
 // Windows API.
-#ifdef WIN32
+#ifdef _WIN32
 
 // Define to prevent using namespace ATL by default.
 // http://msdn.microsoft.com/en-us/library/a477k694.aspx
@@ -47,7 +47,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
-#endif  // WIN32
+#endif  // _WIN32
 
 #include <gl/GL.h>
 
