@@ -10,7 +10,7 @@
 #include <vector>
 
 // Windows API.
-#ifdef WIN32
+#ifdef _WIN32
 
 // Defines to decrease build times:
 // http://support.microsoft.com/kb/166474
