@@ -82,38 +82,6 @@ static bool is_window_32bits_per_pixel(_In_ HWND window)
     return true;
 }
 
-#if _MSC_VER <= 1800
-WGL_state::WGL_state()
-{
-}
-
-WGL_state::WGL_state(WGL_state&& other) :
-    atom(std::move(other.atom)),
-    window(std::move(other.window)),
-    device_context(std::move(other.device_context)),
-    gl_context(std::move(other.gl_context)),
-    make_current_context(std::move(other.make_current_context))
-{
-}
-
-WGL_state& WGL_state::operator=(WGL_state&& other) NOEXCEPT
-{
-    // Handle A=A case.
-    if(this != &other)
-    {
-        atom = std::move(other.atom);
-        window = std::move(other.window);
-        device_context = std::move(other.device_context);
-        gl_context = std::move(other.gl_context);
-        make_current_context = std::move(other.make_current_context);
-    }
-
-    return *this;
-}
-#else
-#error This compiler may autodefine the default move constructor.
-#endif
-
 // TODO: set window width/height if full screen
 OpenGL_window::OpenGL_window(_In_ PCSTR window_title, _In_ HINSTANCE instance, bool windowed) : m_windowed(windowed)
 {
