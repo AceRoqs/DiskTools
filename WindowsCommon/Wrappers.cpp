@@ -9,7 +9,7 @@
 namespace WindowsCommon
 {
 
-LRESULT CALLBACK Window_procedure::static_window_proc(__in HWND window, UINT message, WPARAM w_param, LPARAM l_param) NOEXCEPT
+LRESULT CALLBACK Window_procedure::static_window_proc(__in HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
 {
     PortableRuntime::dprintf("%s\n", string_from_window_message(message));
 
@@ -59,7 +59,7 @@ Window_class::Window_class(UINT style, _In_ WNDPROC window_proc, int class_extra
     m_window_class.hIconSm       = small_icon;
 }
 
-Window_class::Window_class(const Window_class&& other) NOEXCEPT :
+Window_class::Window_class(const Window_class&& other) noexcept :
     m_window_class(other.m_window_class),
     m_menu_name(std::move(other.m_menu_name)),
     m_class_name(std::move(other.m_class_name))
@@ -68,12 +68,12 @@ Window_class::Window_class(const Window_class&& other) NOEXCEPT :
     m_window_class.lpszClassName = m_class_name.c_str();
 }
 
-Window_class::operator const WNDCLASSEXW&() const NOEXCEPT
+Window_class::operator const WNDCLASSEXW&() const noexcept
 {
     return m_window_class;
 }
 
-Window_class get_default_blank_window_class(_In_ HINSTANCE instance, _In_ WNDPROC window_proc, _In_ PCSTR window_class_name) NOEXCEPT
+Window_class get_default_blank_window_class(_In_ HINSTANCE instance, _In_ WNDPROC window_proc, _In_ PCSTR window_class_name) noexcept
 {
     Window_class window_class(CS_HREDRAW | CS_VREDRAW,
                               window_proc,

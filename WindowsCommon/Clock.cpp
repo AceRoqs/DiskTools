@@ -10,7 +10,7 @@ static LONGLONG milliseconds_from_seconds(LONGLONG seconds)
     return seconds * 1000;
 }
 
-Clock::Clock() NOEXCEPT
+Clock::Clock() noexcept
 {
     m_last_counter.QuadPart = 0;
 
@@ -27,7 +27,7 @@ Clock::Clock() NOEXCEPT
     assert(supported);  // On WinXP+, QueryPerformanceCounter will always succeed (per MSDN).
 }
 
-float Clock::ellapsed_milliseconds() NOEXCEPT
+float Clock::ellapsed_milliseconds() noexcept
 {
     LARGE_INTEGER current_counter;
     const BOOL supported = QueryPerformanceCounter(&current_counter);

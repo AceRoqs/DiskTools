@@ -5,7 +5,7 @@
 namespace WindowsCommon
 {
 
-static void unregister_atom(_In_ ATOM atom, _In_ HINSTANCE instance) NOEXCEPT
+static void unregister_atom(_In_ ATOM atom, _In_ HINSTANCE instance) noexcept
 {
     BOOL result = UnregisterClassW(MAKEINTATOM(atom), instance);
     if(!result)
@@ -16,7 +16,7 @@ static void unregister_atom(_In_ ATOM atom, _In_ HINSTANCE instance) NOEXCEPT
     }
 }
 
-static std::function<void (ATOM)> unregister_class_functor(_In_ HINSTANCE instance) NOEXCEPT
+static std::function<void (ATOM)> unregister_class_functor(_In_ HINSTANCE instance) noexcept
 {
     return [=](ATOM atom)
     {
@@ -26,10 +26,10 @@ static std::function<void (ATOM)> unregister_class_functor(_In_ HINSTANCE instan
 
 Scoped_atom make_scoped_window_class(_In_ ATOM atom, _In_ HINSTANCE instance)
 {
-    return std::move(Scoped_atom(atom, unregister_class_functor(instance)));
+    return Scoped_atom(atom, unregister_class_functor(instance));
 }
 
-static void destroy_window(_In_ HWND window) NOEXCEPT
+static void destroy_window(_In_ HWND window) noexcept
 {
     if(!DestroyWindow(window))
     {
@@ -41,10 +41,10 @@ static void destroy_window(_In_ HWND window) NOEXCEPT
 
 Scoped_window make_scoped_window(_In_ HWND window)
 {
-    return std::move(Scoped_window(window, std::function<void (HWND)>(destroy_window)));
+    return Scoped_window(window, std::function<void (HWND)>(destroy_window));
 }
 
-static void release_device_context(_In_ HDC device_context, _In_ HWND window) NOEXCEPT
+static void release_device_context(_In_ HDC device_context, _In_ HWND window) noexcept
 {
     if(!ReleaseDC(window, device_context))
     {
@@ -52,7 +52,7 @@ static void release_device_context(_In_ HDC device_context, _In_ HWND window) NO
     }
 }
 
-std::function<void (HDC)> release_device_context_functor(_In_ HWND window) NOEXCEPT
+std::function<void (HDC)> release_device_context_functor(_In_ HWND window) noexcept
 {
     return [=](HDC device_context)
     {
@@ -60,7 +60,7 @@ std::function<void (HDC)> release_device_context_functor(_In_ HWND window) NOEXC
     };
 }
 
-std::function<void (HDC)> end_paint_functor(_In_ HWND window, _In_ PAINTSTRUCT* paint_struct) NOEXCEPT
+std::function<void (HDC)> end_paint_functor(_In_ HWND window, _In_ PAINTSTRUCT* paint_struct) noexcept
 {
     return [=](HDC device_context)
     {
@@ -71,10 +71,10 @@ std::function<void (HDC)> end_paint_functor(_In_ HWND window, _In_ PAINTSTRUCT* 
 
 Scoped_device_context make_scoped_device_context(_In_ HDC device_context, std::function<void (HDC)> deleter)
 {
-    return std::move(Scoped_device_context(device_context, std::move(deleter)));
+    return Scoped_device_context(device_context, std::move(deleter));
 }
 
-static void close_handle(_In_ HANDLE handle) NOEXCEPT
+static void close_handle(_In_ HANDLE handle) noexcept
 {
     if(!CloseHandle(handle))
     {
@@ -86,17 +86,17 @@ static void close_handle(_In_ HANDLE handle) NOEXCEPT
 
 Scoped_handle make_scoped_handle(_In_ HANDLE handle)
 {
-    return std::move(Scoped_handle(handle, std::function<void (HANDLE)>(close_handle)));
+    return Scoped_handle(handle, std::function<void (HANDLE)>(close_handle));
 }
 
-static void select_object(_In_ HDC device_context, HGDIOBJ gdi_object) NOEXCEPT
+static void select_object(_In_ HDC device_context, HGDIOBJ gdi_object) noexcept
 {
     auto result = SelectObject(device_context, gdi_object);
     (result);
     assert(result != nullptr);
 }
 
-std::function<void (HFONT)> select_object_functor(_In_ HDC device_context) NOEXCEPT
+std::function<void (HFONT)> select_object_functor(_In_ HDC device_context) noexcept
 {
     return [=](HFONT font)
     {
@@ -104,7 +104,7 @@ std::function<void (HFONT)> select_object_functor(_In_ HDC device_context) NOEXC
     };
 }
 
-void delete_object(_In_ HFONT font) NOEXCEPT
+void delete_object(_In_ HFONT font) noexcept
 {
     auto result = DeleteObject(font);
     (result);
@@ -113,10 +113,10 @@ void delete_object(_In_ HFONT font) NOEXCEPT
 
 Scoped_font make_scoped_font(_In_ HFONT font, std::function<void (HFONT)> deleter)
 {
-    return std::move(Scoped_font(font, std::move(deleter)));
+    return Scoped_font(font, std::move(deleter));
 }
 
-static void local_free(_In_ HLOCAL local) NOEXCEPT
+static void local_free(_In_ HLOCAL local) noexcept
 {
     if(LocalFree(local) != nullptr)
     {

@@ -5,7 +5,7 @@
 namespace WindowsCommon
 {
 
-HRESULT_exception::HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message) NOEXCEPT : m_hr(hr), m_error_string(nullptr)
+HRESULT_exception::HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message) noexcept : m_hr(hr), m_error_string(nullptr)
 {
 #ifdef _D3D9_H_
     // D3D errors should use D3D9_exception.
@@ -63,12 +63,12 @@ HRESULT_exception::HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message)
     }
 }
 
-HRESULT_exception::HRESULT_exception(const HRESULT_exception& that) NOEXCEPT
+HRESULT_exception::HRESULT_exception(const HRESULT_exception& that) noexcept
 {
     *this = that;
 }
 
-HRESULT_exception& HRESULT_exception::operator=(const HRESULT_exception& that) NOEXCEPT
+HRESULT_exception& HRESULT_exception::operator=(const HRESULT_exception& that) noexcept
 {
     if(this != &that)
     {
@@ -91,7 +91,7 @@ HRESULT_exception& HRESULT_exception::operator=(const HRESULT_exception& that) N
 }
 
 // TODO: Keep this function until all projects have been converted away from it (particularly the Direct3D Exception class).
-void HRESULT_exception::get_error_string(_Out_writes_z_(size) PTSTR error_string, size_t size) const NOEXCEPT
+void HRESULT_exception::get_error_string(_Out_writes_z_(size) PTSTR error_string, size_t size) const noexcept
 {
 #ifdef _D3D9_H_
     // D3D errors should use D3D9_exception.
@@ -114,12 +114,12 @@ void HRESULT_exception::get_error_string(_Out_writes_z_(size) PTSTR error_string
     StringCchPrintf(error_string, size, TEXT("Error: %08x: %s"), m_hr, message);
 }
 
-const char* HRESULT_exception::what() const NOEXCEPT
+const char* HRESULT_exception::what() const noexcept
 {
     return m_error_string != nullptr ? m_error_string.get() : std::exception::what();
 }
 
-HRESULT hresult_from_last_error() NOEXCEPT
+HRESULT hresult_from_last_error() noexcept
 {
     DWORD error = GetLastError();
     HRESULT hr = HRESULT_FROM_WIN32(error);

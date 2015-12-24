@@ -246,7 +246,7 @@ static bool operator<(const Message_map& first, const Message_map& second)
     return first.message < second.message;
 }
 
-static _Success_(return) bool map_message_to_index(_In_reads_(map_size) const Message_map* message_map, size_t map_size, unsigned int message, _Out_ size_t* final_index) NOEXCEPT
+static _Success_(return) bool map_message_to_index(_In_reads_(map_size) const Message_map* message_map, size_t map_size, unsigned int message, _Out_ size_t* final_index) noexcept
 {
     const Message_map value = { nullptr, message };
     const auto iterator = std::lower_bound(message_map, message_map + map_size, value);
@@ -260,12 +260,12 @@ static _Success_(return) bool map_message_to_index(_In_reads_(map_size) const Me
 }
 
 #ifndef NDEBUG // These functions are not currently called in Release.  Avoid C4505: unreferenced local function has been removed.
-static void validate_message_map_sorted(_In_reads_(map_size) const Message_map* message_map, size_t map_size) NOEXCEPT
+static void validate_message_map_sorted(_In_reads_(map_size) const Message_map* message_map, size_t map_size) noexcept
 {
     assert(std::is_sorted(message_map, message_map + map_size));
 }
 
-static void validate_message_map_all_entries_accessible(_In_reads_(map_size) const Message_map* message_map, size_t map_size) NOEXCEPT
+static void validate_message_map_all_entries_accessible(_In_reads_(map_size) const Message_map* message_map, size_t map_size) noexcept
 {
     std::for_each(message_map, message_map + map_size, [&](const Message_map& entry){
         size_t message_index;
@@ -275,7 +275,7 @@ static void validate_message_map_all_entries_accessible(_In_reads_(map_size) con
 }
 #endif
 
-void debug_validate_message_map() NOEXCEPT
+void debug_validate_message_map() noexcept
 {
 #ifndef NDEBUG
     validate_message_map_sorted(window_messages, ARRAYSIZE(window_messages));
@@ -284,7 +284,7 @@ void debug_validate_message_map() NOEXCEPT
 #endif
 }
 
-PCSTR string_from_window_message(UINT message) NOEXCEPT
+PCSTR string_from_window_message(UINT message) noexcept
 {
     PCSTR text;
 
@@ -311,7 +311,7 @@ PCSTR string_from_window_message(UINT message) NOEXCEPT
 }
 
 // Returns false if WM_QUIT was posted.
-bool dispatch_all_windows_messages(_Out_ MSG* message) NOEXCEPT
+bool dispatch_all_windows_messages(_Out_ MSG* message) noexcept
 {
     // Clear out all the messages before drawing a new frame.
     BOOL message_exists = PeekMessage(message, nullptr, 0, 0, PM_REMOVE);
