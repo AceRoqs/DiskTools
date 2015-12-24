@@ -11,5 +11,3 @@
 #include <tchar.h>
 #include <Windows.h>
 
-#include <PortableRuntime/PreCPP11.h>
-
