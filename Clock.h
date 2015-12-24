@@ -10,8 +10,8 @@ private:
     LARGE_INTEGER m_last_counter;
 
 public:
-    Clock() NOEXCEPT;
-    float ellapsed_milliseconds() NOEXCEPT;
+    Clock() noexcept;
+    float ellapsed_milliseconds() noexcept;
 };
 
 }

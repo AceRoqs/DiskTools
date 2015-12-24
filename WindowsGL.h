@@ -11,17 +11,6 @@ typedef Scoped_resource<HGLRC> Scoped_current_context;
 
 struct WGL_state
 {
-// http://stackoverflow.com/questions/70013/how-to-detect-if-im-compiling-code-with-visual-studio-2008
-#if _MSC_VER <= 1800
-    // Add default and move constructors as VS2010/2012/2013 doesn't default define a move constructor.
-    WGL_state();
-    WGL_state(WGL_state&& other);
-
-    WGL_state& operator=(WGL_state&& other) NOEXCEPT;
-#else
-#error This compiler may autodefine the default move constructor.
-#endif
-
     // The order of these fields matter, as destruction must happen in the opposite order.
     Scoped_atom atom;
     Scoped_window window;
@@ -39,7 +28,7 @@ public:
     WGL_state m_state;
 
 protected:
-    LRESULT window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) NOEXCEPT OVERRIDE;
+    LRESULT window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept override;
 
 private:
     bool m_windowed;

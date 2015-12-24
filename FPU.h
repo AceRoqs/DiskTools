@@ -12,8 +12,8 @@ class Scoped_FPU_exception_control
     unsigned int m_exception_mask;
 
     // Prevent copy.
-    Scoped_FPU_exception_control& operator=(const Scoped_FPU_exception_control&) EQUALS_DELETE;
-    Scoped_FPU_exception_control(const Scoped_FPU_exception_control&) EQUALS_DELETE;
+    Scoped_FPU_exception_control& operator=(const Scoped_FPU_exception_control&) = delete;
+    Scoped_FPU_exception_control(const Scoped_FPU_exception_control&) = delete;
 
 public:
     Scoped_FPU_exception_control(unsigned int exception_mask);
