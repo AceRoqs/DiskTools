@@ -18,7 +18,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <Import Project="$(SolutionDir)Configurations\Project.Default.props" />
+  <Import Project="$(SolutionDir)..\Configurations\Project.Default.props" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>{008C02A9-9A09-46AE-BC30-DB64B59DC1BE}</ProjectGuid>
     <RootNamespace>PartitionInfo</RootNamespace>

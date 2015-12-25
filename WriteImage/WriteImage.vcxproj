@@ -18,7 +18,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <Import Project="$(SolutionDir)Configurations\Project.Default.props" />
+  <Import Project="$(SolutionDir)..\Configurations\Project.Default.props" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E465889F-73AE-47B9-BCC9-1FEE2542A862}</ProjectGuid>
     <RootNamespace>WriteImage</RootNamespace>

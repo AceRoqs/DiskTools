@@ -1,4 +1,0 @@
-#pragma once
-
-#define HYPERLINK_CONTROL_CLASS L"Hyperlink_control_class"
-

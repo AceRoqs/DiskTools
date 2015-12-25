@@ -26,7 +26,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <Import Project="$(SolutionDir)Configurations\Project.Default.props" />
+  <Import Project="$(SolutionDir)..\Configurations\Project.Default.props" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2D2607CD-EEFF-421F-947E-0A1E145C2BC5}</ProjectGuid>
     <RootNamespace>PlatformServices</RootNamespace>

@@ -3,24 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 14.0.23107.0
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinPartitionInfo", "WinPartitionInfo\WinPartitionInfo.vcxproj", "{70A31746-D651-438C-81A6-56483635DF3A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinPartitionInfo", "..\DiskTools\WinPartitionInfo\WinPartitionInfo.vcxproj", "{70A31746-D651-438C-81A6-56483635DF3A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DiskTools", "DiskTools\DiskTools.vcxproj", "{7A0B7CC4-9CAB-4B19-9F63-215A4B846214}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DiskTools", "..\DiskTools\DiskTools\DiskTools.vcxproj", "{7A0B7CC4-9CAB-4B19-9F63-215A4B846214}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetSector", "GetSector\GetSector.vcxproj", "{75623C75-41B2-4D99-ACD2-88F65A8207AB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetSector", "..\DiskTools\GetSector\GetSector.vcxproj", "{75623C75-41B2-4D99-ACD2-88F65A8207AB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PartitionInfo", "PartitionInfo\PartitionInfo.vcxproj", "{008C02A9-9A09-46AE-BC30-DB64B59DC1BE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PartitionInfo", "..\DiskTools\PartitionInfo\PartitionInfo.vcxproj", "{008C02A9-9A09-46AE-BC30-DB64B59DC1BE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RipISO", "RipISO\RipISO.vcxproj", "{E2F5AF6F-F713-4BC9-A66D-FFEBFA0B3967}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RipISO", "..\DiskTools\RipISO\RipISO.vcxproj", "{E2F5AF6F-F713-4BC9-A66D-FFEBFA0B3967}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0D716D67-7339-4780-9764-F48808DB8DAE} = {0D716D67-7339-4780-9764-F48808DB8DAE}
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
@@ -28,21 +28,21 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RipISO", "RipISO\RipISO.vcx
 		{F87DF4F3-6744-4DFF-BDCF-1CB9AAA654D1} = {F87DF4F3-6744-4DFF-BDCF-1CB9AAA654D1}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuildImage", "BuildImage\BuildImage.vcxproj", "{4A40E094-73F9-4D41-8263-6D508CBBC81D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuildImage", "..\DiskTools\BuildImage\BuildImage.vcxproj", "{4A40E094-73F9-4D41-8263-6D508CBBC81D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PortableRuntime", "PortableRuntime\PortableRuntime.vcxproj", "{0D716D67-7339-4780-9764-F48808DB8DAE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PortableRuntime", "..\PortableRuntime\PortableRuntime.vcxproj", "{0D716D67-7339-4780-9764-F48808DB8DAE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsCommon", "WindowsCommon\WindowsCommon.vcxproj", "{F87DF4F3-6744-4DFF-BDCF-1CB9AAA654D1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsCommon", "..\WindowsCommon\WindowsCommon.vcxproj", "{F87DF4F3-6744-4DFF-BDCF-1CB9AAA654D1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WriteImage", "WriteImage\WriteImage.vcxproj", "{E465889F-73AE-47B9-BCC9-1FEE2542A862}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WriteImage", "..\DiskTools\WriteImage\WriteImage.vcxproj", "{E465889F-73AE-47B9-BCC9-1FEE2542A862}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7A0B7CC4-9CAB-4B19-9F63-215A4B846214} = {7A0B7CC4-9CAB-4B19-9F63-215A4B846214}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlatformServices", "PlatformServices\PlatformServices.vcxproj", "{2D2607CD-EEFF-421F-947E-0A1E145C2BC5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlatformServices", "..\DiskTools\PlatformServices\PlatformServices.vcxproj", "{2D2607CD-EEFF-421F-947E-0A1E145C2BC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
