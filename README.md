@@ -12,7 +12,7 @@ something more modern like [Digital Mars](http://www.digitalmars.com/features.ht
 However, because they do direct sector reads via INT 13h, Windows will refuse
 to run them.
 
-All other apps are buildable with Visual C++ 2013, and have a dependency on
+All other apps are buildable with Visual C++ 2015, and have a dependency on
 C++11.
 
 * _BuildImage_ is an in-progress tool for customizing the files on disk images.
