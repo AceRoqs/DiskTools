@@ -18,7 +18,7 @@ int main(int argc, _In_reads_(argc) char** argv)
         const unsigned int arg_output_file  = 1;
 
         const auto args = PlatformServices::get_utf8_args(argc, argv);
-        PortableRuntime::check_exception(2 == args.size(), ("Usage: " + args[0] + " file_name.iso").c_str());
+        CHECK_EXCEPTION(2 == args.size(), "Usage: " + args[0] + " file_name.iso");
 
         const auto disk_handle = WindowsCommon::create_file(
             DiskTools::get_file_name_cdrom_0(),
