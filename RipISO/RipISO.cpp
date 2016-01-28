@@ -61,8 +61,8 @@ int main(int argc, _In_reads_(argc) char** argv)
             // A fast approach might be to use uncached aligned async reads, at the
             // expense of considerable complexity.
             DWORD amount_read;
-            WindowsCommon::check_windows_error(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0, "Error reading disk: ");
-            WindowsCommon::check_windows_error(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0, "Error writing file: ");
+            WindowsCommon::check_windows_error(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0);
+            WindowsCommon::check_windows_error(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0);
 
             bytes_left -= amount_to_read;
         }
