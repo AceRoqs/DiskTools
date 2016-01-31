@@ -11,3 +11,7 @@
 #include <tchar.h>
 #include <Windows.h>
 
+// APIs for MSVCRT UTF-8 output.
+#include <fcntl.h>
+#include <io.h>
+
