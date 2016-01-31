@@ -40,14 +40,14 @@ int main(int argc, _In_reads_(argc) char** argv)
 
         DWORD bytes_returned;
         GET_LENGTH_INFORMATION length_information;
-        WindowsCommon::check_windows_error(DeviceIoControl(disk_handle,
-                                                           IOCTL_DISK_GET_LENGTH_INFO,
-                                                           nullptr,
-                                                           0,
-                                                           &length_information,
-                                                           sizeof(length_information),
-                                                           &bytes_returned,
-                                                           nullptr) != 0);
+        CHECK_BOOL_LAST_ERROR(DeviceIoControl(disk_handle,
+                                              IOCTL_DISK_GET_LENGTH_INFO,
+                                              nullptr,
+                                              0,
+                                              &length_information,
+                                              sizeof(length_information),
+                                              &bytes_returned,
+                                              nullptr) != 0);
         const unsigned int buffer_size = 1024 * 1024;
         std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(buffer_size);
 
@@ -61,8 +61,8 @@ int main(int argc, _In_reads_(argc) char** argv)
             // A fast approach might be to use uncached aligned async reads, at the
             // expense of considerable complexity.
             DWORD amount_read;
-            WindowsCommon::check_windows_error(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0);
-            WindowsCommon::check_windows_error(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0);
+            CHECK_BOOL_LAST_ERROR(ReadFile(disk_handle, buffer.get(), amount_to_read, &amount_read, nullptr) != 0);
+            CHECK_BOOL_LAST_ERROR(WriteFile(output_file, buffer.get(), amount_read, &amount_read, nullptr) != 0);
 
             bytes_left -= amount_to_read;
         }
