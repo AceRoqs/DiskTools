@@ -85,7 +85,7 @@ int main(int argc, _In_reads_(argc) char** argv)
     }
     catch(const std::exception& ex)
     {
-        std::fwprintf(stderr, L"%s\n", PortableRuntime::utf16_from_utf8(ex.what()).c_str());
+        std::fwprintf(stderr, L"\n%s\n", PortableRuntime::utf16_from_utf8(ex.what()).c_str());
         error_level = 1;
     }
 
