@@ -376,7 +376,7 @@ static std::tuple<BOOL, LONG> on_nc_hit_test(_In_ HWND window, int x_coord, int 
 class Partition_table_dialog
 {
 public:
-    Partition_table_dialog();
+    Partition_table_dialog() {};
     void show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id) const;
 
 protected:
@@ -386,23 +386,15 @@ protected:
     void on_size(_In_ HWND window, int new_client_width, int new_client_height) const;
 
 private:
-    RECT m_original_client_rect;
-    RECT m_original_clientspace_listview_rect;
-    RECT m_original_clientspace_label_rect;
-    SIZE m_minimum_dialog_size;
+    RECT m_original_client_rect = {};
+    RECT m_original_clientspace_listview_rect = {};
+    RECT m_original_clientspace_label_rect = {};
+    SIZE m_minimum_dialog_size = {};
 
     // Not implemented to prevent accidental copying.
-    Partition_table_dialog(const Partition_table_dialog&);
-    Partition_table_dialog& operator=(const Partition_table_dialog&);
+    Partition_table_dialog(const Partition_table_dialog&) = delete;
+    Partition_table_dialog& operator=(const Partition_table_dialog&) = delete;
 };
-
-Partition_table_dialog::Partition_table_dialog()
-{
-    ZeroMemory(&m_original_client_rect, sizeof(m_original_client_rect));
-    ZeroMemory(&m_original_clientspace_listview_rect, sizeof(m_original_clientspace_listview_rect));
-    ZeroMemory(&m_original_clientspace_label_rect, sizeof(m_original_clientspace_label_rect));
-    ZeroMemory(&m_minimum_dialog_size, sizeof(m_minimum_dialog_size));
-}
 
 void Partition_table_dialog::show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id) const
 {

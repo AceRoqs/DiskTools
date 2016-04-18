@@ -21,23 +21,16 @@ static int get_locale_info_number(
 // Wrapper for NUMBERFMT.
 class Number_format
 {
-    NUMBERFMT m_number_format;
+    NUMBERFMT m_number_format = {};
     TCHAR m_decimal_separator[8];
     TCHAR m_thousands_separator[8];
 
 public:
-    Number_format();
-
     void init_by_LCID(LCID lcid);
     void strip_decimal();
 
     void get_number_format(_Out_ NUMBERFMT* pnf);
 };
-
-Number_format::Number_format()
-{
-    ZeroMemory(&m_number_format, sizeof(m_number_format));
-}
 
 void Number_format::init_by_LCID(LCID lcid)
 {
