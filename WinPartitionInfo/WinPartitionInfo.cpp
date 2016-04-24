@@ -17,17 +17,17 @@ static const struct Listview_columns
     int format;
 } listview_columns[] =
 {
-    IDS_BOOTABLE,       LVCFMT_CENTER,
-    IDS_FILESYSTEMTYPE, LVCFMT_LEFT,
-    IDS_SIZEINBYTES,    LVCFMT_RIGHT,
-    IDS_DRIVENUMBER,    LVCFMT_RIGHT,
-    IDS_BEGINHEAD,      LVCFMT_RIGHT,
-    IDS_BEGINCYLINDER,  LVCFMT_RIGHT,
-    IDS_BEGINSECTOR,    LVCFMT_RIGHT,
-    IDS_ENDHEAD,        LVCFMT_RIGHT,
-    IDS_ENDCYLINDER,    LVCFMT_RIGHT,
-    IDS_ENDSECTOR,      LVCFMT_RIGHT,
-    IDS_STARTSECTOR,    LVCFMT_RIGHT,
+    { IDS_BOOTABLE,       LVCFMT_CENTER },
+    { IDS_FILESYSTEMTYPE, LVCFMT_LEFT },
+    { IDS_SIZEINBYTES,    LVCFMT_RIGHT },
+    { IDS_DRIVENUMBER,    LVCFMT_RIGHT },
+    { IDS_BEGINHEAD,      LVCFMT_RIGHT },
+    { IDS_BEGINCYLINDER,  LVCFMT_RIGHT },
+    { IDS_BEGINSECTOR,    LVCFMT_RIGHT },
+    { IDS_ENDHEAD,        LVCFMT_RIGHT },
+    { IDS_ENDCYLINDER,    LVCFMT_RIGHT },
+    { IDS_ENDSECTOR,      LVCFMT_RIGHT },
+    { IDS_STARTSECTOR,    LVCFMT_RIGHT },
 };
 
 // This enumeration must match the order of listview_columns.
@@ -209,7 +209,7 @@ void output_partition_table_info(
     assert(max_partitions >= partitions->size());
 
     unsigned int row = ListView_GetItemCount(listview);
-    LVITEM item = {};
+    LVITEMW item = {};
     for(auto partition = std::cbegin(*partitions); partition != std::cend(*partitions); ++partition)
     {
         // Insert a new row into the listview.
@@ -219,7 +219,7 @@ void output_partition_table_info(
             throw std::bad_alloc();
         }
 
-        std::array<TCHAR[32], ARRAYSIZE(listview_columns)> labels = {};
+        std::array<WCHAR[32], ARRAYSIZE(listview_columns)> labels = {};
 
         // Built the set of strings for the row.
         // Since label strings are all the same length, all array sizes
@@ -251,7 +251,7 @@ void output_partition_table_info(
             LVITEM row_item;
             row_item.iSubItem = column;
             row_item.pszText  = label;
-            if(!SendMessage(listview, LVM_SETITEMTEXT, row, reinterpret_cast<LPARAM>(&row_item)))
+            if(!SendMessageW(listview, LVM_SETITEMTEXTW, row, reinterpret_cast<LPARAM>(&row_item)))
             {
                 throw std::bad_alloc();
             }
@@ -297,16 +297,16 @@ void add_listview_headers(
 
     for(unsigned int column_index = 0; column_index < column_count; ++column_index)
     {
-        TCHAR label[32];
-        PortableRuntime::verify(LoadString(instance, columns[column_index].name, label, ARRAYSIZE(label)) > 0);
-        label[ARRAYSIZE(label) - 1] = TEXT('\0');    // Suggested by static analysis.
+        WCHAR label[32];
+        PortableRuntime::verify(LoadStringW(instance, columns[column_index].name, label, ARRAYSIZE(label)) > 0);
+        label[ARRAYSIZE(label) - 1] = L'\0';    // Suggested by static analysis.
 
         new_column.fmt = columns[column_index].format;
         new_column.iOrder = column_index;
         new_column.cx = 1;  // Column size should be adjusted later.
         new_column.pszText = label;
         // Cast is safe as size is guaranteed to be less than ARRAYSIZE(label).
-        new_column.cchTextMax = static_cast<int>(_tcslen(new_column.pszText));
+        new_column.cchTextMax = static_cast<int>(wcslen(new_column.pszText));
 
         if(ListView_InsertColumn(listview, column_index, &new_column) == -1)
         {
