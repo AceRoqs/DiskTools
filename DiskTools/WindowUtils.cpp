@@ -178,11 +178,9 @@ void display_localized_error_dialog(
 {
     WCHAR caption_buffer[32];
     LoadStringW(instance, caption_id, caption_buffer, ARRAYSIZE(caption_buffer));
-    caption_buffer[ARRAYSIZE(caption_buffer) - 1] = L'\0';  // Suggested by static analysis.
 
     WCHAR message_buffer[256];
     LoadStringW(instance, message_id, message_buffer, ARRAYSIZE(message_buffer));
-    message_buffer[ARRAYSIZE(message_buffer) - 1] = L'\0';  // Suggested by static analysis.
 
     MessageBoxW(parent_window, message_buffer, caption_buffer, MB_OK | MB_ICONERROR);
 }
