@@ -3,6 +3,7 @@
 #include <cassert>
 #include <array>
 #include <cstdint>
+#include <fstream>
 #include <memory>
 
 #ifdef _MSC_VER

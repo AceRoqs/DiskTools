@@ -75,21 +75,12 @@ int read_sector_to_file(const wchar_t* output_file_name, uint64_t sector_number)
     // TODO: 2016: Convert this to a throwing function.
     if(SUCCEEDED(DiskTools::read_sector_from_disk(buffer.data(), &buffer_size, 0, sector_number)))
     {
-        // TODO: 2016: Convert this to a ofstream, since it has proper exception-safe lifetime semantics.
-        std::unique_ptr<FILE, int (*)(FILE*)> file(_wfopen(output_file_name, L"wb"), std::fclose);
-        if(0 == file)
-        {
-            std::fwprintf(stderr, L"Error opening %s.\n", output_file_name);
-            error_level = 1;
-        }
-        else
-        {
-            if(std::fwrite(buffer.data(), 1, buffer_size, file.get()) != buffer_size)
-            {
-                std::fwprintf(stderr, L"Error writing %s.\n", output_file_name);
-                error_level = 1;
-            }
-        }
+        // Open output file.
+        std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary);
+        CHECK_EXCEPTION(output_file.good(), u8"Error opening: " + PortableRuntime::utf8_from_utf16(output_file_name));
+
+        output_file.write(buffer.data(), buffer_size);
+        CHECK_EXCEPTION(!output_file.fail(), u8"Error writing output file.");
     }
     else
     {
