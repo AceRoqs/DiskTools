@@ -45,8 +45,9 @@ static void output_partition_table_info(
 // _In_reads_(argc) is the correct SAL annotation, but argc is not defined.
 int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
 {
-    UNREFERENCED_PARAMETER(argc);
-    UNREFERENCED_PARAMETER(argv);
+    (void)argc;     // Unreferenced parameter.
+    (void)argv;
+    // TODO: 2016: Consider tracing the unreferenced parameters.
 
     // Fixed disks with partition tables will generally have a sector
     // size of 512 bytes (valid as of 2011).

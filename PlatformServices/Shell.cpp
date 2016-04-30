@@ -1,5 +1,6 @@
 #include "PreCompile.h"
 #include "Shell.h"          // Pick up forward declarations to ensure correctness.
+#include <PortableRuntime/Tracing.h>
 #include <PortableRuntime/Unicode.h>
 
 #if defined(_WIN32) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
@@ -15,8 +16,9 @@ std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
     std::vector<std::string> args;
 
 #if defined(_WIN32) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-    UNREFERENCED_PARAMETER(argc);
-    UNREFERENCED_PARAMETER(argv);
+    (void)argc;     // Unreferenced parameter.
+    (void)argv;
+    PortableRuntime::dprintf(u8"Ignoring parameters: argc and argv: Using Unicode arguments instead.\n");
 
     const auto command_line = GetCommandLineW();
 
@@ -41,13 +43,16 @@ std::vector<std::string> get_utf8_args(int argc, _In_reads_(argc) char** argv)
     return args;
 }
 
+// TODO: 2016: Future plans below.  Not sure this is the correct approach anymore.
+#if 0
 int fprintf_utf8(_In_ FILE* stream, _In_z_ const char* format, ...)
 {
-    UNREFERENCED_PARAMETER(stream);
-    UNREFERENCED_PARAMETER(format);
+    (void)stream;
+    (void)format;
 
     return 0;
 }
+#endif
 
 }
 

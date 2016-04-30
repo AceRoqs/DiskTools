@@ -34,25 +34,25 @@ static const struct File_system_type_map
     unsigned char type;
 } file_system_types[] =
 {
-    TEXT("None/Raw"),             0x00,
-    TEXT("DOS FAT12"),            0x01,
-    TEXT("DOS FAT16"),            0x04,
-    TEXT("Extended"),             0x05,
-    TEXT("DOS FAT16 (big)"),      0x06,
-    TEXT("NTFS/HPFS"),            0x07,
-    TEXT("Windows FAT32"),        0x0B,
-    TEXT("Windows FAT32 (LBA)"),  0x0C,
-    TEXT("Windows FAT16 (LBA)"),  0x0E,
-    TEXT("Windows Extended"),     0x0F,
-    TEXT("Hidden DOS FAT12"),     0x11,
-    TEXT("Hidden DOS FAT16"),     0x14,
-    TEXT("Hidden DOS FAT16"),     0x16,
-    TEXT("Hidden OS/2 HPFS"),     0x17,
-    TEXT("Linux"),                0x81,
-    TEXT("Linux Swap"),           0x82,
-    TEXT("Linux"),                0x83,
-    TEXT("Linux Extended"),       0x85,
-    TEXT("GUID Partition Table"), 0xEE,
+    { TEXT("None/Raw"),             0x00 },
+    { TEXT("DOS FAT12"),            0x01 },
+    { TEXT("DOS FAT16"),            0x04 },
+    { TEXT("Extended"),             0x05 },
+    { TEXT("DOS FAT16 (big)"),      0x06 },
+    { TEXT("NTFS/HPFS"),            0x07 },
+    { TEXT("Windows FAT32"),        0x0B },
+    { TEXT("Windows FAT32 (LBA)"),  0x0C },
+    { TEXT("Windows FAT16 (LBA)"),  0x0E },
+    { TEXT("Windows Extended"),     0x0F },
+    { TEXT("Hidden DOS FAT12"),     0x11 },
+    { TEXT("Hidden DOS FAT16"),     0x14 },
+    { TEXT("Hidden DOS FAT16"),     0x16 },
+    { TEXT("Hidden OS/2 HPFS"),     0x17 },
+    { TEXT("Linux"),                0x81 },
+    { TEXT("Linux Swap"),           0x82 },
+    { TEXT("Linux"),                0x83 },
+    { TEXT("Linux Extended"),       0x85 },
+    { TEXT("GUID Partition Table"), 0xEE },
 };
 const unsigned int file_system_type_extended1 = 0x05;
 const unsigned int file_system_type_extended2 = 0x0F;
@@ -154,18 +154,18 @@ static HRESULT can_buffer_hold_sector(
 HANDLE get_disk_handle(uint8_t disk_number)
 {
     static_assert(sizeof(disk_number) == 1, "disk_name array is too short to hold the disk_number.");
-    TCHAR disk_name[ARRAYSIZE(TEXT("\\\\.\\PHYSICALDRIVE000"))];
-    StringCchPrintf(disk_name, ARRAYSIZE(disk_name), TEXT("\\\\.\\PHYSICALDRIVE%u"), disk_number);
+    WCHAR disk_name[ARRAYSIZE(L"\\\\.\\PHYSICALDRIVE000")];
+    StringCchPrintfW(disk_name, ARRAYSIZE(disk_name), L"\\\\.\\PHYSICALDRIVE%u", disk_number);
 
     // Open a read handle to the physical disk.
     // This call requires elevation to administrator.
-    return CreateFile(disk_name,
-                      GENERIC_READ,
-                      FILE_SHARE_READ,
-                      nullptr,
-                      OPEN_EXISTING,
-                      FILE_ATTRIBUTE_NORMAL,
-                      nullptr);
+    return CreateFileW(disk_name,
+                       GENERIC_READ,
+                       FILE_SHARE_READ,
+                       nullptr,
+                       OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL,
+                       nullptr);
 }
 
 HRESULT read_sector_from_handle(

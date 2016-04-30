@@ -56,7 +56,7 @@ static std::vector<uint8_t> get_default_boot_sector()
     boot_sector[bytes_per_sector - 2] = 0x55;
     boot_sector[bytes_per_sector - 1] = 0xaa;
 
-    return std::move(boot_sector);
+    return boot_sector;
 }
 
 static std::vector<uint8_t> get_empty_file_allocation_table(unsigned int sector_count)
@@ -67,14 +67,14 @@ static std::vector<uint8_t> get_empty_file_allocation_table(unsigned int sector_
     file_allocation_table[1] = 0xff;
     file_allocation_table[2] = 0xff;
 
-    return std::move(file_allocation_table);
+    return file_allocation_table;
 }
 
 static std::vector<uint8_t> get_empty_root_directory(unsigned int sector_count)
 {
     std::vector<uint8_t> root_directory(sector_count * bytes_per_sector);
 
-    return std::move(root_directory);
+    return root_directory;
 }
 
 static void usage()
@@ -147,7 +147,7 @@ static std::wstring sanitize_label(const std::wstring& input_label)
         }
     });
 
-    return std::move(output_label);
+    return output_label;
 }
 
 static void output_boot_sector(
@@ -155,7 +155,7 @@ static void output_boot_sector(
     const std::wstring& image_file_name,
     const std::wstring& label)
 {
-    (label);    // TODO:
+    (void)label;    // TODO: Add support for this.
     auto boot_sector = get_default_boot_sector();
     const auto file_allocation_table = get_empty_file_allocation_table(9);
     const auto root_directory = get_empty_root_directory(14);

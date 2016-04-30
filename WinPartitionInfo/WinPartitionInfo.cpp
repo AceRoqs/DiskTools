@@ -60,7 +60,6 @@ void get_yesno_string(
     {
         PortableRuntime::verify(LoadString(instance, IDS_NO, yesno, yesno_size) > 0);
     }
-    yesno[yesno_size - 1] = TEXT('\0');   // Suggested by static analysis.
 }
 
 void get_file_system_name_from_type(
@@ -299,7 +298,6 @@ void add_listview_headers(
     {
         WCHAR label[32];
         PortableRuntime::verify(LoadStringW(instance, columns[column_index].name, label, ARRAYSIZE(label)) > 0);
-        label[ARRAYSIZE(label) - 1] = L'\0';    // Suggested by static analysis.
 
         new_column.fmt = columns[column_index].format;
         new_column.iOrder = column_index;
@@ -388,7 +386,6 @@ protected:
 private:
     RECT m_original_client_rect = {};
     RECT m_original_clientspace_listview_rect = {};
-    RECT m_original_clientspace_label_rect = {};
     SIZE m_minimum_dialog_size = {};
 
     // Not implemented to prevent accidental copying.
@@ -483,7 +480,7 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
     // Don't allow std::bad_alloc to propagate across ABI boundaries.
     catch(const std::bad_alloc& ex)
     {
-        UNREFERENCED_PARAMETER(ex);
+        (void)ex;   // Unreferenced parameter.
         HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(window, GWLP_HINSTANCE));
         DiskTools::display_localized_error_dialog(window, instance, IDS_OOMCAPTION, IDS_OOMMESSAGE);
     }
@@ -544,9 +541,8 @@ int WINAPI _tWinMain(_In_ HINSTANCE instance,   // Handle to the program instanc
                      _In_ PTSTR command_line,   // Command line.
                      _In_ int show_command)     // How the window is to be displayed.
 {
-    // Prevent unreferenced parameter warning.
-    (void)(command_line);
-    (void)(show_command);
+    (void)command_line;     // Unreferenced parameter.
+    (void)show_command;
 
     INITCOMMONCONTROLSEX init_controls;
     init_controls.dwSize = sizeof(init_controls);

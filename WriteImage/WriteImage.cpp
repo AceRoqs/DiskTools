@@ -6,8 +6,9 @@ namespace WriteImage
 
 int wmain(int argc, _In_reads_(argc) PWSTR* argv)
 {
-    UNREFERENCED_PARAMETER(argc);
-    UNREFERENCED_PARAMETER(argv);
+    (void)argc;     // Unreferenced parameter.
+    (void)argv;
+    // TODO: 2016: Consider adding a trace.
 
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
