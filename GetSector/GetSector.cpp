@@ -1,5 +1,6 @@
 #include "PreCompile.h"
 #include <DiskTools/DirectRead.h>
+#include <WindowsCommon/CheckHR.h>
 #include <WindowsCommon/DebuggerTracing.h>
 #include <PortableRuntime/CheckException.h>
 #include <PortableRuntime/Tracing.h>
@@ -8,7 +9,8 @@
 namespace DiskTools
 {
 
-int read_sector_to_file(_In_z_ const wchar_t* output_file_name, uint64_t sector_number);
+void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t sector_number, _In_z_ const wchar_t* output_file_name);
+std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number);
 
 }
 
@@ -37,7 +39,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             // reading an int64_t into a uint64_t will have no negative (ha!) consequences, as any sector
             // number is considered a valid sector to read.
             const uint64_t sector_number = _wtoi64(argv[arg_sector_number]);
-            error_level = DiskTools::read_sector_to_file(argv[arg_output_file_name], sector_number);
+            DiskTools::read_physical_drive_sector_to_file(0, sector_number, argv[arg_output_file_name]);
         }
         else
         {
@@ -59,36 +61,31 @@ namespace DiskTools
 {
 
 _Use_decl_annotations_
-int read_sector_to_file(const wchar_t* output_file_name, uint64_t sector_number)
+void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t sector_number, const wchar_t* output_file_name)
 {
-    // TODO: 2016: This error_level is temporary, as error should be reported by exceptions.
-    int error_level = 0;
+    std::vector<uint8_t> sector = read_physical_drive_sector(drive_number, sector_number);
 
-    // TODO: 2016: Should the sector size be configurable?
+    std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary);
+    CHECK_EXCEPTION(output_file.good(), u8"Error opening: " + PortableRuntime::utf8_from_utf16(output_file_name));
+
+    output_file.write(sector.data(), sector.size());
+    CHECK_EXCEPTION(!output_file.fail(), u8"Error writing output file.");
+}
+
+_Use_decl_annotations_
+std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number)
+{
+    // TODO: 2016: Get the disk's configured sector size.
     const unsigned int sector_size = 512;
 
-    std::array<uint8_t, sector_size> buffer;
-    buffer.data();  // No-op for static analysis.  MSVC analyze complains about usage before init.
-    assert(buffer.size() < UINT_MAX);
-    unsigned int buffer_size = static_cast<unsigned int>(buffer.size());
+    std::vector<uint8_t> buffer;
+    buffer.resize(sector_size);
 
-    // TODO: 2016: Convert this to a throwing function.
-    if(SUCCEEDED(DiskTools::read_sector_from_disk(buffer.data(), &buffer_size, 0, sector_number)))
-    {
-        // Open output file.
-        std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary);
-        CHECK_EXCEPTION(output_file.good(), u8"Error opening: " + PortableRuntime::utf8_from_utf16(output_file_name));
+    unsigned int buffer_size = sector_size;
+    const HRESULT hr = read_sector_from_disk(buffer.data(), &buffer_size, drive_number, sector_number);
+    CHECK_HR(hr);
 
-        output_file.write(buffer.data(), buffer_size);
-        CHECK_EXCEPTION(!output_file.fail(), u8"Error writing output file.");
-    }
-    else
-    {
-        std::fwprintf(stderr, L"Error reading sector.\n");
-        error_level = 1;
-    }
-
-    return error_level;
+    return buffer;
 }
 
 }

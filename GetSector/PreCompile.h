@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <vector>
 
 #ifdef _MSC_VER
 
