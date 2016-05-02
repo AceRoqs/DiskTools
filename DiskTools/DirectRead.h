@@ -1,11 +1,9 @@
 #pragma once
 
-// This is outside a namespace because it is used in some SAL annotations.  SAL, as of VC2013 Update 4,
-// doesn't correctly handle namespaces.
-const unsigned int partition_table_entry_count = 4;
-
 namespace DiskTools
 {
+
+const unsigned int partition_table_entry_count = 4;
 
 #pragma pack(push, 1)
 struct Partition_table_entry

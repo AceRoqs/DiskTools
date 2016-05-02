@@ -12,10 +12,10 @@ namespace PartitionInfo
 // Display partition table data to stdout.
 // TODO: Make this take an ostream and put it into DiskTools.
 static void output_partition_table_info(
-    _In_reads_(partition_table_entry_count) const DiskTools::Partition_table_entry* entry,
+    _In_reads_(DiskTools::partition_table_entry_count) const DiskTools::Partition_table_entry* entry,
     unsigned int sector_size)
 {
-    for(unsigned int index = 0; index < partition_table_entry_count; ++index)
+    for(unsigned int index = 0; index < DiskTools::partition_table_entry_count; ++index)
     {
         uint64_t part_size = static_cast<uint64_t>(entry[index].sectors) * sector_size;
 
@@ -65,7 +65,7 @@ int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
         if(sector_size == bytes_to_read)
         {
             // Final two bytes are a boot sector signature, and the partition table immediately preceeds it.
-            unsigned int table_start = sector_size - 2 - (sizeof(DiskTools::Partition_table_entry) * partition_table_entry_count);
+            unsigned int table_start = sector_size - 2 - (sizeof(DiskTools::Partition_table_entry) * DiskTools::partition_table_entry_count);
             auto entries = reinterpret_cast<DiskTools::Partition_table_entry*>(buffer.data() + table_start);
             PartitionInfo::output_partition_table_info(entries, sector_size);
 

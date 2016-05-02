@@ -107,12 +107,12 @@ HRESULT read_disk_partitions_from_handle(
         if(sector_size <= bytes_to_read)
         {
             // Final two bytes are a boot sector signature, and the partition table immediately precedes it.
-            static_assert(sector_size >= 2 + (sizeof(DiskTools::Partition_table_entry) * partition_table_entry_count),
+            static_assert(sector_size >= 2 + (sizeof(DiskTools::Partition_table_entry) * DiskTools::partition_table_entry_count),
                           "sector_size must be large enough to contain a partition table.");
-            unsigned int table_start = bytes_to_read - 2 - (sizeof(DiskTools::Partition_table_entry) * partition_table_entry_count);
+            unsigned int table_start = bytes_to_read - 2 - (sizeof(DiskTools::Partition_table_entry) * DiskTools::partition_table_entry_count);
             auto entries = reinterpret_cast<DiskTools::Partition_table_entry*>(buffer.data() + table_start);
 
-            for(unsigned int entry_index = 0; entry_index < partition_table_entry_count; ++entry_index)
+            for(unsigned int entry_index = 0; entry_index < DiskTools::partition_table_entry_count; ++entry_index)
             {
                 // If partition entry is blank, don't include it.
                 if(0x00 == entries[entry_index].file_system_type)
@@ -138,7 +138,7 @@ HRESULT read_disk_partitions_from_handle(
             {
                 // Handle extended partitions.
                 // http://en.wikipedia.org/wiki/Extended_Boot_Record
-                for(unsigned int entry_index = 0; entry_index < partition_table_entry_count; ++entry_index)
+                for(unsigned int entry_index = 0; entry_index < DiskTools::partition_table_entry_count; ++entry_index)
                 {
                     if(DiskTools::is_extended_partition(entries[entry_index].file_system_type))
                     {
