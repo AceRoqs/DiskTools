@@ -5,6 +5,10 @@
 
 #include "PreCompile.h"
 #include <DiskTools/DirectRead.h>
+#include <WindowsCommon/DebuggerTracing.h>
+#include <PortableRuntime/CheckException.h>
+#include <PortableRuntime/Tracing.h>
+#include <PortableRuntime/Unicode.h>
 
 namespace PartitionInfo
 {
@@ -43,57 +47,73 @@ static void output_partition_table_info(
 }
 
 // _In_reads_(argc) is the correct SAL annotation, but argc is not defined.
-int _tmain(int argc, _In_reads_(argc) PTSTR* argv)
+int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 {
     (void)argc;     // Unreferenced parameter.
     (void)argv;
     // TODO: 2016: Consider tracing the unreferenced parameters.
 
-    // Fixed disks with partition tables will generally have a sector
-    // size of 512 bytes (valid as of 2011).
-    const unsigned int sector_size = 512;
-
-    std::array<uint8_t, sector_size> buffer;
-    unsigned int bytes_to_read = sector_size;
-
     // ERRORLEVEL zero is the success code.
-    int error_level = 1;
+    int error_level = 0;
 
-    HRESULT hr = DiskTools::read_sector_from_disk(buffer.data(), &bytes_to_read, 0, 0);
-    if(SUCCEEDED(hr))
+    try
     {
-        if(sector_size == bytes_to_read)
-        {
-            // Final two bytes are a boot sector signature, and the partition table immediately preceeds it.
-            unsigned int table_start = sector_size - 2 - (sizeof(DiskTools::Partition_table_entry) * DiskTools::partition_table_entry_count);
-            auto entries = reinterpret_cast<DiskTools::Partition_table_entry*>(buffer.data() + table_start);
-            PartitionInfo::output_partition_table_info(entries, sector_size);
+        PortableRuntime::set_dprintf(WindowsCommon::debugger_dprintf);
 
-            error_level = 0;
+        // Set wprintf output to UTF-8 in Windows console.
+        // CHECK_EXCEPTION ensures against the case that the CRT invalid parameter handler
+        // routine is set by a global constructor.
+        CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
+        CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
+
+        // Fixed disks with partition tables will generally have a sector
+        // size of 512 bytes (valid as of 2011).
+        const unsigned int sector_size = 512;
+
+        std::array<uint8_t, sector_size> buffer;
+        unsigned int bytes_to_read = sector_size;
+
+        HRESULT hr = DiskTools::read_sector_from_disk(buffer.data(), &bytes_to_read, 0, 0);
+        if(SUCCEEDED(hr))
+        {
+            if(sector_size == bytes_to_read)
+            {
+                // Final two bytes are a boot sector signature, and the partition table immediately preceeds it.
+                unsigned int table_start = sector_size - 2 - (sizeof(DiskTools::Partition_table_entry) * DiskTools::partition_table_entry_count);
+                auto entries = reinterpret_cast<DiskTools::Partition_table_entry*>(buffer.data() + table_start);
+                PartitionInfo::output_partition_table_info(entries, sector_size);
+
+                error_level = 0;
+            }
+            else
+            {
+                _ftprintf(stderr, _TEXT("Sector size is smaller than expected.  Can't find the partition table.\r\n"));
+            }
         }
         else
         {
-            _ftprintf(stderr, _TEXT("Sector size is smaller than expected.  Can't find the partition table.\r\n"));
+            if(__HRESULT_FROM_WIN32(ERROR_OPEN_FAILED) == hr)
+            {
+                _ftprintf(stderr, _TEXT("Error opening physical device. Are you administrator?\r\n"));
+            }
+            else if(TYPE_E_BUFFERTOOSMALL == hr)
+            {
+                _ftprintf(stderr, _TEXT("Buffer is too small. Sector size is larger than expected.\r\n"));
+            }
+            else if(__HRESULT_FROM_WIN32(ERROR_READ_FAULT) == hr)
+            {
+                _ftprintf(stderr, _TEXT("Error reading physical disk.\r\n"));
+            }
+            else
+            {
+                _ftprintf(stderr, _TEXT("Unexpected error occured.\r\n"));
+            }
         }
     }
-    else
+    catch(const std::exception& ex)
     {
-        if(__HRESULT_FROM_WIN32(ERROR_OPEN_FAILED) == hr)
-        {
-            _ftprintf(stderr, _TEXT("Error opening physical device. Are you administrator?\r\n"));
-        }
-        else if(TYPE_E_BUFFERTOOSMALL == hr)
-        {
-            _ftprintf(stderr, _TEXT("Buffer is too small. Sector size is larger than expected.\r\n"));
-        }
-        else if(__HRESULT_FROM_WIN32(ERROR_READ_FAULT) == hr)
-        {
-            _ftprintf(stderr, _TEXT("Error reading physical disk.\r\n"));
-        }
-        else
-        {
-            _ftprintf(stderr, _TEXT("Unexpected error occured.\r\n"));
-        }
+        std::fwprintf(stderr, L"\n%s\n", PortableRuntime::utf16_from_utf8(ex.what()).c_str());
+        error_level = 1;
     }
 
     return error_level;
