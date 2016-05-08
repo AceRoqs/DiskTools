@@ -10,7 +10,7 @@ namespace GetSector
 {
 
 // TODO: 2016: This should go in WindowsCommon namespace.
-std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number)
+static std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number)
 {
     // TODO: 2016: Get the disk's configured sector size.
     const unsigned int sector_size = 512;
@@ -25,7 +25,7 @@ std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t s
     return buffer;
 }
 
-void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t sector_number, _In_z_ const wchar_t* output_file_name)
+static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t sector_number, _In_z_ const wchar_t* output_file_name)
 {
     std::vector<uint8_t> sector = read_physical_drive_sector(drive_number, sector_number);
 
