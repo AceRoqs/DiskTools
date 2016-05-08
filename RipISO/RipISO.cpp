@@ -24,7 +24,7 @@ int main(int argc, _In_reads_(argc) char** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
-        //const unsigned int arg_program_name = 0;
+        const unsigned int arg_program_name = 0;
         const unsigned int arg_output_file  = 1;
 
         const auto args = PlatformServices::get_utf8_args(argc, argv);
@@ -79,7 +79,7 @@ int main(int argc, _In_reads_(argc) char** argv)
         }
         else
         {
-            std::fwprintf(stderr, L"Usage: %s file_name.iso", PortableRuntime::utf16_from_utf8(args[0]).c_str());
+            std::fwprintf(stderr, L"Usage: %s file_name.iso", PortableRuntime::utf16_from_utf8(args[arg_program_name]).c_str());
             error_level = 1;
         }
     }
