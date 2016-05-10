@@ -38,11 +38,32 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 
 }
 
+// Inspired by GNU getopt_long.
+enum class Argument_type { No_argument, Optional_argument, Required_argument };
+struct Option
+{
+    std::string name;
+    Argument_type argument_type;
+    int* flag;
+    int value;
+};
+
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 {
     constexpr auto arg_program_name     = 0;
     constexpr auto arg_sector_number    = 1;
     constexpr auto arg_output_file_name = 2;
+
+    // TODO: 2016: flag/value overloaded meanings is a unixism.  Create something that is more type safe.
+    int show_usage = 0;
+    int show_version = 0;
+    const static std::vector<Option> options =
+    {
+        { u8"help",     Argument_type::No_argument,       &show_usage,   'h' },
+        { u8"version",  Argument_type::No_argument,       &show_version, 'v' },
+        { u8"sector",   Argument_type::Required_argument, nullptr,       's' },
+        { u8"filename", Argument_type::Required_argument, nullptr,       'f' },
+    };
 
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
