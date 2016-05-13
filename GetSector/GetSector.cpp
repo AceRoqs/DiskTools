@@ -39,13 +39,28 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 }
 
 // Inspired by GNU getopt_long.
-enum class Argument_type { No_argument, Optional_argument, Required_argument };
 struct Option
 {
-    std::string name;
-    Argument_type argument_type;
-    int* flag;
-    int value;
+    // TODO: 2016: May need option_required as well.
+    // TODO: 2016: May need description for help text?
+    std::string long_name;
+    char short_name;
+    bool* flag;
+    bool argument_required;
+    std::string* argument;      // TODO: 2016: Consider just making each option a lambda.
+};
+
+class Argument_iterator
+{
+public:
+    Argument_iterator(std::vector<std::string> arguments, std::vector<Option> options)
+    {
+    }
+
+    std::string argument()
+    {
+        return u8"";
+    }
 };
 
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
@@ -53,17 +68,6 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
     constexpr auto arg_program_name     = 0;
     constexpr auto arg_sector_number    = 1;
     constexpr auto arg_output_file_name = 2;
-
-    // TODO: 2016: flag/value overloaded meanings is a unixism.  Create something that is more type safe.
-    int show_usage = 0;
-    int show_version = 0;
-    const static std::vector<Option> options =
-    {
-        { u8"help",     Argument_type::No_argument,       &show_usage,   'h' },
-        { u8"version",  Argument_type::No_argument,       &show_version, 'v' },
-        { u8"sector",   Argument_type::Required_argument, nullptr,       's' },
-        { u8"filename", Argument_type::Required_argument, nullptr,       'f' },
-    };
 
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
@@ -77,6 +81,19 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         // routine is set by a global constructor.
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
+
+        bool show_usage = false;
+        bool show_version = false;
+        std::string sector_number_string;
+        std::string file_name;
+        const static std::vector<Option> options =
+        {
+            // TODO: 2016: help/version should be automatically generated.
+            { u8"help",     u8'h', &show_usage,   false, nullptr },
+            { u8"version",  u8'v', &show_version, false, nullptr },
+            { u8"sector",   u8's', nullptr,       true,  &sector_number_string },
+            { u8"filename", u8'f', nullptr,       true,  &file_name },
+        };
 
         if(argc == 3)
         {
