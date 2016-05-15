@@ -4,13 +4,13 @@
 #include <array>
 #include <cstdint>
 #include <fstream>
+#include <unordered_map>
 #include <memory>
 #include <vector>
 
 #ifdef _MSC_VER
 
-// TODO: 2016: Remove all instances of tchar.h.
-#include <tchar.h>
+// TODO: 2016: There should be no reason this is necessary once DiskTools are UTF-8 ready.
 #include <windows.h>
 
 // APIs for MSVCRT UTF-8 output.

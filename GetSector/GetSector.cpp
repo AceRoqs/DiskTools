@@ -56,13 +56,20 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 }
 
 // Inspired by GNU getopt_long.
-struct Option
+class Option
 {
+public:
+    Option(char short_name, bool needs_argument) : _short_name(short_name), _needs_argument(needs_argument) {}
+
+    char short_name() const { return _short_name; }
+    bool needs_argument() const { return _needs_argument; }
+    bool has_argument() const { return !_argument.empty(); }
+
+private:
     // TODO: 2016: May need description for help text?
-    std::string long_name;
-    char short_name;
-    bool* flag;
-    std::string* argument;      // TODO: 2016: Consider just making each option a lambda.
+    char _short_name;
+    bool _needs_argument;
+    std::string _argument;
 };
 
 class Argument_iterator
@@ -78,7 +85,7 @@ public:
     }
 };
 
-void parse_args(const std::vector<std::string>& args, const std::vector<Option>& options)
+void parse_args(const std::vector<std::string>& args, const std::unordered_map<std::string, Option>& options)
 {
     (void)args;
     (void)options;
@@ -103,27 +110,27 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
-        bool show_usage = false;
-        bool show_version = false;
-        std::string sector_number_string;
-        std::string file_name;
-        const static std::vector<Option> options =
+        //bool show_usage = false;
+        //bool show_version = false;
+        //std::string sector_number_string;
+        //std::string file_name;
+        std::unordered_map<std::string, Option> options =
         {
             // TODO: 2016: help/version should be automatically generated.
             // TODO: 2016: Consider how this might output to stdout instead of to a file.
             // TODO: 2016: Provide table validation functions for debugging.
-            { u8"help",           u8'h', &show_usage,   nullptr },
-            { u8"version",        u8'v', &show_version, nullptr },
-            { u8"logical-sector", u8's', nullptr,       &sector_number_string },
-            { u8"file-name",      u8'f', nullptr,       &file_name },
+            { u8"logical-sector", { u8's', true  } },
+            { u8"file-name",      { u8'f', true  } },
+            { u8"help",           { u8'h', false } },
+            { u8"version",        { u8'v', false } },
         };
         // TODO: 2016: Parameter validation must be done by client, as required parameters might have complex invariants,
         // such as mutual exclusion, which cannot easily be represented in a table.
         const auto args = WindowsCommon::args_from_argv(argc, argv);
         parse_args(args, options);
         // TODO: 2016: Check for help, etc.
-        CHECK_EXCEPTION(!sector_number_string.empty(), u8"Missing a required argument: --logical-sector");  // TODO: 2016: Encapsulate this into a "get_int" function, etc.
-        CHECK_EXCEPTION(!file_name.empty(), u8"Missing a required argument: --file-name");
+        //CHECK_EXCEPTION(!sector_number_string.empty(), u8"Missing a required argument: --logical-sector");  // TODO: 2016: Encapsulate this into a "get_int" function, etc.
+        //CHECK_EXCEPTION(!file_name.empty(), u8"Missing a required argument: --file-name");
 
         if(argc == 3)
         {
