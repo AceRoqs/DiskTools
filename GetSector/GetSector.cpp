@@ -13,7 +13,7 @@ std::vector<std::string> args_from_argv(int argc, _In_reads_(argc) wchar_t** arg
 {
     std::vector<std::string> args;
 
-    std::for_each(argv, argv + argc, [&args](PCWSTR arg)
+    std::for_each(argv + 1, argv + argc, [&args](PCWSTR arg)
     {
         args.push_back(PortableRuntime::utf8_from_utf16(arg));
     });
@@ -87,8 +87,15 @@ public:
 
 void parse_args(const std::vector<std::string>& args, const std::unordered_map<std::string, Option>& options)
 {
-    (void)args;
-    (void)options;
+    std::for_each(args.cbegin(), args.cend(), [&](const std::string& str)
+    {
+        
+
+        if(options.count(str) > 0)
+        {
+            //Option& option = options[arg];
+        }
+    });
 }
 
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cassert>
-#include <array>
+#include <algorithm>
+//#include <array>
 #include <cstdint>
 #include <fstream>
 #include <unordered_map>
