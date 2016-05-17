@@ -65,6 +65,7 @@ public:
     char short_name() const { return _short_name; }
     bool needs_argument() const { return _needs_argument; }
     bool has_argument() const { return !_argument.empty(); }
+    void set_argument(const std::string& argument) { _argument = argument; }
 
     void set_exists() { _exists = true; }
     bool exists() const { return _exists; }
@@ -93,21 +94,34 @@ public:
 // TODO: 2016: options is a mutable reference.  Consider options for composability of this function.
 void parse_args(const std::vector<std::string>& args, std::unordered_map<std::string, Option>& options)
 {
-    // TODO: 2016: Much change to explicit loop counter to allow for parameters on arguments.
-    std::for_each(args.cbegin(), args.cend(), [&](const std::string& arg)
+    for(auto arg = std::cbegin(args); arg != std::cend(args); ++arg)
     {
-        if((arg.length() < 2) || (arg[0] != u8'-'))
+        if((arg->length() < 2) || ((*arg)[0] != u8'-'))
         {
             // Handle invalid argument.
         }
-        else if(arg[1] == u8'-')
+        else if((*arg)[1] == u8'-')
         {
             // Handle long name args.
-            const std::string arg_name = arg.substr(2, std::string::npos);
+            const std::string arg_name = arg->substr(2, std::string::npos);
             if(options.count(arg_name) > 0)
             {
                 Option& option = options[arg_name];
                 option.set_exists();
+
+                if(option.needs_argument())
+                {
+                    ++arg;
+                    if(arg != std::cend(args))
+                    {
+                        option.set_argument(*arg);
+                    }
+                    else
+                    {
+                        // Handle missing argument.
+                        break;
+                    }
+                }
             }
             else
             {
@@ -118,7 +132,7 @@ void parse_args(const std::vector<std::string>& args, std::unordered_map<std::st
         {
             // Handle single character arg.
         }
-    });
+    }
 }
 
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
