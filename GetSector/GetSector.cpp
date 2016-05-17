@@ -59,16 +59,21 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 class Option
 {
 public:
+    explicit Option() {}
     Option(char short_name, bool needs_argument) : _short_name(short_name), _needs_argument(needs_argument) {}
 
     char short_name() const { return _short_name; }
     bool needs_argument() const { return _needs_argument; }
     bool has_argument() const { return !_argument.empty(); }
 
+    void set_exists() { _exists = true; }
+    bool exists() const { return _exists; }
+
 private:
     // TODO: 2016: May need description for help text?
-    char _short_name;
-    bool _needs_argument;
+    bool _exists = false;
+    char _short_name = u8'\0';
+    bool _needs_argument = false;
     std::string _argument;
 };
 
@@ -85,15 +90,33 @@ public:
     }
 };
 
-void parse_args(const std::vector<std::string>& args, const std::unordered_map<std::string, Option>& options)
+// TODO: 2016: options is a mutable reference.  Consider options for composability of this function.
+void parse_args(const std::vector<std::string>& args, std::unordered_map<std::string, Option>& options)
 {
-    std::for_each(args.cbegin(), args.cend(), [&](const std::string& str)
+    // TODO: 2016: Much change to explicit loop counter to allow for parameters on arguments.
+    std::for_each(args.cbegin(), args.cend(), [&](const std::string& arg)
     {
-        
-
-        if(options.count(str) > 0)
+        if((arg.length() < 2) || (arg[0] != u8'-'))
         {
-            //Option& option = options[arg];
+            // Handle invalid argument.
+        }
+        else if(arg[1] == u8'-')
+        {
+            // Handle long name args.
+            const std::string arg_name = arg.substr(2, std::string::npos);
+            if(options.count(arg_name) > 0)
+            {
+                Option& option = options[arg_name];
+                option.set_exists();
+            }
+            else
+            {
+                // Handle invalid argument.
+            }
+        }
+        else
+        {
+            // Handle single character arg.
         }
     });
 }
