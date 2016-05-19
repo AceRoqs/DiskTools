@@ -135,6 +135,57 @@ void parse_args(const std::vector<std::string>& args, std::unordered_map<std::st
     }
 }
 
+std::unordered_map<std::string, std::string> options_from_args(const std::vector<std::string>& args, const std::unordered_map<std::string, std::pair<char, bool>>& options)
+{
+    // TODO: 2016: Better name than new_options.
+    std::unordered_map<std::string, std::string> new_options;
+
+    for(auto arg = std::cbegin(args); arg != std::cend(args); ++arg)
+    {
+        if((arg->length() < 2) || ((*arg)[0] != u8'-'))
+        {
+            // Handle invalid argument.
+        }
+        else if((*arg)[1] == u8'-')
+        {
+            // Handle long name args.
+            const std::string arg_name = arg->substr(2, std::string::npos);
+            if(options.count(arg_name) > 0)
+            {
+                const bool has_argument = options.at(arg_name).second;
+
+                if(has_argument)
+                {
+                    ++arg;
+                    if(arg != std::cend(args))
+                    {
+                        new_options[arg_name] = *arg;
+                    }
+                    else
+                    {
+                        // Handle missing argument.
+                        break;
+                    }
+                }
+                else
+                {
+                    new_options[arg_name] = u8"true";
+                }
+            }
+            else
+            {
+                // Handle invalid argument.
+            }
+        }
+        else
+        {
+            // Handle single character arg.
+        }
+    }
+
+    return new_options;
+}
+
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 {
     constexpr auto arg_program_name     = 0;
