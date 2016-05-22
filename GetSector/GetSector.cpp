@@ -96,36 +96,29 @@ void parse_args(const std::vector<std::string>& args, std::unordered_map<std::st
 {
     for(auto arg = std::cbegin(args); arg != std::cend(args); ++arg)
     {
-        if((arg->length() < 2) || ((*arg)[0] != u8'-'))
-        {
-            // Handle invalid argument.
-        }
-        else if((*arg)[1] == u8'-')
+        CHECK_ERROR((arg->length() >= 2) && ((*arg)[0] == u8'-'), u8"Invalid argument: " + *arg);
+
+        if((*arg)[1] == u8'-')
         {
             // Handle long name args.
             const std::string arg_name = arg->substr(2, std::string::npos);
-            if(options.count(arg_name) > 0)
-            {
-                Option& option = options[arg_name];
-                option.set_exists();
+            CHECK_ERROR(options.count(arg_name) > 0, u8"Invalid argument: " + *arg);
 
-                if(option.needs_argument())
-                {
-                    ++arg;
-                    if(arg != std::cend(args))
-                    {
-                        option.set_argument(*arg);
-                    }
-                    else
-                    {
-                        // Handle missing argument.
-                        break;
-                    }
-                }
-            }
-            else
+            Option& option = options[arg_name];
+            option.set_exists();
+
+            if(option.needs_argument())
             {
-                // Handle invalid argument.
+                ++arg;
+                if(arg != std::cend(args))
+                {
+                    option.set_argument(*arg);
+                }
+                else
+                {
+                    // Handle missing argument.
+                    break;
+                }
             }
         }
         else
@@ -142,39 +135,31 @@ std::unordered_map<std::string, std::string> options_from_args(const std::vector
 
     for(auto arg = std::cbegin(args); arg != std::cend(args); ++arg)
     {
-        if((arg->length() < 2) || ((*arg)[0] != u8'-'))
-        {
-            // Handle invalid argument.
-        }
-        else if((*arg)[1] == u8'-')
+        CHECK_ERROR((arg->length() >= 2) && ((*arg)[0] == u8'-'), u8"Invalid argument: " + *arg);
+
+        if((*arg)[1] == u8'-')
         {
             // Handle long name args.
             const std::string arg_name = arg->substr(2, std::string::npos);
-            if(options.count(arg_name) > 0)
-            {
-                const bool has_argument = options.at(arg_name).second;
+            CHECK_ERROR(options.count(arg_name) > 0, u8"Invalid argument: " + *arg);
 
-                if(has_argument)
+            const bool has_argument = options.at(arg_name).second;
+            if(has_argument)
+            {
+                ++arg;
+                if(arg != std::cend(args))
                 {
-                    ++arg;
-                    if(arg != std::cend(args))
-                    {
-                        new_options[arg_name] = *arg;
-                    }
-                    else
-                    {
-                        // Handle missing argument.
-                        break;
-                    }
+                    new_options[arg_name] = *arg;
                 }
                 else
                 {
-                    new_options[arg_name] = u8"true";
+                    // Handle missing argument.
+                    break;
                 }
             }
             else
             {
-                // Handle invalid argument.
+                new_options[arg_name] = u8"true";
             }
         }
         else
