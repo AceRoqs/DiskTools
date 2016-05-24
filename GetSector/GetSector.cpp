@@ -128,7 +128,10 @@ void parse_args(const std::vector<std::string>& args, std::unordered_map<std::st
     }
 }
 
-std::unordered_map<std::string, std::string> options_from_args(const std::vector<std::string>& args, const std::unordered_map<std::string, std::pair<char, bool>>& options)
+// TODO: 2016: Standardize on naming between args, parameters, and options.
+// TODO: 2016: std::pair should be a naked struct.
+// Allows arguments to be specified more than once, with the last argument to take priority.
+std::unordered_map<std::string, std::string> options_from_possible_args(const std::vector<std::string>& args, const std::unordered_map<std::string, std::pair<char, bool>>& options)
 {
     // TODO: 2016: Better name than new_options.
     std::unordered_map<std::string, std::string> new_options;
@@ -137,34 +140,40 @@ std::unordered_map<std::string, std::string> options_from_args(const std::vector
     {
         CHECK_ERROR((arg->length() >= 2) && ((*arg)[0] == u8'-'), u8"Invalid argument: " + *arg);
 
+        std::string arg_name;
+
         if((*arg)[1] == u8'-')
         {
             // Handle long name args.
-            const std::string arg_name = arg->substr(2, std::string::npos);
+            arg_name = arg->substr(2, std::string::npos);
             CHECK_ERROR(options.count(arg_name) > 0, u8"Invalid argument: " + *arg);
-
-            const bool has_argument = options.at(arg_name).second;
-            if(has_argument)
-            {
-                ++arg;
-                if(arg != std::cend(args))
-                {
-                    new_options[arg_name] = *arg;
-                }
-                else
-                {
-                    // Handle missing argument.
-                    break;
-                }
-            }
-            else
-            {
-                new_options[arg_name] = u8"true";
-            }
         }
         else
         {
             // Handle single character arg.
+            CHECK_ERROR(arg->length() == 2, u8"Invalid argument: " + *arg);
+
+            const auto option = std::find_if(std::cbegin(options), std::cend(options), [&arg](const std::pair<std::string, std::pair<char, bool>>& option)
+            {
+                return (*arg)[1] == option.second.first;
+            });
+
+            CHECK_ERROR(option != std::cend(options), u8"Invalid argument: " + *arg);
+
+            arg_name = option->first;
+        }
+
+        const bool has_argument = options.at(arg_name).second;
+        if(has_argument)
+        {
+            CHECK_ERROR((arg + 1) != std::cend(args), u8"Missing required argument: " + *arg);
+            ++arg;
+
+            new_options[arg_name] = *arg;
+        }
+        else
+        {
+            new_options[arg_name] = u8"true";
         }
     }
 
