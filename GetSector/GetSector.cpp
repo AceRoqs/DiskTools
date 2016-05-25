@@ -55,129 +55,70 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 
 }
 
-// Inspired by GNU getopt_long.
-class Option
+struct Argument_descriptor
 {
-public:
-    explicit Option() {}
-    Option(char short_name, bool needs_argument) : _short_name(short_name), _needs_argument(needs_argument) {}
-
-    char short_name() const { return _short_name; }
-    bool needs_argument() const { return _needs_argument; }
-    bool has_argument() const { return !_argument.empty(); }
-    void set_argument(const std::string& argument) { _argument = argument; }
-
-    void set_exists() { _exists = true; }
-    bool exists() const { return _exists; }
-
-private:
-    // TODO: 2016: May need description for help text?
-    bool _exists = false;
-    char _short_name = u8'\0';
-    bool _needs_argument = false;
-    std::string _argument;
+    char short_name;
+    bool requires_parameter;
 };
 
-class Argument_iterator
+static std::string argument_name_from_long_name(const std::string& long_name)
 {
-public:
-    Argument_iterator(std::vector<std::string> arguments, std::vector<Option> options)
-    {
-    }
-
-    std::string argument()
-    {
-        return u8"";
-    }
-};
-
-// TODO: 2016: options is a mutable reference.  Consider options for composability of this function.
-void parse_args(const std::vector<std::string>& args, std::unordered_map<std::string, Option>& options)
-{
-    for(auto arg = std::cbegin(args); arg != std::cend(args); ++arg)
-    {
-        CHECK_ERROR((arg->length() >= 2) && ((*arg)[0] == u8'-'), u8"Invalid argument: " + *arg);
-
-        if((*arg)[1] == u8'-')
-        {
-            // Handle long name args.
-            const std::string arg_name = arg->substr(2, std::string::npos);
-            CHECK_ERROR(options.count(arg_name) > 0, u8"Invalid argument: " + *arg);
-
-            Option& option = options[arg_name];
-            option.set_exists();
-
-            if(option.needs_argument())
-            {
-                ++arg;
-                if(arg != std::cend(args))
-                {
-                    option.set_argument(*arg);
-                }
-                else
-                {
-                    // Handle missing argument.
-                    break;
-                }
-            }
-        }
-        else
-        {
-            // Handle single character arg.
-        }
-    }
+    // Strip leading "--" from long_name.
+    return long_name.substr(2, std::string::npos);
 }
 
-// TODO: 2016: Standardize on naming between args, parameters, and options.
-// TODO: 2016: std::pair should be a naked struct.
 // Allows arguments to be specified more than once, with the last argument to take priority.
-std::unordered_map<std::string, std::string> options_from_possible_args(const std::vector<std::string>& args, const std::unordered_map<std::string, std::pair<char, bool>>& options)
+// Output is a map from name to parameter (or "true" if no parameter required).
+// Only arguments passed in the argument_map are allowed.
+std::unordered_map<std::string, std::string> options_from_allowed_args(const std::vector<std::string>& arguments, const std::unordered_map<std::string, Argument_descriptor>& argument_map)
 {
-    // TODO: 2016: Better name than new_options.
-    std::unordered_map<std::string, std::string> new_options;
+    std::unordered_map<std::string, std::string> options;
 
-    for(auto arg = std::cbegin(args); arg != std::cend(args); ++arg)
+    for(auto argument = std::cbegin(arguments); argument != std::cend(arguments); ++argument)
     {
-        CHECK_ERROR((arg->length() >= 2) && ((*arg)[0] == u8'-'), u8"Invalid argument: " + *arg);
+        CHECK_ERROR((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Invalid argument: " + *argument);
 
-        std::string arg_name;
+        std::string argument_name;
 
-        if((*arg)[1] == u8'-')
+        if((*argument)[1] == u8'-')
         {
-            // Handle long name args.
-            arg_name = arg->substr(2, std::string::npos);
-            CHECK_ERROR(options.count(arg_name) > 0, u8"Invalid argument: " + *arg);
+            // Handle long arguments, which are multi-character arguments prefixed with "--".
+            argument_name = argument_name_from_long_name(*argument);
+            CHECK_ERROR(argument_map.count(argument_name) > 0, u8"Invalid argument: " + *argument);
         }
         else
         {
-            // Handle single character arg.
-            CHECK_ERROR(arg->length() == 2, u8"Invalid argument: " + *arg);
+            // Handle single character arguments, which are single character arguments prefixed with '-'.
+            CHECK_ERROR(argument->length() == 2, u8"Invalid argument: " + *argument);
 
-            const auto option = std::find_if(std::cbegin(options), std::cend(options), [&arg](const std::pair<std::string, std::pair<char, bool>>& option)
+            const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [&argument](const std::pair<std::string, Argument_descriptor>& descriptor)
             {
-                return (*arg)[1] == option.second.first;
+                return (*argument)[1] == descriptor.second.short_name;
             });
 
-            CHECK_ERROR(option != std::cend(options), u8"Invalid argument: " + *arg);
+            // Validate that the argument was found in the passed in argument_map.
+            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Invalid argument: " + *argument);
 
-            arg_name = option->first;
+            // Get the full argument name.
+            argument_name = descriptor->first;
         }
 
-        const bool has_argument = options.at(arg_name).second;
-        if(has_argument)
+        // Get parameter for the argument.
+        const bool requires_parameter = argument_map.at(argument_name).requires_parameter;
+        if(requires_parameter)
         {
-            CHECK_ERROR((arg + 1) != std::cend(args), u8"Missing required argument: " + *arg);
-            ++arg;
+            CHECK_ERROR((argument + 1) != std::cend(arguments), u8"Argument missing required parameter: " + *argument);
+            ++argument;
 
-            new_options[arg_name] = *arg;
+            options[argument_name] = *argument;
         }
         else
         {
-            new_options[arg_name] = u8"true";
+            options[argument_name] = u8"true";
         }
     }
 
-    return new_options;
+    return options;
 }
 
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
@@ -203,7 +144,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         //bool show_version = false;
         //std::string sector_number_string;
         //std::string file_name;
-        std::unordered_map<std::string, Option> options =
+        std::unordered_map<std::string, Argument_descriptor> argument_map =
         {
             // TODO: 2016: help/version should be automatically generated.
             // TODO: 2016: Consider how this might output to stdout instead of to a file.
@@ -215,8 +156,9 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         };
         // TODO: 2016: Parameter validation must be done by client, as required parameters might have complex invariants,
         // such as mutual exclusion, which cannot easily be represented in a table.
-        const auto args = WindowsCommon::args_from_argv(argc, argv);
-        parse_args(args, options);
+        const auto arguments = WindowsCommon::args_from_argv(argc, argv);
+        const auto options = options_from_allowed_args(arguments, argument_map);
+        //parse_args(args, options);
         // TODO: 2016: Check for help, etc.
         //CHECK_EXCEPTION(!sector_number_string.empty(), u8"Missing a required argument: --logical-sector");  // TODO: 2016: Encapsulate this into a "get_int" function, etc.
         //CHECK_EXCEPTION(!file_name.empty(), u8"Missing a required argument: --file-name");
