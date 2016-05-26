@@ -70,6 +70,8 @@ static std::string argument_name_from_long_name(const std::string& long_name)
 // Allows arguments to be specified more than once, with the last argument to take priority.
 // Output is a map from name to parameter (or "true" if no parameter required).
 // Only arguments passed in the argument_map are allowed.
+// Parameter validation must be done by client, as required parameters might have complex invariants,
+// such as mutual exclusion, which cannot easily be represented in a table.
 std::unordered_map<std::string, std::string> options_from_allowed_args(const std::vector<std::string>& arguments, const std::unordered_map<std::string, Argument_descriptor>& argument_map)
 {
     std::unordered_map<std::string, std::string> options;
@@ -140,10 +142,6 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
-        //bool show_usage = false;
-        //bool show_version = false;
-        //std::string sector_number_string;
-        //std::string file_name;
         std::unordered_map<std::string, Argument_descriptor> argument_map =
         {
             // TODO: 2016: help/version should be automatically generated.
@@ -152,27 +150,25 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             { u8"logical-sector", { u8's', true  } },
             { u8"file-name",      { u8'f', true  } },
             { u8"help",           { u8'h', false } },
-            { u8"version",        { u8'v', false } },
         };
-        // TODO: 2016: Parameter validation must be done by client, as required parameters might have complex invariants,
-        // such as mutual exclusion, which cannot easily be represented in a table.
         const auto arguments = WindowsCommon::args_from_argv(argc, argv);
         const auto options = options_from_allowed_args(arguments, argument_map);
-        //parse_args(args, options);
-        // TODO: 2016: Check for help, etc.
-        //CHECK_EXCEPTION(!sector_number_string.empty(), u8"Missing a required argument: --logical-sector");  // TODO: 2016: Encapsulate this into a "get_int" function, etc.
-        //CHECK_EXCEPTION(!file_name.empty(), u8"Missing a required argument: --file-name");
 
-        if(argc == 3)
+        // TODO: 2016: Passing strings as a key is convenient, but not type safe.
+        if(options.count(u8"help") == 0)
         {
+            CHECK_EXCEPTION(options.count(u8"logical-sector") > 0, u8"Missing a required argument: --logical-sector");  // TODO: 2016: Encapsulate this into a "get_int" function, etc.
+            CHECK_EXCEPTION(options.count(u8"file-name") > 0, u8"Missing a required argument: --file-name");
+
             // There is no _wtoui64 function (and perhaps a private implementation is a good idea), but
             // reading an int64_t into a uint64_t will have no negative (ha!) consequences, as any sector
             // number is considered a valid sector to read.
-            const uint64_t sector_number = _wtoi64(argv[arg_sector_number]);
-            GetSector::read_physical_drive_sector_to_file(0, sector_number, argv[arg_output_file_name]);
+            const uint64_t sector_number = _atoi64(options.at(u8"logical-sector").c_str());
+            GetSector::read_physical_drive_sector_to_file(0, sector_number, PortableRuntime::utf16_from_utf8(options.at(u8"file-name")).c_str());   // TODO: 2016: Change read* to take utf-8.
         }
         else
         {
+            // TODO: 2016: Fix help text (and autogenerate).
             std::fwprintf(stderr, L"Usage: %s sector file_name\n", argv[arg_program_name]);
             std::fwprintf(stderr, L"To read the Master Boot Record: %s 1 mbr.bin\n", argv[arg_program_name]);
             error_level = 1;
