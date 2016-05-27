@@ -57,6 +57,7 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 
 struct Argument_descriptor
 {
+    std::string long_name;
     char short_name;
     bool requires_parameter;
 };
@@ -68,55 +69,64 @@ static std::string argument_name_from_long_name(const std::string& long_name)
 }
 
 // Allows arguments to be specified more than once, with the last argument to take priority.
-// Output is a map from name to parameter (or "true" if no parameter required).
+// Output is a map from ID to parameter (or "true" if no parameter required).
 // Only arguments passed in the argument_map are allowed.
 // Parameter validation must be done by client, as required parameters might have complex invariants,
 // such as mutual exclusion, which cannot easily be represented in a table.
-std::unordered_map<std::string, std::string> options_from_allowed_args(const std::vector<std::string>& arguments, const std::unordered_map<std::string, Argument_descriptor>& argument_map)
+std::unordered_map<unsigned int, std::string> options_from_allowed_args(const std::vector<std::string>& arguments, const std::unordered_map<unsigned int, Argument_descriptor>& argument_map)
 {
-    std::unordered_map<std::string, std::string> options;
+    std::unordered_map<unsigned int, std::string> options;
 
     for(auto argument = std::cbegin(arguments); argument != std::cend(arguments); ++argument)
     {
         CHECK_ERROR((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Invalid argument: " + *argument);
 
-        std::string argument_name;
-
+        unsigned int key;
         if((*argument)[1] == u8'-')
         {
             // Handle long arguments, which are multi-character arguments prefixed with "--".
-            argument_name = argument_name_from_long_name(*argument);
-            CHECK_ERROR(argument_map.count(argument_name) > 0, u8"Invalid argument: " + *argument);
+            const std::string argument_name = argument_name_from_long_name(*argument);
+            const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [&argument_name](const std::pair<unsigned int, Argument_descriptor>& descriptor)
+            {
+                return argument_name == descriptor.second.long_name;
+            });
+
+            // Validate that the argument was found in the passed in argument_map.
+            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Invalid argument: " + *argument);
+
+            // Get the key.
+            key = descriptor->first;
         }
         else
         {
             // Handle single character arguments, which are single character arguments prefixed with '-'.
             CHECK_ERROR(argument->length() == 2, u8"Invalid argument: " + *argument);
 
-            const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [&argument](const std::pair<std::string, Argument_descriptor>& descriptor)
+            const char argument_character = (*argument)[1];
+            const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [argument_character](const std::pair<unsigned int, Argument_descriptor>& descriptor)
             {
-                return (*argument)[1] == descriptor.second.short_name;
+                return argument_character == descriptor.second.short_name;
             });
 
             // Validate that the argument was found in the passed in argument_map.
             CHECK_ERROR(descriptor != std::cend(argument_map), u8"Invalid argument: " + *argument);
 
-            // Get the full argument name.
-            argument_name = descriptor->first;
+            // Get the key.
+            key = descriptor->first;
         }
 
         // Get parameter for the argument.
-        const bool requires_parameter = argument_map.at(argument_name).requires_parameter;
+        const bool requires_parameter = argument_map.at(key).requires_parameter;
         if(requires_parameter)
         {
             CHECK_ERROR((argument + 1) != std::cend(arguments), u8"Argument missing required parameter: " + *argument);
             ++argument;
 
-            options[argument_name] = *argument;
+            options[key] = *argument;
         }
         else
         {
-            options[argument_name] = u8"true";
+            options[key] = u8"true";
         }
     }
 
@@ -142,29 +152,37 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
-        std::unordered_map<std::string, Argument_descriptor> argument_map =
+        enum
+        {
+            Argument_logical_sector = 0,
+            Argument_file_name,
+            Argument_help,
+        };
+
+        std::unordered_map<unsigned int, Argument_descriptor> argument_map =
         {
             // TODO: 2016: help/version should be automatically generated.
             // TODO: 2016: Consider how this might output to stdout instead of to a file.
             // TODO: 2016: Provide table validation functions for debugging.
-            { u8"logical-sector", { u8's', true  } },
-            { u8"file-name",      { u8'f', true  } },
-            { u8"help",           { u8'h', false } },
+            { Argument_logical_sector, { u8"logical-sector", u8's', true  } },
+            { Argument_file_name,      { u8"file-name",      u8'f', true  } },
+            { Argument_help,           { u8"help",           u8'h', false } },
         };
+
         const auto arguments = WindowsCommon::args_from_argv(argc, argv);
         const auto options = options_from_allowed_args(arguments, argument_map);
 
-        // TODO: 2016: Passing strings as a key is convenient, but not type safe.
-        if(options.count(u8"help") == 0)
+        if(options.count(Argument_help) == 0)
         {
-            CHECK_EXCEPTION(options.count(u8"logical-sector") > 0, u8"Missing a required argument: --logical-sector");  // TODO: 2016: Encapsulate this into a "get_int" function, etc.
-            CHECK_EXCEPTION(options.count(u8"file-name") > 0, u8"Missing a required argument: --file-name");
+            CHECK_EXCEPTION(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + argument_map[Argument_logical_sector].long_name);
+            CHECK_EXCEPTION(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + argument_map[Argument_file_name].long_name);
 
+            // TODO: 2016: Encapsulate this into a "get_int" function, etc.
             // There is no _wtoui64 function (and perhaps a private implementation is a good idea), but
             // reading an int64_t into a uint64_t will have no negative (ha!) consequences, as any sector
             // number is considered a valid sector to read.
-            const uint64_t sector_number = _atoi64(options.at(u8"logical-sector").c_str());
-            GetSector::read_physical_drive_sector_to_file(0, sector_number, PortableRuntime::utf16_from_utf8(options.at(u8"file-name")).c_str());   // TODO: 2016: Change read* to take utf-8.
+            const uint64_t sector_number = _atoi64(options.at(Argument_logical_sector).c_str());
+            GetSector::read_physical_drive_sector_to_file(0, sector_number, PortableRuntime::utf16_from_utf8(options.at(Argument_file_name)).c_str());
         }
         else
         {
