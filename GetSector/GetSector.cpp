@@ -6,9 +6,12 @@
 #include <PortableRuntime/Tracing.h>
 #include <PortableRuntime/Unicode.h>
 
-#if 1
 // TODO: 2016: Temp for prototyping.
+#include <functional>
+#include <WindowsCommon/ScopedWindowsTypes.h>
+
 namespace WindowsCommon {
+#if 0
 std::vector<std::string> args_from_argv(int argc, _In_reads_(argc) wchar_t** argv)
 {
     std::vector<std::string> args;
@@ -20,41 +23,29 @@ std::vector<std::string> args_from_argv(int argc, _In_reads_(argc) wchar_t** arg
 
     return args;
 }
-}
 #endif
 
-namespace GetSector
+std::vector<std::string> args_from_command_line()
 {
+    std::vector<std::string> args;
 
-// TODO: 2016: This should go in WindowsCommon namespace.
-static std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number)
-{
-    // TODO: 2016: Get the disk's configured sector size.
-    const unsigned int sector_size = 512;
+    const auto command_line = GetCommandLineW();
 
-    std::vector<uint8_t> buffer;
-    buffer.resize(sector_size);
+    int arg_count;
+    const auto naked_args = CommandLineToArgvW(command_line, &arg_count);
+    CHECK_BOOL_LAST_ERROR(naked_args != nullptr);
 
-    unsigned int buffer_size = sector_size;
-    const HRESULT hr = DiskTools::read_sector_from_disk(buffer.data(), &buffer_size, drive_number, sector_number);
-    CHECK_HR(hr);
+    const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
 
-    return buffer;
+    std::for_each(naked_args, naked_args + arg_count, [&args](PCWSTR arg)
+    {
+        args.push_back(PortableRuntime::utf8_from_utf16(arg));
+    });
+
+    return args;
 }
 
-static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t sector_number, _In_z_ const wchar_t* output_file_name)
-{
-    std::vector<uint8_t> sector = read_physical_drive_sector(drive_number, sector_number);
-
-    std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary);
-    CHECK_EXCEPTION(output_file.good(), u8"Error opening: " + PortableRuntime::utf8_from_utf16(output_file_name));
-
-    output_file.write(sector.data(), sector.size());
-    CHECK_EXCEPTION(!output_file.fail(), u8"Error writing output file.");
-}
-
-}
-
+// TODO: 2016: Should this be in PortableRuntime?
 struct Argument_descriptor
 {
     unsigned int kind;
@@ -150,8 +141,44 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
     return options;
 }
 
+}
+
+namespace GetSector
+{
+
+// TODO: 2016: This should go in WindowsCommon namespace.
+static std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number)
+{
+    // TODO: 2016: Get the disk's configured sector size.
+    const unsigned int sector_size = 512;
+
+    std::vector<uint8_t> buffer;
+    buffer.resize(sector_size);
+
+    unsigned int buffer_size = sector_size;
+    const HRESULT hr = DiskTools::read_sector_from_disk(buffer.data(), &buffer_size, drive_number, sector_number);
+    CHECK_HR(hr);
+
+    return buffer;
+}
+
+static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t sector_number, _In_z_ const wchar_t* output_file_name)
+{
+    std::vector<uint8_t> sector = read_physical_drive_sector(drive_number, sector_number);
+
+    std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary);
+    CHECK_EXCEPTION(output_file.good(), u8"Error opening: " + PortableRuntime::utf8_from_utf16(output_file_name));
+
+    output_file.write(sector.data(), sector.size());
+    CHECK_EXCEPTION(!output_file.fail(), u8"Error writing output file.");
+}
+
+}
+
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 {
+    (void)argc;     // Unreferened parameter.
+
     constexpr auto arg_program_name     = 0;
     constexpr auto arg_sector_number    = 1;
     constexpr auto arg_output_file_name = 2;
@@ -176,7 +203,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             Argument_help,
         };
 
-        std::vector<Argument_descriptor> argument_map =
+        std::vector<WindowsCommon::Argument_descriptor> argument_map =
         {
             // TODO: 2016: help/version should be automatically generated.
             // TODO: 2016: Consider how this might output to stdout instead of to a file.
@@ -185,11 +212,11 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             { Argument_help,           u8"help",           u8'h', false },
         };
 #ifndef NDEBUG
-        validate_argument_map(argument_map);
+        WindowsCommon::validate_argument_map(argument_map);
 #endif
 
-        const auto arguments = WindowsCommon::args_from_argv(argc, argv);
-        const auto options = options_from_allowed_args(arguments, argument_map);
+        const auto arguments = WindowsCommon::args_from_command_line();
+        const auto options = WindowsCommon::options_from_allowed_args(arguments, argument_map);
 
         if(options.count(Argument_help) == 0)
         {
