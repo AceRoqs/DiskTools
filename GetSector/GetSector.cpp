@@ -11,6 +11,30 @@
 #include <WindowsCommon/ScopedWindowsTypes.h>
 
 namespace WindowsCommon {
+std::vector<std::string> args_from_command_line()
+{
+    std::vector<std::string> args;
+
+    const auto command_line = GetCommandLineW();
+
+    int arg_count;
+    const auto naked_args = CommandLineToArgvW(command_line, &arg_count);
+    CHECK_BOOL_LAST_ERROR(naked_args != nullptr);
+
+    const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
+
+    std::for_each(naked_args + 1, naked_args + arg_count, [&args](PCWSTR arg)
+    {
+        args.push_back(PortableRuntime::utf8_from_utf16(arg));
+    });
+
+    return args;
+}
+
+}
+
+namespace PortableRuntime {
+
 #if 0
 std::vector<std::string> args_from_argv(int argc, _In_reads_(argc) wchar_t** argv)
 {
@@ -25,33 +49,13 @@ std::vector<std::string> args_from_argv(int argc, _In_reads_(argc) wchar_t** arg
 }
 #endif
 
-std::vector<std::string> args_from_command_line()
-{
-    std::vector<std::string> args;
-
-    const auto command_line = GetCommandLineW();
-
-    int arg_count;
-    const auto naked_args = CommandLineToArgvW(command_line, &arg_count);
-    CHECK_BOOL_LAST_ERROR(naked_args != nullptr);
-
-    const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
-
-    std::for_each(naked_args, naked_args + arg_count, [&args](PCWSTR arg)
-    {
-        args.push_back(PortableRuntime::utf8_from_utf16(arg));
-    });
-
-    return args;
-}
-
-// TODO: 2016: Should this be in PortableRuntime?
 struct Argument_descriptor
 {
     unsigned int kind;
     std::string long_name;
     char short_name;
     bool requires_parameter;
+    std::string description;
 };
 
 static std::string argument_name_from_long_name(const std::string& long_name)
@@ -87,7 +91,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
     const auto end = std::cend(arguments);
     for(auto argument = std::cbegin(arguments); argument != end; ++argument)
     {
-        CHECK_ERROR((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Invalid argument: " + *argument);
+        CHECK_ERROR((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Unrecognized argument: " + *argument);
 
         unsigned int key;
         if((*argument)[1] == u8'-')
@@ -100,7 +104,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
             });
 
             // Validate that the argument was found in the passed in argument_map.
-            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Invalid argument: " + *argument);
+            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
 
             // Get the key.
             key = descriptor->kind;
@@ -108,7 +112,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
         else
         {
             // Handle single character arguments, which are single character arguments prefixed with '-'.
-            CHECK_ERROR(argument->length() == 2, u8"Invalid argument: " + *argument);
+            CHECK_ERROR(argument->length() == 2, u8"Unrecognized argument: " + *argument);
 
             const char argument_character = (*argument)[1];
             const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [argument_character](const Argument_descriptor& descriptor)
@@ -117,7 +121,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
             });
 
             // Validate that the argument was found in the passed in argument_map.
-            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Invalid argument: " + *argument);
+            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
 
             // Get the key.
             key = descriptor->kind;
@@ -177,11 +181,9 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 {
-    (void)argc;     // Unreferened parameter.
+    (void)argc;     // Unreferenced parameter.
 
-    constexpr auto arg_program_name     = 0;
-    constexpr auto arg_sector_number    = 1;
-    constexpr auto arg_output_file_name = 2;
+    constexpr auto arg_program_name = 0;
 
     // ERRORLEVEL zero is the success code.
     int error_level = 0;
@@ -203,25 +205,25 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             Argument_help,
         };
 
-        std::vector<WindowsCommon::Argument_descriptor> argument_map =
+        std::vector<PortableRuntime::Argument_descriptor> argument_map =
         {
             // TODO: 2016: help/version should be automatically generated.
-            // TODO: 2016: Consider how this might output to stdout instead of to a file.
-            { Argument_logical_sector, u8"logical-sector", u8's', true  },
-            { Argument_file_name,      u8"file-name",      u8'f', true  },
-            { Argument_help,           u8"help",           u8'h', false },
+            { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical sector number to read." },
+            { Argument_file_name,      u8"file-name",      u8'f', true,  u8"The name of the file that will hold the read sector." },
+            { Argument_help,           u8"help",           u8'h', false, u8"" },
         };
 #ifndef NDEBUG
-        WindowsCommon::validate_argument_map(argument_map);
+        PortableRuntime::validate_argument_map(argument_map);
 #endif
 
         const auto arguments = WindowsCommon::args_from_command_line();
-        const auto options = WindowsCommon::options_from_allowed_args(arguments, argument_map);
+        assert(arguments.size() == (static_cast<size_t>(argc) - 1));
+        const auto options = PortableRuntime::options_from_allowed_args(arguments, argument_map);
 
         if(options.count(Argument_help) == 0)
         {
-            CHECK_EXCEPTION(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + argument_map[Argument_logical_sector].long_name);
-            CHECK_EXCEPTION(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + argument_map[Argument_file_name].long_name);
+            CHECK_ERROR(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + argument_map[Argument_logical_sector].long_name);
+            CHECK_ERROR(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + argument_map[Argument_file_name].long_name);
 
             // There is no _atoui64 function (and perhaps a private implementation is a good idea), but
             // reading an int64_t into a uint64_t will have no negative (ha!) consequences, as any sector
