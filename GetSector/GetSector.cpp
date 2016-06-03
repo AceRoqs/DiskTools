@@ -33,6 +33,8 @@ std::vector<std::string> args_from_command_line()
 
 }
 
+// TODO: 2016: Argument parsing should go in some sort of parsing library.
+// PortableRuntime should be for cross-cutting concerns - error handling, tracing, etc.
 namespace PortableRuntime {
 
 #if 0
@@ -111,6 +113,8 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
         }
         else
         {
+            // TODO: 2016: Some of this block is duplicated with previous block.
+
             // Handle single character arguments, which are single character arguments prefixed with '-'.
             CHECK_ERROR(argument->length() == 2, u8"Unrecognized argument: " + *argument);
 
@@ -170,7 +174,7 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 {
     std::vector<uint8_t> sector = read_physical_drive_sector(drive_number, sector_number);
 
-    std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary);
+    std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary | std::ios::trunc);
     CHECK_EXCEPTION(output_file.good(), u8"Error opening: " + PortableRuntime::utf8_from_utf16(output_file_name));
 
     output_file.write(sector.data(), sector.size());
@@ -198,6 +202,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
+        // TODO: 2016: Everything after this should be in its own function.
         enum
         {
             Argument_logical_sector = 0,
@@ -208,8 +213,8 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         std::vector<PortableRuntime::Argument_descriptor> argument_map =
         {
             // TODO: 2016: help/version should be automatically generated.
-            { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical sector number to read." },
-            { Argument_file_name,      u8"file-name",      u8'f', true,  u8"The name of the file that will hold the read sector." },
+            { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical block address (LBA) of the sector to read." },
+            { Argument_file_name,      u8"file-name",      u8'f', true,  u8"The name of the file to hold the output. This file will be overwritten." },
             { Argument_help,           u8"help",           u8'h', false, u8"" },
         };
 #ifndef NDEBUG
