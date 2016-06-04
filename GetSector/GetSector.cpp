@@ -78,7 +78,17 @@ void validate_argument_map(const std::vector<Argument_descriptor>& argument_map)
         assert(argument_map[ix].kind == ix);
     }
 
-    // TODO: 2016: Validate short name arguments do not dupe.
+    // Validate short name arguments do not dupe.  Arguments are case sensitive.
+    static_assert(sizeof(Argument_descriptor::short_name) == 1, "'used' array size depends on short_name being 1 byte.");
+    bool used[256] = {};
+    for(size_t ix = 0; ix < size; ++ix)
+    {
+        if(argument_map[ix].short_name != 0)
+        {
+            assert(!used[argument_map[ix].short_name]);
+            used[argument_map[ix].short_name] = true;
+        }
+    }
 }
 
 // Allows arguments to be specified more than once, with the last argument to take priority.
