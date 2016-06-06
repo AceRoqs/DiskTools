@@ -162,8 +162,8 @@ static void output_boot_sector(
 
     if(!boot_sector_file_name.empty())
     {
-        std::basic_ifstream<uint8_t> boot_sector_file(boot_sector_file_name, std::ios::in | std::ios::binary);
-        boot_sector_file.read(&boot_sector[0], boot_sector.size());
+        std::ifstream boot_sector_file(boot_sector_file_name, std::ios::binary);
+        boot_sector_file.read(reinterpret_cast<char*>(boot_sector.data()), boot_sector.size());
     }
 
     const unsigned int sides = 2;
