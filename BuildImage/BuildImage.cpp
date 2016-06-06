@@ -180,7 +180,7 @@ static void output_boot_sector(
 
     // Writing to ofstream is much faster than writing to basic_ofstream<uint8_t>, but for the
     // sizes being written, it's okay in optimized builds.
-    std::basic_ofstream<uint8_t> output_file(image_file_name, std::ios::out | std::ios::binary);
+    std::basic_ofstream<uint8_t> output_file(image_file_name, std::ios::binary | std::ios::trunc);
     output_file.write(&disk_image[0], disk_image.size());
     output_file.close();
 }
