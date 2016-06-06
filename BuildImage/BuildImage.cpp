@@ -178,10 +178,8 @@ static void output_boot_sector(
     iterator = std::copy(std::cbegin(root_directory), std::cend(root_directory), iterator);
     std::fill(iterator, std::end(disk_image), 0xf6);    // Match behavior of bfi.exe, by Bart Lagerweij.
 
-    // Writing to ofstream is much faster than writing to basic_ofstream<uint8_t>, but for the
-    // sizes being written, it's okay in optimized builds.
-    std::basic_ofstream<uint8_t> output_file(image_file_name, std::ios::binary | std::ios::trunc);
-    output_file.write(&disk_image[0], disk_image.size());
+    std::ofstream output_file(image_file_name, std::ios::binary | std::ios::trunc);
+    output_file.write(reinterpret_cast<const char*>(disk_image.data()), disk_image.size());
     output_file.close();
 }
 
