@@ -164,7 +164,8 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
 namespace GetSector
 {
 
-// TODO: 2016: This should go in WindowsCommon namespace.
+// TODO: 2016: This should be the replacement for read_sector_from_disk, but it should go in the
+// WindowsCommon namespace (as should DiskTools), as it uses exceptions and returns a buffer directly.
 static std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number)
 {
     // TODO: 2016: Get the disk's configured sector size.
@@ -184,10 +185,10 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 {
     std::vector<uint8_t> sector = read_physical_drive_sector(drive_number, sector_number);
 
-    std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary | std::ios::trunc);
+    std::ofstream output_file(output_file_name, std::ios::binary | std::ios::trunc);
     CHECK_EXCEPTION(output_file.good(), u8"Error opening: " + PortableRuntime::utf8_from_utf16(output_file_name));
 
-    output_file.write(sector.data(), sector.size());
+    output_file.write(reinterpret_cast<const char*>(sector.data()), sector.size());
     CHECK_EXCEPTION(!output_file.fail(), u8"Error writing output file.");
 }
 
@@ -204,6 +205,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 
     try
     {
+        WindowsCommon::UTF8_console_code_page code_page;
         PortableRuntime::set_dprintf(WindowsCommon::debugger_dprintf);
 
         // Set wprintf output to UTF-8 in Windows console.
