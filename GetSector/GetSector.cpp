@@ -80,7 +80,7 @@ void validate_argument_map(const std::vector<Argument_descriptor>& argument_map)
 
     // Validate short name arguments do not dupe.  Arguments are case sensitive.
     static_assert(sizeof(Argument_descriptor::short_name) == 1, "'used' array size depends on short_name being 1 byte.");
-    bool used[256] = {};
+    bool used[256] {};
     for(size_t ix = 0; ix < size; ++ix)
     {
         if(argument_map[ix].short_name != 0)
@@ -103,7 +103,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
     const auto end = std::cend(arguments);
     for(auto argument = std::cbegin(arguments); argument != end; ++argument)
     {
-        CHECK_ERROR((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Unrecognized argument: " + *argument);
+        CHECK_EXCEPTION((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Unrecognized argument: " + *argument);
 
         unsigned int key;
         if((*argument)[1] == u8'-')
@@ -116,7 +116,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
             });
 
             // Validate that the argument was found in the passed in argument_map.
-            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
+            CHECK_EXCEPTION(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
 
             // Get the key.
             key = descriptor->kind;
@@ -126,7 +126,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
             // TODO: 2016: Some of this block is duplicated with previous block.
 
             // Handle single character arguments, which are single character arguments prefixed with '-'.
-            CHECK_ERROR(argument->length() == 2, u8"Unrecognized argument: " + *argument);
+            CHECK_EXCEPTION(argument->length() == 2, u8"Unrecognized argument: " + *argument);
 
             const char argument_character = (*argument)[1];
             const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [argument_character](const Argument_descriptor& descriptor)
@@ -135,7 +135,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
             });
 
             // Validate that the argument was found in the passed in argument_map.
-            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
+            CHECK_EXCEPTION(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
 
             // Get the key.
             key = descriptor->kind;
@@ -145,7 +145,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
         const bool requires_parameter = argument_map[key].requires_parameter;
         if(requires_parameter)
         {
-            CHECK_ERROR((argument + 1) != std::cend(arguments), u8"Argument missing required parameter: " + *argument);
+            CHECK_EXCEPTION((argument + 1) != std::cend(arguments), u8"Argument missing required parameter: " + *argument);
             ++argument;
 
             options[key] = *argument;
@@ -169,7 +169,7 @@ namespace GetSector
 static std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number)
 {
     // TODO: 2016: Get the disk's configured sector size.
-    const unsigned int sector_size = 512;
+    constexpr unsigned int sector_size = 512;
 
     std::vector<uint8_t> buffer;
     buffer.resize(sector_size);
@@ -222,7 +222,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             Argument_help,
         };
 
-        std::vector<PortableRuntime::Argument_descriptor> argument_map =
+        const std::vector<PortableRuntime::Argument_descriptor> argument_map =
         {
             // TODO: 2016: help/version should be automatically generated.
             { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical block address (LBA) of the sector to read." },
@@ -239,8 +239,8 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 
         if(options.count(Argument_help) == 0)
         {
-            CHECK_ERROR(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + argument_map[Argument_logical_sector].long_name);
-            CHECK_ERROR(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + argument_map[Argument_file_name].long_name);
+            CHECK_EXCEPTION(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + argument_map[Argument_logical_sector].long_name);
+            CHECK_EXCEPTION(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + argument_map[Argument_file_name].long_name);
 
             // There is no _atoui64 function (and perhaps a private implementation is a good idea), but
             // reading an int64_t into a uint64_t will have no negative (ha!) consequences, as any sector
