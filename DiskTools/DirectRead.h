@@ -3,7 +3,7 @@
 namespace DiskTools
 {
 
-const unsigned int partition_table_entry_count = 4;
+constexpr unsigned int partition_table_entry_count = 4;
 
 #pragma pack(push, 1)
 struct Partition_table_entry
