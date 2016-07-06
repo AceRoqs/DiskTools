@@ -54,10 +54,10 @@ std::vector<std::string> args_from_argv(int argc, _In_reads_(argc) wchar_t** arg
 struct Argument_descriptor
 {
     unsigned int kind;
-    std::string long_name;
+    const char* long_name;
     char short_name;
     bool requires_parameter;
-    std::string description;
+    const char* description;
 };
 
 static std::string argument_name_from_long_name(const std::string& long_name)
@@ -159,6 +159,15 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
     return options;
 }
 
+std::string Options_help_text(const std::vector<PortableRuntime::Argument_descriptor>& argument_map)
+{
+    (void)argument_map;
+    // TODO: 2016: Format the text
+    //   -f, --file-name          The logical block...
+    std::string help_text;
+    return help_text;
+}
+
 }
 
 namespace GetSector
@@ -239,8 +248,8 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 
         if(options.count(Argument_help) == 0)
         {
-            CHECK_EXCEPTION(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + argument_map[Argument_logical_sector].long_name);
-            CHECK_EXCEPTION(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + argument_map[Argument_file_name].long_name);
+            CHECK_EXCEPTION(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + std::string(argument_map[Argument_logical_sector].long_name));
+            CHECK_EXCEPTION(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + std::string(argument_map[Argument_file_name].long_name));
 
             // There is no _atoui64 function (and perhaps a private implementation is a good idea), but
             // reading an int64_t into a uint64_t will have no negative (ha!) consequences, as any sector
@@ -250,9 +259,9 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         }
         else
         {
-            // TODO: 2016: Fix help text (and autogenerate).
-            std::fwprintf(stderr, L"Usage: %s sector file_name\n", argv[arg_program_name]);
-            std::fwprintf(stderr, L"To read the Master Boot Record: %s 1 mbr.bin\n", argv[arg_program_name]);
+            std::fwprintf(stderr, L"Usage: %s [options]\n", argv[arg_program_name]);
+            std::fwprintf(stderr, PortableRuntime::utf16_from_utf8(PortableRuntime::Options_help_text(argument_map)).c_str());
+            std::fwprintf(stderr, L"To read the Master Boot Record: %s --logical-sector 1 --file-name mbr.bin\n", argv[arg_program_name]);
             error_level = 1;
         }
     }
