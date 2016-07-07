@@ -41,7 +41,11 @@
     <ConsoleApp>true</ConsoleApp>
   </PropertyGroup>
   <PropertyGroup />
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="PreCompile.h" />
     <ClCompile Include="GetSector.cpp" />

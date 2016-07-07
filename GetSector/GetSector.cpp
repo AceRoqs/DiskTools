@@ -165,6 +165,22 @@ std::string Options_help_text(const std::vector<PortableRuntime::Argument_descri
     // TODO: 2016: Format the text
     //   -f, --file-name          The logical block...
     std::string help_text;
+
+    const auto size = argument_map.size();
+    for(size_t ix = 0; ix < size; ++ix)
+    {
+        if(argument_map[ix].description != nullptr)
+        {
+            help_text += "  -";
+            help_text += argument_map[ix].short_name;
+            help_text += ", --";
+            help_text += argument_map[ix].long_name;
+            help_text += " ";
+            help_text += argument_map[ix].description;
+            help_text += "\n";
+        }
+    }
+
     return help_text;
 }
 
@@ -236,7 +252,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             // TODO: 2016: help/version should be automatically generated.
             { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical block address (LBA) of the sector to read." },
             { Argument_file_name,      u8"file-name",      u8'f', true,  u8"The name of the file to hold the output. This file will be overwritten." },
-            { Argument_help,           u8"help",           u8'h', false, u8"" },
+            { Argument_help,           u8"help",           u8'h', false, nullptr },
         };
 #ifndef NDEBUG
         PortableRuntime::validate_argument_map(argument_map);
@@ -259,9 +275,9 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         }
         else
         {
-            std::fwprintf(stderr, L"Usage: %s [options]\n", argv[arg_program_name]);
+            std::fwprintf(stderr, L"Usage: %s [options]\nOptions:\n", PathFindFileNameW(argv[arg_program_name]));
             std::fwprintf(stderr, PortableRuntime::utf16_from_utf8(PortableRuntime::Options_help_text(argument_map)).c_str());
-            std::fwprintf(stderr, L"To read the Master Boot Record: %s --logical-sector 1 --file-name mbr.bin\n", argv[arg_program_name]);
+            std::fwprintf(stderr, L"\nTo read the Master Boot Record:\n %s --logical-sector 1 --file-name mbr.bin\n", PathFindFileNameW(argv[arg_program_name]));
             error_level = 1;
         }
     }
