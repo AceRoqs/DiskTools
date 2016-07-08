@@ -161,12 +161,31 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
 
 std::string Options_help_text(const std::vector<PortableRuntime::Argument_descriptor>& argument_map)
 {
-    (void)argument_map;
-    // TODO: 2016: Format the text
-    //   -f, --file-name          The logical block...
     std::string help_text;
 
+    size_t allocation_size = 0;
+    size_t tab_index = 0;
     const auto size = argument_map.size();
+    for(size_t ix = 0; ix < size; ++ix)
+    {
+        if(argument_map[ix].description != nullptr)
+        {
+            const size_t long_name_length = strlen(argument_map[ix].long_name);
+
+            allocation_size += 9;   // "  -X, --\n".
+            allocation_size += long_name_length;
+            allocation_size += strlen(argument_map[ix].description);
+
+            if(long_name_length > tab_index)
+            {
+                tab_index = long_name_length;
+            }
+        }
+    }
+    tab_index += 2; // Default tab distance.
+
+    help_text.reserve(allocation_size);
+
     for(size_t ix = 0; ix < size; ++ix)
     {
         if(argument_map[ix].description != nullptr)
@@ -175,7 +194,13 @@ std::string Options_help_text(const std::vector<PortableRuntime::Argument_descri
             help_text += argument_map[ix].short_name;
             help_text += ", --";
             help_text += argument_map[ix].long_name;
-            help_text += " ";
+
+            size_t space_count = tab_index;
+            space_count -= strlen(argument_map[ix].long_name);
+            for(size_t count = 0; count < space_count; ++count)
+            {
+                help_text += " ";
+            }
             help_text += argument_map[ix].description;
             help_text += "\n";
         }
