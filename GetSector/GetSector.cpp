@@ -105,41 +105,35 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
     {
         CHECK_EXCEPTION((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Unrecognized argument: " + *argument);
 
-        unsigned int key;
+        std::function<bool(const Argument_descriptor&)> predicate;
         if((*argument)[1] == u8'-')
         {
             // Handle long arguments, which are multi-character arguments prefixed with "--".
             const std::string argument_name = argument_name_from_long_name(*argument);
-            const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [&argument_name](const Argument_descriptor& descriptor)
+            predicate = [argument_name](const Argument_descriptor& descriptor)
             {
                 return argument_name == descriptor.long_name;
-            });
-
-            // Validate that the argument was found in the passed in argument_map.
-            CHECK_EXCEPTION(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
-
-            // Get the key.
-            key = descriptor->kind;
+            };
         }
         else
         {
-            // TODO: 2016: Some of this block is duplicated with previous block.
-
             // Handle single character arguments, which are single character arguments prefixed with '-'.
             CHECK_EXCEPTION(argument->length() == 2, u8"Unrecognized argument: " + *argument);
 
             const char argument_character = (*argument)[1];
-            const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [argument_character](const Argument_descriptor& descriptor)
+            predicate = [argument_character](const Argument_descriptor& descriptor)
             {
                 return argument_character == descriptor.short_name;
-            });
-
-            // Validate that the argument was found in the passed in argument_map.
-            CHECK_EXCEPTION(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
-
-            // Get the key.
-            key = descriptor->kind;
+            };
         }
+
+        const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), predicate);
+
+        // Validate that the argument was found in the passed in argument_map.
+        CHECK_EXCEPTION(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
+
+        // Get the key.
+        unsigned int key = descriptor->kind;
 
         // Get parameter for the argument.
         const bool requires_parameter = argument_map[key].requires_parameter;
@@ -274,10 +268,9 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 
         const std::vector<PortableRuntime::Argument_descriptor> argument_map =
         {
-            // TODO: 2016: help/version should be automatically generated.
             { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical block address (LBA) of the sector to read." },
             { Argument_file_name,      u8"file-name",      u8'f', true,  u8"The name of the file to hold the output. This file will be overwritten." },
-            { Argument_help,           u8"help",           u8'h', false, nullptr },
+            { Argument_help,           u8"help",           u8'?', false, nullptr },
         };
 #ifndef NDEBUG
         PortableRuntime::validate_argument_map(argument_map);
@@ -302,7 +295,11 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         {
             std::fwprintf(stderr, L"Usage: %s [options]\nOptions:\n", PathFindFileNameW(argv[arg_program_name]));
             std::fwprintf(stderr, PortableRuntime::utf16_from_utf8(PortableRuntime::Options_help_text(argument_map)).c_str());
-            std::fwprintf(stderr, L"\nTo read the Master Boot Record:\n %s --logical-sector 1 --file-name mbr.bin\n", PathFindFileNameW(argv[arg_program_name]));
+            std::fwprintf(stderr,
+                          L"\nTo read the Master Boot Record:\n %s -%c 1 -%c mbr.bin\n",
+                          PathFindFileNameW(argv[arg_program_name]),
+                          argument_map[Argument_logical_sector].short_name,
+                          argument_map[Argument_file_name].short_name);
             error_level = 1;
         }
     }
