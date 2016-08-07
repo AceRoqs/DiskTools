@@ -23,7 +23,7 @@ std::vector<std::string> args_from_command_line()
 
     const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
 
-    std::for_each(naked_args + 1, naked_args + arg_count, [&args](PCWSTR arg)
+    std::for_each(naked_args, naked_args + arg_count, [&args](PCWSTR arg)
     {
         args.push_back(PortableRuntime::utf8_from_utf16(arg));
     });
@@ -53,7 +53,7 @@ std::vector<std::string> args_from_argv(int argc, _In_reads_(argc) wchar_t** arg
 
 struct Argument_descriptor
 {
-    unsigned int kind;
+    unsigned int key;
     const char* long_name;
     char short_name;
     bool requires_parameter;
@@ -75,7 +75,7 @@ void validate_argument_map(const std::vector<Argument_descriptor>& argument_map)
         // for the kind also matches the index.  This also guarantees the enum
         // monotonically increases, and that there are no gaps.  This may be
         // helpful for future optimizations.
-        assert(argument_map[ix].kind == ix);
+        assert(argument_map[ix].key == ix);
     }
 
     // Validate short name arguments do not dupe.  Arguments are case sensitive.
@@ -100,8 +100,9 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
 {
     std::unordered_map<unsigned int, std::string> options;
 
+    // Skip the first argument, as that is the executable name.
     const auto end = std::cend(arguments);
-    for(auto argument = std::cbegin(arguments); argument != end; ++argument)
+    for(auto argument = std::cbegin(arguments) + 1; argument != end; ++argument)
     {
         CHECK_EXCEPTION((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Unrecognized argument: " + *argument);
 
@@ -133,7 +134,7 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
         CHECK_EXCEPTION(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
 
         // Get the key.
-        unsigned int key = descriptor->kind;
+        unsigned int key = descriptor->key;
 
         // Get parameter for the argument.
         const bool requires_parameter = argument_map[key].requires_parameter;
@@ -242,10 +243,8 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 {
     (void)argc;     // Unreferenced parameter.
 
-    constexpr auto arg_program_name = 0;
-
     // ERRORLEVEL zero is the success code.
-    int error_level = 0;
+    int error_level;
 
     try
     {
@@ -277,7 +276,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 #endif
 
         const auto arguments = WindowsCommon::args_from_command_line();
-        assert(arguments.size() == (static_cast<size_t>(argc) - 1));
+        assert(arguments.size() == (static_cast<size_t>(argc)));
         const auto options = PortableRuntime::options_from_allowed_args(arguments, argument_map);
 
         if(options.count(Argument_help) == 0)
@@ -290,9 +289,13 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             // number is considered a valid sector to read.
             const uint64_t sector_number = _atoi64(options.at(Argument_logical_sector).c_str());
             GetSector::read_physical_drive_sector_to_file(0, sector_number, PortableRuntime::utf16_from_utf8(options.at(Argument_file_name)).c_str());
+
+            error_level = 0;
         }
         else
         {
+            constexpr auto arg_program_name = 0;
+
             std::fwprintf(stderr, L"Usage: %s [options]\nOptions:\n", PathFindFileNameW(argv[arg_program_name]));
             std::fwprintf(stderr, PortableRuntime::utf16_from_utf8(PortableRuntime::Options_help_text(argument_map)).c_str());
             std::fwprintf(stderr,
