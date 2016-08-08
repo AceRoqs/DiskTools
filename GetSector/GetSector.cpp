@@ -242,6 +242,7 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 {
     (void)argc;     // Unreferenced parameter.
+    (void)argv;
 
     // ERRORLEVEL zero is the success code.
     int error_level;
@@ -295,12 +296,13 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         else
         {
             constexpr auto arg_program_name = 0;
+            const auto program_name = PathFindFileNameW(PortableRuntime::utf16_from_utf8(arguments[arg_program_name]).c_str());
 
-            std::fwprintf(stderr, L"Usage: %s [options]\nOptions:\n", PathFindFileNameW(argv[arg_program_name]));
+            std::fwprintf(stderr, L"Usage: %s [options]\nOptions:\n", program_name);
             std::fwprintf(stderr, PortableRuntime::utf16_from_utf8(PortableRuntime::Options_help_text(argument_map)).c_str());
             std::fwprintf(stderr,
                           L"\nTo read the Master Boot Record:\n %s -%c 1 -%c mbr.bin\n",
-                          PathFindFileNameW(argv[arg_program_name]),
+                          program_name,
                           argument_map[Argument_logical_sector].short_name,
                           argument_map[Argument_file_name].short_name);
             error_level = 1;
