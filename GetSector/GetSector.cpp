@@ -299,10 +299,12 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
     // ERRORLEVEL zero is the success code.
     int error_level;
 
+    // Set outside the try block so error messages use the proper code page.
+    // This class does not throw.
+    WindowsCommon::UTF8_console_code_page code_page;
+
     try
     {
-        // TODO: 2016: Shouldn't code page be set even for the catch block below?
-        WindowsCommon::UTF8_console_code_page code_page;
         PortableRuntime::set_dprintf(WindowsCommon::debugger_dprintf);
 
         // Set wprintf output to UTF-8 in Windows console.
