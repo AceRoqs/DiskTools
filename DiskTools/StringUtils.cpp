@@ -21,15 +21,15 @@ static int get_locale_info_number(
 // Wrapper for NUMBERFMT.
 class Number_format
 {
-    NUMBERFMT m_number_format = {};
-    TCHAR m_decimal_separator[8];
-    TCHAR m_thousands_separator[8];
+    NUMBERFMT m_number_format{};
+    TCHAR m_decimal_separator[8]{};
+    TCHAR m_thousands_separator[8]{};
 
 public:
-    void init_by_LCID(LCID lcid);
-    void strip_decimal();
+    void init_by_LCID(LCID lcid);   // TODO: 2016: Consider making this a factory function.
+    void strip_decimal() noexcept;
 
-    void get_number_format(_Out_ NUMBERFMT* pnf);
+    void get_number_format(_Out_ NUMBERFMT* pnf) noexcept;
 };
 
 void Number_format::init_by_LCID(LCID lcid)
@@ -60,12 +60,12 @@ void Number_format::init_by_LCID(LCID lcid)
     m_number_format.lpThousandSep = m_thousands_separator;
 }
 
-void Number_format::strip_decimal()
+void Number_format::strip_decimal() noexcept
 {
     m_number_format.NumDigits = 0;
 }
 
-void Number_format::get_number_format(_Out_ NUMBERFMT* pnf)
+void Number_format::get_number_format(_Out_ NUMBERFMT* pnf) noexcept
 {
     CopyMemory(pnf, &m_number_format, sizeof(m_number_format));
 }
@@ -75,7 +75,7 @@ static void output_formatted_number(
     _Out_writes_z_(size_in_chars) PTSTR output_string,
     _In_range_(0, INT_MAX) size_t size_in_chars)
 {
-    const LCID locale = LOCALE_USER_DEFAULT;
+    constexpr LCID locale = LOCALE_USER_DEFAULT;
 
     Number_format number_format;
     number_format.init_by_LCID(locale);
