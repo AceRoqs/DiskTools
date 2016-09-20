@@ -220,7 +220,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
             Argument_help,
         };
 
-        std::vector<PortableRuntime::Argument_descriptor> argument_map =
+        const std::vector<PortableRuntime::Argument_descriptor> argument_map
         {
             // TODO: 2016: help/version should be automatically generated.
             { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical block address (LBA) of the sector to read." },
