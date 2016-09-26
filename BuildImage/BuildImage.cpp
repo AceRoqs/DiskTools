@@ -3,8 +3,8 @@
 namespace BuildImage
 {
 
-const unsigned int fat_max_file_name_length = 8;
-const unsigned int fat_max_extension_length = 3;
+constexpr unsigned int fat_max_file_name_length = 8;
+constexpr unsigned int fat_max_extension_length = 3;
 
 #pragma pack(push, 1)
 struct Bios_parameter_block
@@ -47,7 +47,7 @@ struct Root_directory_entry
 };
 #pragma pack(pop)
 
-const unsigned int bytes_per_sector = 512;
+constexpr unsigned int bytes_per_sector = 512;
 static std::vector<uint8_t> get_default_boot_sector()
 {
     std::vector<uint8_t> boot_sector(bytes_per_sector);
@@ -117,7 +117,7 @@ static bool is_legal_fat_character(wchar_t ch)
         return true;
     }
 
-    const char legal_chars[] = ".!#$%&'()-@^_`{}~";
+    constexpr char legal_chars[] = ".!#$%&'()-@^_`{}~";
     for(auto iter = std::cbegin(legal_chars); iter != std::cend(legal_chars); ++iter)
     {
         if(ch == *iter)
@@ -166,9 +166,9 @@ static void output_boot_sector(
         boot_sector_file.read(reinterpret_cast<char*>(boot_sector.data()), boot_sector.size());
     }
 
-    const unsigned int sides = 2;
-    const unsigned int tracks_per_side = 80;
-    const unsigned int sectors_per_track = 18;
+    constexpr unsigned int sides = 2;
+    constexpr unsigned int tracks_per_side = 80;
+    constexpr unsigned int sectors_per_track = 18;
     std::vector<uint8_t> disk_image(bytes_per_sector * sides * tracks_per_side * sectors_per_track);
 
     auto iterator = std::begin(disk_image);

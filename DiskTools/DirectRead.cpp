@@ -28,7 +28,7 @@ PCTSTR get_file_name_physical_disk_1()
 
 // Mappings of file system types to string names.
 // This table is not intended to be localized.
-static const struct File_system_type_map
+static constexpr struct File_system_type_map
 {
     PCTSTR name;
     unsigned char type;
@@ -54,8 +54,8 @@ static const struct File_system_type_map
     { TEXT("Linux Extended"),       0x85 },
     { TEXT("GUID Partition Table"), 0xEE },
 };
-const unsigned int file_system_type_extended1 = 0x05;
-const unsigned int file_system_type_extended2 = 0x0F;
+constexpr unsigned int file_system_type_extended1 = 0x05;
+constexpr unsigned int file_system_type_extended2 = 0x0F;
 
 static unsigned int file_system_type_count()
 {

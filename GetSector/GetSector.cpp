@@ -23,7 +23,7 @@ std::vector<std::string> args_from_command_line()
 
     const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
 
-    std::for_each(naked_args + 1, naked_args + arg_count, [&args](PCWSTR arg)
+    std::for_each(naked_args, naked_args + arg_count, [&args](PCWSTR arg)
     {
         args.push_back(PortableRuntime::utf8_from_utf16(arg));
     });
@@ -53,11 +53,11 @@ std::vector<std::string> args_from_argv(int argc, _In_reads_(argc) wchar_t** arg
 
 struct Argument_descriptor
 {
-    unsigned int kind;
-    std::string long_name;
+    unsigned int key;
+    const char* long_name;
     char short_name;
     bool requires_parameter;
-    std::string description;
+    const char* description;
 };
 
 static std::string argument_name_from_long_name(const std::string& long_name)
@@ -75,12 +75,12 @@ void validate_argument_map(const std::vector<Argument_descriptor>& argument_map)
         // for the kind also matches the index.  This also guarantees the enum
         // monotonically increases, and that there are no gaps.  This may be
         // helpful for future optimizations.
-        assert(argument_map[ix].kind == ix);
+        assert(argument_map[ix].key == ix);
     }
 
     // Validate short name arguments do not dupe.  Arguments are case sensitive.
     static_assert(sizeof(Argument_descriptor::short_name) == 1, "'used' array size depends on short_name being 1 byte.");
-    bool used[256] = {};
+    bool used[256] {};
     for(size_t ix = 0; ix < size; ++ix)
     {
         if(argument_map[ix].short_name != 0)
@@ -100,52 +100,47 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
 {
     std::unordered_map<unsigned int, std::string> options;
 
+    // Skip the first argument, as that is the executable name.
     const auto end = std::cend(arguments);
-    for(auto argument = std::cbegin(arguments); argument != end; ++argument)
+    for(auto argument = std::cbegin(arguments) + 1; argument != end; ++argument)
     {
-        CHECK_ERROR((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Unrecognized argument: " + *argument);
+        CHECK_EXCEPTION((argument->length() >= 2) && ((*argument)[0] == u8'-'), u8"Unrecognized argument: " + *argument);
 
-        unsigned int key;
+        std::function<bool(const Argument_descriptor&)> predicate;
         if((*argument)[1] == u8'-')
         {
             // Handle long arguments, which are multi-character arguments prefixed with "--".
             const std::string argument_name = argument_name_from_long_name(*argument);
-            const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [&argument_name](const Argument_descriptor& descriptor)
+            predicate = [argument_name](const Argument_descriptor& descriptor)
             {
                 return argument_name == descriptor.long_name;
-            });
-
-            // Validate that the argument was found in the passed in argument_map.
-            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
-
-            // Get the key.
-            key = descriptor->kind;
+            };
         }
         else
         {
-            // TODO: 2016: Some of this block is duplicated with previous block.
-
             // Handle single character arguments, which are single character arguments prefixed with '-'.
-            CHECK_ERROR(argument->length() == 2, u8"Unrecognized argument: " + *argument);
+            CHECK_EXCEPTION(argument->length() == 2, u8"Unrecognized argument: " + *argument);
 
             const char argument_character = (*argument)[1];
-            const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), [argument_character](const Argument_descriptor& descriptor)
+            predicate = [argument_character](const Argument_descriptor& descriptor)
             {
                 return argument_character == descriptor.short_name;
-            });
-
-            // Validate that the argument was found in the passed in argument_map.
-            CHECK_ERROR(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
-
-            // Get the key.
-            key = descriptor->kind;
+            };
         }
+
+        const auto& descriptor = std::find_if(std::cbegin(argument_map), std::cend(argument_map), predicate);
+
+        // Validate that the argument was found in the passed in argument_map.
+        CHECK_EXCEPTION(descriptor != std::cend(argument_map), u8"Unrecognized argument: " + *argument);
+
+        // Get the key.
+        unsigned int key = descriptor->key;
 
         // Get parameter for the argument.
         const bool requires_parameter = argument_map[key].requires_parameter;
         if(requires_parameter)
         {
-            CHECK_ERROR((argument + 1) != std::cend(arguments), u8"Argument missing required parameter: " + *argument);
+            CHECK_EXCEPTION((argument + 1) != std::cend(arguments), u8"Argument missing required parameter: " + *argument);
             ++argument;
 
             options[key] = *argument;
@@ -159,16 +154,67 @@ std::unordered_map<unsigned int, std::string> options_from_allowed_args(const st
     return options;
 }
 
+std::string Options_help_text(const std::vector<PortableRuntime::Argument_descriptor>& argument_map)
+{
+    std::string help_text;
+
+    size_t allocation_size = 0;
+    size_t tab_index = 0;
+    const auto size = argument_map.size();
+    for(size_t ix = 0; ix < size; ++ix)
+    {
+        if(argument_map[ix].description != nullptr)
+        {
+            const size_t long_name_length = strlen(argument_map[ix].long_name);
+
+            allocation_size += 9;   // "  -X, --\n".
+            allocation_size += long_name_length;
+            allocation_size += strlen(argument_map[ix].description);
+
+            if(long_name_length > tab_index)
+            {
+                tab_index = long_name_length;
+            }
+        }
+    }
+    tab_index += 2; // Default tab distance.
+
+    help_text.reserve(allocation_size);
+
+    for(size_t ix = 0; ix < size; ++ix)
+    {
+        if(argument_map[ix].description != nullptr)
+        {
+            help_text += "  -";
+            help_text += argument_map[ix].short_name;
+            help_text += ", --";
+            help_text += argument_map[ix].long_name;
+
+            size_t space_count = tab_index;
+            space_count -= strlen(argument_map[ix].long_name);
+            for(size_t count = 0; count < space_count; ++count)
+            {
+                help_text += " ";
+            }
+            help_text += argument_map[ix].description;
+            help_text += "\n";
+        }
+    }
+
+    return help_text;
+}
+
 }
 
 namespace GetSector
 {
 
-// TODO: 2016: This should go in WindowsCommon namespace.
+// TODO: 2016: This should be the replacement for read_sector_from_disk, but it should go in the
+// WindowsCommon namespace (as should DiskTools), as it uses exceptions and returns a buffer directly.
 static std::vector<uint8_t> read_physical_drive_sector(uint8_t drive_number, uint64_t sector_number)
 {
     // TODO: 2016: Get the disk's configured sector size.
-    const unsigned int sector_size = 512;
+    constexpr unsigned int sector_size = 512;
 
     std::vector<uint8_t> buffer;
     buffer.resize(sector_size);
@@ -184,11 +230,63 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 {
     std::vector<uint8_t> sector = read_physical_drive_sector(drive_number, sector_number);
 
-    std::basic_ofstream<uint8_t> output_file(output_file_name, std::ios::binary | std::ios::trunc);
+    std::ofstream output_file(output_file_name, std::ios::binary | std::ios::trunc);
     CHECK_EXCEPTION(output_file.good(), u8"Error opening: " + PortableRuntime::utf8_from_utf16(output_file_name));
 
-    output_file.write(sector.data(), sector.size());
+    output_file.write(reinterpret_cast<const char*>(sector.data()), sector.size());
     CHECK_EXCEPTION(!output_file.fail(), u8"Error writing output file.");
+}
+
+static int parse_arguments_and_execute()
+{
+    enum
+    {
+        Argument_logical_sector = 0,
+        Argument_file_name,
+        Argument_help,
+    };
+
+    const std::vector<PortableRuntime::Argument_descriptor> argument_map =
+    {
+        { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical block address (LBA) of the sector to read." },
+        { Argument_file_name,      u8"file-name",      u8'f', true,  u8"The name of the file to hold the output. This file will be overwritten." },
+        { Argument_help,           u8"help",           u8'?', false, nullptr },
+    };
+#ifndef NDEBUG
+    PortableRuntime::validate_argument_map(argument_map);
+#endif
+
+    const auto arguments = WindowsCommon::args_from_command_line();
+    const auto options = PortableRuntime::options_from_allowed_args(arguments, argument_map);
+
+    int error_level = 0;
+    if(options.count(Argument_help) == 0)
+    {
+        CHECK_EXCEPTION(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + std::string(argument_map[Argument_logical_sector].long_name));
+        CHECK_EXCEPTION(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + std::string(argument_map[Argument_file_name].long_name));
+
+        // There is no _atoui64 function (and perhaps a private implementation is a good idea), but
+        // reading an int64_t into a uint64_t will have no negative (ha!) consequences, as any sector
+        // number is considered a valid sector to read.
+        const uint64_t sector_number = _atoi64(options.at(Argument_logical_sector).c_str());
+        GetSector::read_physical_drive_sector_to_file(0, sector_number, PortableRuntime::utf16_from_utf8(options.at(Argument_file_name)).c_str());
+    }
+    else
+    {
+        constexpr auto arg_program_name = 0;
+        const auto program_name = PathFindFileNameW(PortableRuntime::utf16_from_utf8(arguments[arg_program_name]).c_str());
+
+        std::fwprintf(stderr, L"Usage: %s [options]\nOptions:\n", program_name);
+        std::fwprintf(stderr, PortableRuntime::utf16_from_utf8(PortableRuntime::Options_help_text(argument_map)).c_str());
+        std::fwprintf(stderr,
+                      L"\nTo read the Master Boot Record:\n %s -%c 1 -%c mbr.bin\n",
+                      program_name,
+                      argument_map[Argument_logical_sector].short_name,
+                      argument_map[Argument_file_name].short_name);
+        error_level = 1;
+    }
+
+    return error_level;
 }
 
 }
@@ -196,11 +294,14 @@ static void read_physical_drive_sector_to_file(uint8_t drive_number, uint64_t se
 int wmain(int argc, _In_reads_(argc) wchar_t** argv)
 {
     (void)argc;     // Unreferenced parameter.
-
-    constexpr auto arg_program_name = 0;
+    (void)argv;
 
     // ERRORLEVEL zero is the success code.
-    int error_level = 0;
+    int error_level;
+
+    // Set outside the try block so error messages use the proper code page.
+    // This class does not throw.
+    WindowsCommon::UTF8_console_code_page code_page;
 
     try
     {
@@ -212,47 +313,8 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
-        // TODO: 2016: Everything after this should be in its own function.
-        enum
-        {
-            Argument_logical_sector = 0,
-            Argument_file_name,
-            Argument_help,
-        };
-
-        const std::vector<PortableRuntime::Argument_descriptor> argument_map
-        {
-            // TODO: 2016: help/version should be automatically generated.
-            { Argument_logical_sector, u8"logical-sector", u8's', true,  u8"The logical block address (LBA) of the sector to read." },
-            { Argument_file_name,      u8"file-name",      u8'f', true,  u8"The name of the file to hold the output. This file will be overwritten." },
-            { Argument_help,           u8"help",           u8'h', false, u8"" },
-        };
-#ifndef NDEBUG
-        PortableRuntime::validate_argument_map(argument_map);
-#endif
-
-        const auto arguments = WindowsCommon::args_from_command_line();
-        assert(arguments.size() == (static_cast<size_t>(argc) - 1));
-        const auto options = PortableRuntime::options_from_allowed_args(arguments, argument_map);
-
-        if(options.count(Argument_help) == 0)
-        {
-            CHECK_ERROR(options.count(Argument_logical_sector) > 0, u8"Missing a required argument: --" + argument_map[Argument_logical_sector].long_name);
-            CHECK_ERROR(options.count(Argument_file_name) > 0,      u8"Missing a required argument: --" + argument_map[Argument_file_name].long_name);
-
-            // There is no _atoui64 function (and perhaps a private implementation is a good idea), but
-            // reading an int64_t into a uint64_t will have no negative (ha!) consequences, as any sector
-            // number is considered a valid sector to read.
-            const uint64_t sector_number = _atoi64(options.at(Argument_logical_sector).c_str());
-            GetSector::read_physical_drive_sector_to_file(0, sector_number, PortableRuntime::utf16_from_utf8(options.at(Argument_file_name)).c_str());
-        }
-        else
-        {
-            // TODO: 2016: Fix help text (and autogenerate).
-            std::fwprintf(stderr, L"Usage: %s sector file_name\n", argv[arg_program_name]);
-            std::fwprintf(stderr, L"To read the Master Boot Record: %s 1 mbr.bin\n", argv[arg_program_name]);
-            error_level = 1;
-        }
+        assert(WindowsCommon::args_from_command_line().size() == (static_cast<size_t>(argc)));
+        error_level = GetSector::parse_arguments_and_execute();
     }
     catch(const std::exception& ex)
     {

@@ -10,6 +10,8 @@
 
 #ifdef _MSC_VER
 
+#include <Shlwapi.h>
+
 // TODO: 2016: There should be no reason this is necessary once DiskTools are UTF-8 ready.
 #include <windows.h>
 
