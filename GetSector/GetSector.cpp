@@ -274,7 +274,10 @@ static int parse_arguments_and_execute()
     else
     {
         constexpr auto arg_program_name = 0;
-        const auto program_name = PathFindFileNameW(PortableRuntime::utf16_from_utf8(arguments[arg_program_name]).c_str());
+
+        // Hold a reference to program_name_long for the duration of the output functions.
+        const auto program_name_long = PortableRuntime::utf16_from_utf8(arguments[arg_program_name]);
+        const auto program_name = PathFindFileNameW(program_name_long.c_str());
 
         std::fwprintf(stderr, L"Usage: %s [options]\nOptions:\n", program_name);
         std::fwprintf(stderr, PortableRuntime::utf16_from_utf8(PortableRuntime::Options_help_text(argument_map)).c_str());
