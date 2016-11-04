@@ -32,6 +32,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(ConfigurationsDir)Project2.Default.props" />
     <Import Project="$(ConfigurationsDir)CRTWarnings.Disable.props" />
+    <Import Project="$(ConfigurationsDir)Parsing.props" />
     <Import Project="$(ConfigurationsDir)PortableRuntime.props" />
     <Import Project="$(ConfigurationsDir)WindowsCommon.props" />
     <Import Project="..\DiskTools.props" />
