@@ -11,7 +11,7 @@
 #include <functional>
 #include <WindowsCommon/ScopedWindowsTypes.h>
 
-namespace WindowsCommon {
+namespace GetSector {
 std::vector<std::string> args_from_command_line()
 {
     std::vector<std::string> args;
@@ -84,7 +84,7 @@ static int parse_arguments_and_execute()
     Parsing::validate_argument_map(argument_map);
 #endif
 
-    const auto arguments = WindowsCommon::args_from_command_line();
+    const auto arguments = GetSector::args_from_command_line();
     const auto options = Parsing::options_from_allowed_args(arguments, argument_map);
 
     int error_level = 0;
@@ -144,7 +144,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
-        assert(WindowsCommon::args_from_command_line().size() == (static_cast<size_t>(argc)));
+        assert(GetSector::args_from_command_line().size() == (static_cast<size_t>(argc)));
         error_level = GetSector::parse_arguments_and_execute();
     }
     catch(const std::exception& ex)
