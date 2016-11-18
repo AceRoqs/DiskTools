@@ -2,6 +2,7 @@
 #include <DiskTools/DirectRead.h>
 #include <Parsing/CommandLine.h>
 #include <WindowsCommon/CheckHR.h>
+#include <WindowsCommon/CommandLine.h>
 #include <WindowsCommon/DebuggerTracing.h>
 #include <PortableRuntime/CheckException.h>
 #include <PortableRuntime/Tracing.h>
@@ -10,29 +11,6 @@
 // TODO: 2016: Temp for prototyping.
 #include <functional>
 #include <WindowsCommon/ScopedWindowsTypes.h>
-
-namespace GetSector {
-std::vector<std::string> args_from_command_line()
-{
-    std::vector<std::string> args;
-
-    const auto command_line = GetCommandLineW();
-
-    int arg_count;
-    const auto naked_args = CommandLineToArgvW(command_line, &arg_count);
-    CHECK_BOOL_LAST_ERROR(naked_args != nullptr);
-
-    const auto wide_args = WindowsCommon::make_scoped_local(naked_args);
-
-    std::for_each(naked_args, naked_args + arg_count, [&args](PCWSTR arg)
-    {
-        args.push_back(PortableRuntime::utf8_from_utf16(arg));
-    });
-
-    return args;
-}
-
-}
 
 namespace GetSector
 {
@@ -84,7 +62,7 @@ static int parse_arguments_and_execute()
     Parsing::validate_argument_map(argument_map);
 #endif
 
-    const auto arguments = GetSector::args_from_command_line();
+    const auto arguments = WindowsCommon::args_from_command_line();
     const auto options = Parsing::options_from_allowed_args(arguments, argument_map);
 
     int error_level = 0;
@@ -144,7 +122,7 @@ int wmain(int argc, _In_reads_(argc) wchar_t** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
-        assert(GetSector::args_from_command_line().size() == (static_cast<size_t>(argc)));
+        assert(WindowsCommon::args_from_command_line().size() == (static_cast<size_t>(argc)));
         error_level = GetSector::parse_arguments_and_execute();
     }
     catch(const std::exception& ex)
