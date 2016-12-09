@@ -53,7 +53,7 @@ bool adjust_listview_column_widths(
     bool success = true;
     WCHAR text[32];
 
-    LVCOLUMNW column_data = {};
+    LVCOLUMNW column_data {};
     column_data.mask       = LVCF_TEXT;
     column_data.pszText    = text;
     column_data.cchTextMax = ARRAYSIZE(text);
