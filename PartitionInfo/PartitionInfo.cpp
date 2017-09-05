@@ -48,7 +48,7 @@ static void read_and_print_partition_table()
 {
     // Fixed disks with partition tables will generally have a sector
     // size of 512 bytes (valid as of 2011).
-    const unsigned int sector_size = 512;
+    constexpr unsigned int sector_size = 512;
 
     std::array<uint8_t, sector_size> buffer;
     unsigned int bytes_to_read = sector_size;

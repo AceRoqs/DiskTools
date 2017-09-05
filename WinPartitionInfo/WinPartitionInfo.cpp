@@ -8,10 +8,10 @@
 namespace WinPartitionInfo
 {
 
-const unsigned int sector_size = 512;
-const unsigned int max_partitions = 32;
+constexpr unsigned int sector_size = 512;
+constexpr unsigned int max_partitions = 32;
 
-static const struct Listview_columns
+static constexpr struct Listview_columns
 {
     DWORD name;
     int format;
@@ -208,7 +208,7 @@ void output_partition_table_info(
     assert(max_partitions >= partitions->size());
 
     unsigned int row = ListView_GetItemCount(listview);
-    LVITEMW item = {};
+    LVITEMW item{};
     for(auto partition = std::cbegin(*partitions); partition != std::cend(*partitions); ++partition)
     {
         // Insert a new row into the listview.
@@ -218,7 +218,7 @@ void output_partition_table_info(
             throw std::bad_alloc();
         }
 
-        std::array<WCHAR[32], ARRAYSIZE(listview_columns)> labels = {};
+        std::array<WCHAR[32], ARRAYSIZE(listview_columns)> labels {};
 
         // Built the set of strings for the row.
         // Since label strings are all the same length, all array sizes
@@ -291,7 +291,7 @@ void add_listview_headers(
     assert(INVALID_HANDLE_VALUE != listview);
     assert(DiskTools::is_listview_in_report_mode(listview));
 
-    LVCOLUMN new_column = {};
+    LVCOLUMN new_column{};
     new_column.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_ORDER | LVCF_FMT;
 
     for(unsigned int column_index = 0; column_index < column_count; ++column_index)
@@ -371,42 +371,37 @@ static std::tuple<BOOL, LONG> on_nc_hit_test(_In_ HWND window, int x_coord, int 
     return std::make_tuple(message_processed, hit_location);
 }
 
+// TODO: 2016: Should there be a dialog base class?  Should destructor be virtual/override?
 class Partition_table_dialog
 {
-public:
-    Partition_table_dialog() {};
-    void show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id) const;
+    RECT m_original_client_rect{};
+    RECT m_original_clientspace_listview_rect{};
+    SIZE m_minimum_dialog_size{};
+
+    // Not implemented to prevent accidental copying/moving.  The risk on copy/move is
+    // that the original may be inadvertantly destroyed before the HWND itself is.
+    Partition_table_dialog(const Partition_table_dialog&) = delete;
+    Partition_table_dialog(Partition_table_dialog&&) noexcept = delete;
+    Partition_table_dialog& operator=(const Partition_table_dialog&) = delete;
+    Partition_table_dialog& operator=(Partition_table_dialog&&) noexcept = delete;
 
 protected:
-    static INT_PTR CALLBACK dialog_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param);
+    static INT_PTR CALLBACK dialog_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
     void on_init_dialog(_In_ HWND window, _In_ HINSTANCE instance);
     void on_get_minmax_info(_In_ MINMAXINFO* minmax_info) const;
     void on_size(_In_ HWND window, int new_client_width, int new_client_height) const;
 
-private:
-    RECT m_original_client_rect = {};
-    RECT m_original_clientspace_listview_rect = {};
-    SIZE m_minimum_dialog_size = {};
-
-    // Not implemented to prevent accidental copying.
-    Partition_table_dialog(const Partition_table_dialog&) = delete;
-    Partition_table_dialog& operator=(const Partition_table_dialog&) = delete;
+public:
+    Partition_table_dialog() noexcept = default;
+    ~Partition_table_dialog() noexcept = default;
+    void show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id) const noexcept;
 };
-
-void Partition_table_dialog::show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id) const
-{
-    DialogBoxParam(instance,
-                   dialog_id,
-                   nullptr,
-                   dialog_proc,
-                   reinterpret_cast<LPARAM>(this));
-}
 
 INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
     _In_ HWND window,
     UINT message,
     WPARAM w_param,
-    LPARAM l_param)
+    LPARAM l_param) noexcept
 {
     BOOL message_processed = FALSE;
 
@@ -445,7 +440,7 @@ INT_PTR CALLBACK Partition_table_dialog::dialog_proc(
             case WM_NCHITTEST:
             {
                 LONG hit_location;
-                std::tie<BOOL, LONG>(message_processed, hit_location) = on_nc_hit_test(window, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param));
+                std::tie(message_processed, hit_location) = on_nc_hit_test(window, GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param));
 
                 if(message_processed)
                 {
@@ -523,8 +518,8 @@ void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int
     int offset_width = new_client_width - m_original_client_rect.right;
     int offset_height = new_client_height - m_original_client_rect.bottom;
 
-    POINT position_offset = {};
-    SIZE size_offset = { offset_width, offset_height };
+    POINT position_offset{};
+    SIZE size_offset{ offset_width, offset_height };
 
     DiskTools::reposition_control_by_offset(window, IDC_PARTITIONS, m_original_clientspace_listview_rect, position_offset, size_offset);
 
@@ -532,6 +527,15 @@ void Partition_table_dialog::on_size(_In_ HWND window, int new_client_width, int
     // the whole client area is redrawn, there is no need for DeferWindowPos,
     // since the window will flicker anyway.
     InvalidateRect(window, nullptr, TRUE);
+}
+
+void Partition_table_dialog::show(_In_ HINSTANCE instance, _In_ PCTSTR dialog_id) const noexcept
+{
+    DialogBoxParam(instance,
+                   dialog_id,
+                   nullptr,
+                   dialog_proc,
+                   reinterpret_cast<LPARAM>(this));
 }
 
 }

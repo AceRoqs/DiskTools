@@ -41,7 +41,8 @@ namespace RipISO
                                               sizeof(length_information),
                                               &bytes_returned,
                                               nullptr) != 0);
-        const unsigned int buffer_size = 1024 * 1024;
+        constexpr unsigned int buffer_size = 1024 * 1024;
+        // TODO: 2016: This should be a std::vector.
         std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(buffer_size);
 
         ULONGLONG bytes_left = length_information.Length.QuadPart;
@@ -77,8 +78,8 @@ int main(int argc, _In_reads_(argc) char** argv)
         CHECK_EXCEPTION(_setmode(_fileno(stdout), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
         CHECK_EXCEPTION(_setmode(_fileno(stderr), _O_U8TEXT) != -1, u8"Failed to set UTF-8 output mode.");
 
-        const unsigned int arg_program_name = 0;
-        const unsigned int arg_output_file  = 1;
+        constexpr unsigned int arg_program_name = 0;
+        constexpr unsigned int arg_output_file  = 1;
 
         const auto args = PlatformServices::get_utf8_args(argc, argv);
         if(args.size() == 2)
